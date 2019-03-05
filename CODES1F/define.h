@@ -9,7 +9,7 @@ extern int *next[2*DIM+1];
 extern int *nextCHK[2*DIM+1];
 extern int *chk2lin,*lin2chk;
 extern int LX,LY,VOL,VOL2;
-extern double lam,Ti,Tf,dT;
+extern double lam;
 /* NTOT = total no of basis states 
  * NH   = states not killed by H  */
 extern int NTOT,NH;
