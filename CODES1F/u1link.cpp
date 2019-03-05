@@ -15,7 +15,7 @@ int *next[2*DIM+1];
 int *nextCHK[2*DIM+1];
 int *chk2lin,*lin2chk;
 int LX,LY,VOL,VOL2;
-double lam,Ti,Tf,dT;
+double lam;
 int NTOT,NH;
 std::vector<std::vector<bool>> basis;
 std::vector<std::vector<bool>> basis_nonflip;
@@ -43,9 +43,6 @@ int main(){
   fscanf(fptr,"%s %d\n",string,&LX);
   fscanf(fptr,"%s %d\n",string,&LY);
   fscanf(fptr,"%s %lf\n",string,&lam);
-  fscanf(fptr,"%s %lf\n",string,&Ti);
-  fscanf(fptr,"%s %lf\n",string,&Tf);
-  fscanf(fptr,"%s %lf\n",string,&dT);
   fclose(fptr);
   VOL = LX*LY;
   VOL2 = VOL/2;
