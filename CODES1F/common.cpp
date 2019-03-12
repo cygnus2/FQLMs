@@ -77,8 +77,9 @@ void printbasis(){
  int i,p;
  fptr=fopen("BASIS_FLIP.txt","w");
  fprintf(fptr,"Printing the (flippable) basis states for (Lx,Ly)=(%d,%d) lattice.\n",LX,LY);
+ fprintf(fptr,"Note that the state is in increasing order of sites from left to right.\n");
  for(i=0;i<NH;i++){
-   fprintf(fptr,"basis %d ",i);
+   fprintf(fptr,"basis %d: ",i);
    for(p=0;p<2*VOL;p++){
     fprintf(fptr,"%d ",(int)basis_flip[i][p]);
    }
