@@ -24,7 +24,6 @@ void initneighbor(void);
 void conststates(void);
 void constH(std::vector<double>&, std::vector<std::vector<double>>&);
 void constH_zeroL(std::vector<double>&, std::vector<std::vector<double>>&);
-void evolve_cartoons(std::vector<double>&, std::vector<std::vector<double>>&);
 void calc_Oflip(std::vector<double>&, std::vector<std::vector<double>>&);
 int scan(std::vector<bool>&);
 #endif 
