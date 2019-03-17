@@ -4,8 +4,11 @@
 #include<math.h>
 #include<vector>
 #include "define.h"
-//#include <algorithm> //std::count
-// For some notes see below
+
+// The state is stored as a boolean array whose indexing
+// goes from 0 to 2*VOL-1. conf[0],conf[1] label the x
+// and y links of site 0, conf[2],conf[3] the x and y links
+// of site 1; and so on.
 
 void conststates(){
   extern void add(char*);

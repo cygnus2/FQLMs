@@ -10,6 +10,7 @@
 #include "mkl.h"
 #include "mkl_solvers_ee.h"
 #include "mkl_types.h"
+// The state storage scheme is given construct.cpp 
 
 struct matval{
     int rowpos;
@@ -49,7 +50,7 @@ void constH(std::vector<double> &evals, std::vector<std::vector<double>> &evecs)
   
    /* filter out the flippable from the non-flippable basis states */ 
    filter_flippable();
-   //printbasis();
+   printbasis();
    curr_index=1;
    rows.push_back(curr_index);
    printf("Going to construct the Hamiltonian. \n");
@@ -60,13 +61,13 @@ void constH(std::vector<double> &evals, std::vector<std::vector<double>> &evecs)
      oldstate = basis_flip[i];
      /* act on the basis state with the Hamiltonian */
      /* a single plaquette is arranged as 
-                pzw
+                pzw[p3]
              o-------o
              |       |
-        pwx  |   p   |  pyz
-             |       |
+        pwx  |   p   |  pyz[p2]
+       [p4]  |       |
              o-------o
-                pxy
+                pxy[p1]
      */
      // Assign some large number here, which will always be at the end after the sort
      for(j=0;j<=VOL;j++){ rowscan[j].rowpos=NH; rowscan[j].rowsgn=1; }
@@ -81,9 +82,11 @@ void constH(std::vector<double> &evals, std::vector<std::vector<double>> &evecs)
          //printstate(newstate);
          newstate[p1]=!newstate[p1]; newstate[p2]=!newstate[p2]; 
          newstate[p3]=!newstate[p3]; newstate[p4]=!newstate[p4];
+	 //std::cout<<"state ="<<i<<" plaq ="<<p<<std::endl;
          //printstate(newstate);
          q=scan(newstate); 
 	 sign=calc_sign(oldstate, p1, p2, p3, p4);
+	 //sign = 1;
          // store the position matrix element (i,stateq), and the sign 
          rowscan[stateq].rowpos=q; rowscan[stateq].rowsgn=sign; stateq++;
          //flip back the plq
@@ -115,10 +118,10 @@ void constH(std::vector<double> &evals, std::vector<std::vector<double>> &evecs)
      //std::cout<<"#-of-flippable plaquettes in basis state-"<<i<<"= "<<n_Flip<<std::endl;
      Oflip.push_back(n_Flip); 
    }
- printf("size of rows = %d \n",(int)rows.size());
- for(k=0;k<rows.size();k++) printf("row[%d] = %d \n",k,rows[k]);
- printf("size of cols = %d \n",(int)cols.size());
- for(k=0;k<cols.size();k++) printf("col[%d] = %d \n",k,cols[k]);
+ //printf("size of rows = %d \n",(int)rows.size());
+ //for(k=0;k<rows.size();k++) printf("row[%d] = %d \n",k,rows[k]);
+ //printf("size of cols = %d \n",(int)cols.size());
+ //for(k=0;k<cols.size();k++) printf("col[%d] = %d \n",k,cols[k]);
  printf("elements = %d \n",(int)val.size());
  for(k=0;k<val.size();k++) printf("val[%d] = %f \n",k,val[k]);
  // diagonalize
@@ -156,7 +159,8 @@ bool IsTrue (bool i) {return i;}
 int calc_sign(std::vector<bool> &old, int p1, int p2, int p3, int p4){
    int sign = 1;
    int count;
-   std::cout<<"Plaquette ="<<p1<<" "<<p2<<" "<<p3<<" "<<p4<<std::endl;
+   int count1;
+   //std::cout<<"Plaquette ="<<p1<<" "<<p2<<" "<<p3<<" "<<p4<<std::endl;
    if(old[p1] == false){ // c-dag_p1 c-dag_p2 c_p3 c_p4
       if((old[p2] != false)&&(old[p3] != true)&&(old[p4] != true)) printf("Error in p2, p3, p4\n");   
       count = count_if(old.begin()+p4+1, old.end(), IsTrue); 
@@ -165,10 +169,14 @@ int calc_sign(std::vector<bool> &old, int p1, int p2, int p3, int p4){
       count = count_if(old.begin()+p3+1, old.end(), IsTrue);
       if(count%2 == 1) sign = -sign;
       old[p3] = !old[p3];
-      count = count_if(old.begin()+p2, old.end(), IsTrue);
+      count = count_if(old.begin()+p2+1, old.end(), IsTrue);
+      count1= count_if(old.begin()+p2, old.end(), IsTrue);
+      if(count != count1) printf("Error in sign routine! count= %d, count1= %d \n",count,count1);
       if(count%2 == 1) sign = -sign;
       old[p2] = !old[p2];
-      count = count_if(old.begin()+p1, old.end(), IsTrue);
+      count = count_if(old.begin()+p1+1, old.end(), IsTrue);
+      count1= count_if(old.begin()+p1, old.end(), IsTrue);
+      if(count != count1) printf("Error in sign routine! count= %d, count1= %d \n",count,count1);
       if(count%2 == 1) sign = -sign;
       old[p1] = !old[p1];
    }
@@ -180,14 +188,19 @@ int calc_sign(std::vector<bool> &old, int p1, int p2, int p3, int p4){
       count = count_if(old.begin()+p2+1, old.end(), IsTrue);
       if(count%2 == 1) sign = -sign;
       old[p2] = !old[p2];
-      count = count_if(old.begin()+p3, old.end(), IsTrue);
+      count = count_if(old.begin()+p3+1, old.end(), IsTrue);
+      count1= count_if(old.begin()+p3, old.end(), IsTrue);
+      if(count != count1) printf("Error in sign routine! count= %d, count1 = %d \n",count1,count1);
       if(count%2 == 1) sign = -sign;
       old[p3] = !old[p3];
-      count = count_if(old.begin()+p4, old.end(), IsTrue);
+      count = count_if(old.begin()+p4+1, old.end(), IsTrue);
+      count1= count_if(old.begin()+p4, old.end(), IsTrue);
+      if(count != count1) printf("Error in sign routine! count= %d, count1 = %d \n",count1,count1);
       if(count%2 == 1) sign = -sign;
       old[p4] = !old[p4];
    }
-   std::cout<<"Sign ="<<sign<<std::endl;
+   // reset to the old state
+   old[p1] = !old[p1]; old[p2] = !old[p2]; old[p3] = !old[p3]; old[p4] = !old[p4]; 
    return sign;
  }
 
