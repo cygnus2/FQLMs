@@ -19,13 +19,15 @@ void exponentiate( double * m, double * evec, double * eval, size_t length )
 
   diagonalize(m, evec, eval, length);
 
-  /* for(i = 0; i < n; i++)
+  printf("\n Energies are: \n");
+
+  for(i = 0; i < length; i++)
     {
-      printf("%.3f ", eval[i]);
-      }*/
-  //printf("\n\n");
+      printf("%.8f ", eval[i]);
+    }
+  printf("\n\n");
   
-  for( i = 0; i < length; i++ )
+  /*for( i = 0; i < length; i++ )
     {
       eval[i] = exp( - BETA * eval[ i ] );
     }
@@ -50,7 +52,7 @@ void exponentiate( double * m, double * evec, double * eval, size_t length )
   dgemm_( &transA, &transB, &length, &length, &length, &alpha, evec, &length, m, &length, &beta, h, &length);
 
   transB = 'T';
-  dgemm_( &transA, &transB, &length, &length, &length, &alpha, h, &length, evec, &length, &beta, m, &length);
+  dgemm_( &transA, &transB, &length, &length, &length, &alpha, h, &length, evec, &length, &beta, m, &length);*/
   
   free( h );
 }
