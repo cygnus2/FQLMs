@@ -7,7 +7,7 @@
 #include "categorize.h"
 #include "observable.h"
 
-size_t n = LX * LY;
+size_t n = 8;
 
 
 void matrixInit( double *h, size_t *pointers, size_t *dimensions, size_t *states, int dim );
@@ -97,9 +97,9 @@ int main(void)
       printf("\n");
       }*/
 
-  ans = observable(h, pointers, dimensions, states, n, dim);
+  //ans = observable(h, pointers, dimensions, states, n, dim);
 
-  printf("\nthe average observable is %.12f\n", ans);
+  //printf("\nthe average observable is %.12f\n", ans);
 
   free( h );
   free( states );
@@ -132,45 +132,46 @@ void matrixInit( double *h, size_t *pointers, size_t *dimensions, size_t *states
 	    {
 	      for( k = 0; k < n; k++ )
 		{
-		  if(create( nbr(k,0), annihilate(k, states[i + count] ) ) == states[j + count] )
+		  if(create( 0, create(3, annihilate( 4, annihilate(1, states[i + count] ) ) ) ) == states[j + count] )
 		    {
-		      h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(k, states[i + count]) * parity( nbr(k,0), annihilate(k, states[i + count]) ); 
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(1, states[i + count]) * parity( 4, annihilate(1, states[i + count]) ) * parity( 3, annihilate( 4, annihilate(1, states[i + count]) ) ) * parity( 0, create( 3, annihilate( 4, annihilate(1, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
 		    }
-		  if(LX > 2 )
+		  if(create( 2, create(1, annihilate( 6, annihilate(3, states[i + count] ) ) ) ) == states[j + count] )
 		    {
-		      if(create( nbr(k,1), annihilate(k, states[i + count] ) ) == states[j + count])
-			{
-			  h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(k, states[i + count]) * parity( nbr(k,1), annihilate(k, states[i + count]) ); 
-			}
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(3, states[i + count]) * parity( 6, annihilate(3, states[i + count]) ) * parity( 1, annihilate( 6, annihilate(3, states[i + count]) ) ) * parity( 2, create( 1, annihilate( 6, annihilate(3, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
 		    }
-		  if(create( nbr(k,2), annihilate(k, states[i + count] ) ) == states[j + count] )
+		  if(create( 4, create(7, annihilate( 0, annihilate(5, states[i + count] ) ) ) ) == states[j + count] )
 		    {
-		      if(LY > 2)
-			{
-			  if(isEven(k) == 0)
-			    h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(k, states[i + count]) * parity( nbr(k,2), annihilate(k, states[i + count]) );
-			  else
-			    h[pointers[ l ] + i + dimensions[ l ] * j] -= (double) T * parity(k, states[i + count]) * parity( nbr(k,2), annihilate(k, states[i + count]) );
-			}
-		      else
-			{
-			  if( (k == 0 && nbr(k,2) == 2) || (k == 2 && nbr(k,2) == 0 ))
-			    h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(k, states[i + count]) * parity( nbr(k,2), annihilate(k, states[i + count]) );
-			  else
-			    h[pointers[ l ] + i + dimensions[ l ] * j] -= (double) T * parity(k, states[i + count]) * parity( nbr(k,2), annihilate(k, states[i + count]) );
-			}
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(5, states[i + count]) * parity( 0, annihilate(5, states[i + count]) ) * parity( 7, annihilate( 0, annihilate(5, states[i + count]) ) ) * parity( 4, create( 7, annihilate( 0, annihilate(5, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
 		    }
-		  if(LY > 2 )
+		  if(create( 6, create(5, annihilate( 2, annihilate(7, states[i + count] ) ) ) ) == states[j + count] )
 		    {
-		      if(create( nbr(k,3), annihilate(k, states[i + count] ) ) == states[j + count])
-			{
-			  if(isEven(k) == 1)
-			    h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(k, states[i + count]) * parity( nbr(k,3), annihilate(k, states[i + count]) );
-			  else
-			    h[pointers[ l ] + i + dimensions[ l ] * j] -= (double) T * parity(k, states[i + count]) * parity( nbr(k,3), annihilate(k, states[i + count]) );
-			}
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(7, states[i + count]) * parity( 2, annihilate(7, states[i + count]) ) * parity( 5, annihilate( 2, annihilate(7, states[i + count]) ) ) * parity( 6, create( 5, annihilate( 2, annihilate(7, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
 		    }
-		  //printf("parity(%d, %d) = %d \n", k, i, parity(k,i));
+		  if(create( 1, create(4, annihilate( 3, annihilate(0, states[i + count] ) ) ) ) == states[j + count] )
+		    {
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(0, states[i + count]) * parity( 3, annihilate(0, states[i + count]) ) * parity( 4, annihilate( 3, annihilate(0, states[i + count]) ) ) * parity( 1, create( 4, annihilate( 3, annihilate(0, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
+		    }
+		  if(create( 3, create(6, annihilate( 1, annihilate(2, states[i + count] ) ) ) ) == states[j + count] )
+		    {
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(2, states[i + count]) * parity( 1, annihilate(2, states[i + count]) ) * parity( 6, annihilate( 1, annihilate(2, states[i + count]) ) ) * parity( 3, create( 6, annihilate( 1, annihilate(2, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
+		    }
+		  if(create( 5, create(0, annihilate( 7, annihilate(4, states[i + count] ) ) ) ) == states[j + count] )
+		    {
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(4, states[i + count]) * parity( 7, annihilate(4, states[i + count]) ) * parity( 0, annihilate( 7, annihilate(4, states[i + count]) ) ) * parity( 5, create( 0, annihilate( 7, annihilate(4, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
+		    }
+		  if(create( 7, create(2, annihilate( 5, annihilate(6, states[i + count] ) ) ) ) == states[j + count] )
+		    {
+		      //h[pointers[ l ] + i + dimensions[ l ] * j] += (double) T * parity(6, states[i + count]) * parity( 5, annihilate(6, states[i + count]) ) * parity( 2, annihilate( 5, annihilate(6, states[i + count]) ) ) * parity( 7, create( 2, annihilate( 5, annihilate(6, states[i + count]) ) ) );
+		      h[pointers[ l ] + i + dimensions[ l ] * j] += 1.0;
+		    }
 		}
 	    }
 	}
@@ -179,14 +180,14 @@ void matrixInit( double *h, size_t *pointers, size_t *dimensions, size_t *states
 
   count = 0;
   
-  for( l = 0; l < n + 1; l++)
+  /*for( l = 0; l < n + 1; l++)
     {
       for(i = 0; i < dimensions[ l ]; i++)
 	{
 	  h[pointers[l] + i + dimensions[ l ] * i] = couplingV( states[ i + count ] );
 	}
       count += dimensions[ l ];
-    }
+      }*/
 }
 
 /*k is a site, i is a state*/
