@@ -387,6 +387,7 @@ class GaussLattice(object):
         for i, wm in enumerate(self.winding_masks):
             for k in wm:
                 w[i] += (latt >> k)&1
+            # w[i] = w[i] // self.L[i]
         return tuple(w)
 
 
@@ -400,9 +401,8 @@ class GaussLattice(object):
         # Find the indices and shifts along the axes. The indices in this case
         # are of the site on the lattice, without pointing to a specific link yet.
         # The shift moves a piont on the axis to the opposite side of the lattice.
-        e, shift = [], []
+        e = []
         for i in range(1,d+1):
-            shift.append((S[i] - S[i-1])*d)
             e.append(np.arange(0,S[i],S[i-1])*d)
 
         if self.d == 2:
@@ -416,22 +416,35 @@ class GaussLattice(object):
 
         if self.d == 3:
             shape = tuple(np.array([
-                2*(L[1]-1) + 2*(L[2]-1) + 1,
-                2*(L[0]-1) + 2*(L[2]-1) + 1,
-                2*(L[0]-1) + 2*(L[1]-1) + 1
+                L[1]*L[2] + 1,
+                L[0]*L[2] + 1,
+                L[0]*L[1] + 1
             ]))
             winding_bins = np.zeros(shape=shape, dtype=np.int)
 
-            # In 3D we have to sum along 4 sides, for instance Wz sums over the
-            # axes [x, y, x_opp, y_opp] where x and y denote the axes and x_opp
-            # and y_opp denote shifted axes in y and x direction, respectively.
-            # This closes the loop around the z-axis. Analogous for the other
-            # directions.
-            # Attention: double counting on the corners needs to be avoided!
-            winding_masks = [
-                np.concatenate((e[1][:-1], e[2][1:], e[1][1:]+shift[2], e[2][:1]+shift[1])),
-                np.concatenate((e[0][:-1], e[2][1:], e[0][1:]+shift[2], e[2][:1]+shift[0])) + 1,
-                np.concatenate((e[0][:-1], e[1][1:], e[0][1:]+shift[1], e[1][:1]+shift[0])) + 2
-            ]
+            winding_masks = []
+
+            # In 3D we have to sum over entire faces of the cube - here we
+            # construct the indices for all of them.
+            wmx = []
+            for j in range(L[1]):
+                wmx = np.concatenate((wmx, np.arange(j*3*S[2], 3*(j*S[2]+S[2]), 3*S[1])))
+            winding_masks.append(np.array(wmx, dtype=np.int))
+            # winding_masks.append(np.arange(0,3*S[3],3))
+
+
+            wmy = []
+            for j in range(L[2]):
+                wmy = np.concatenate((wmy, np.arange(j*3*S[2], 3*(j*S[2]+S[1]), 3*S[0])))
+            winding_masks.append(np.array(wmy, dtype=np.int)+1)
+            # winding_masks.append(np.arange(1,3*S[3],3))
+
+            wmz = []
+            for j in range(L[1]):
+                wmz = np.concatenate((wmz, np.arange(j*3*S[1], 3*(j*S[1]+S[1]), 3*S[0])))
+            winding_masks.append(np.array(wmz, dtype=np.int)+2)
+            # winding_masks.append(np.arange(2,3*S[3],3))
+
+            print(winding_masks)
 
         return winding_bins, winding_masks
