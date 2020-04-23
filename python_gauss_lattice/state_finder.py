@@ -7,13 +7,13 @@ def wrap_state_finder(gl, *args, **kwargs):
 
 
 # Create a GaussLattice with appropriate parameters.
-L = [2,8]
-# glatt = GaussLattice(L=L)
-glatt = GaussLattice(L=L, state_file='test.dat', buffer_length=1000)
+L = [2,12]
+glatt = GaussLattice(L=L, threaded_levels=0)
+# glatt = GaussLattice(L=L, state_file='test.dat', buffer_length=1000, n_threads=2)
 
 # Constructs the states & times the execution.
 wn = wrap_state_finder(glatt)
-print(wn)
+# print(wn)
 print(f"Found {wn.sum()} states in total.")
 print(f"Found {wn.max()} states in the larges winding sector.")
 
