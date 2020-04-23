@@ -11,8 +11,8 @@ import numpy as np
 import math
 import os
 import datetime
-import queue
-
+from queue import Empty, Queue
+from multiprocessing import Pool
 
 class GaussLattice(object):
     """ Represents a Gauss lattice in arbitrary dimension.
@@ -34,7 +34,7 @@ class GaussLattice(object):
                 the index-based representation of the basis states.
     """
 
-    def __init__(self, L, state_file=None, **kwargs):
+    def __init__(self, L, state_file=None, n_threads=1, **kwargs):
         self.L = np.array(L)
         self.d = len(L)
 
@@ -102,10 +102,18 @@ class GaussLattice(object):
             buf_len = kwargs.get('buffer_length')
             if buf_len is None:
                 buf_len = 1e6
-            self.buffer = queue.Queue(maxsize=buf_len)
+            self.buffer = Queue(maxsize=buf_len)
 
             # Initialize the file.
             self._init_file(state_file)
+
+
+        # ----------------------------------------------------------------------
+        # Set up a parallelized version.
+        self.parallel = False
+        if threaded_levels > 0:
+            self.parallel = True
+            self.threaded_levels = threaded_levels
 
 
     @staticmethod
@@ -365,17 +373,43 @@ class GaussLattice(object):
         if self.check_lattice(prefix):
             if not len(prefix)-self.N_sublattice:
                 self._collect_state(prefix)
-                return
+                return 1
+            res = 0
             for b in self.base_elements:
-                self._find_states(prefix+b)
-            return
-        return
+                res += self._find_states(prefix+b)
+            return res
+        return 0
+
+
+    def _find_states_parallel(self, prefix):
+        """ Parallelized version of the recursive state finder.
+
+            The recursion may be embarrasinlgy parallelized by spreading the function evaluations to mutiple cores. This can only be done until a certain depth is reached, but it will generally.
+
+        """
+        if len(prefix) < self.threaded_levels:
+            with Pool(len(self.base_elements)) as p:
+                prefixed_basis_elements = list(map(lambda b: prefix+b, self.base_elements))
+                # for b in prefixed_basis_elements:
+                #     self._find_states(b)
+                res = p.map(self._find_states_parallel, prefixed_basis_elements)
+                return sum(res)
+        else:
+            res = 0
+            for b in self.base_elements:
+                res += self._find_states(prefix+b)
+            return res
 
 
     def find_states(self):
         """ Wraps the recursive function for external use.
         """
-        self._find_states([])
+        if self.parallel:
+            n_states = self._find_states_parallel([])
+            # print(n_states)
+        else:
+            self._find_states([])
+
         if self.write_states:
             self._flush_buffer()
         return self.winding_bins
@@ -426,7 +460,7 @@ class GaussLattice(object):
                 try:
                     for line in iter(self.buffer.get_nowait, None):
                         f.write(','.join(map(str, line))+'\n')
-                except queue.Empty:
+                except Empty:
                     pass
 
 
