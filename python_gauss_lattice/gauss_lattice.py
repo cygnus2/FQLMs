@@ -11,6 +11,8 @@ import numpy as np
 import math
 import os
 import datetime
+import queue
+
 
 class GaussLattice(object):
     """ Represents a Gauss lattice in arbitrary dimension.
@@ -27,16 +29,12 @@ class GaussLattice(object):
                 with a certain amount of information (checkable states with partial
                 basis strings)
 
-            [Non essential]
-            -)  Optional improvments can be switched on/off, such as check of the
-                minimum length of a basis state.
-
         Notes:
             -   tried a string representation, turns out this is ~10% slower than
                 the index-based representation of the basis states.
     """
 
-    def __init__(self, L, **kwargs):
+    def __init__(self, L, state_file=None, **kwargs):
         self.L = np.array(L)
         self.d = len(L)
 
@@ -73,6 +71,41 @@ class GaussLattice(object):
 
         # Initialize winding number bins.
         self.winding_bins, self.winding_masks = self.prepare_winding_numbers()
+
+
+        # ----------------------------------------------------------------------
+        # Some settings for storage and I/O.
+
+        # For winding number counts.
+        self.filename ='winding_sectors{:d}.txt'
+        self.out_dir = kwargs.get('directory')
+        if self.out_dir is None:
+            self.out_dir = 'output/'
+        if not os.path.exists(self.out_dir):
+            os.makedirs(self.out_dir)
+
+
+        # "state_file" dictates the output behavior:
+        #  - if set, states and winding numbers will be written to file
+        #  - the file extension dictates the type:
+        #       - .hdf5 for HDF5
+        #       - .* for plain text file.
+        self.write_states = bool(state_file)
+        if self.write_states:
+            # Writing to file should happen through a buffer, since otherwises
+            # we'd need to do a costly file I/O operation after every state,
+            # which greatly slows down the calculation. In order to circumvent
+            # race conditions in the recursion, the buffer is realized as a queue,
+            # which handles multi-producer data quite well (the order does not
+            # really matter for us anyways). There's some price to pay in terms
+            # of runtime, but it's generally not the bottleneck.
+            buf_len = kwargs.get('buffer_length')
+            if buf_len is None:
+                buf_len = 1e6
+            self.buffer = queue.Queue(maxsize=buf_len)
+
+            # Initialize the file.
+            self._init_file(state_file)
 
 
     @staticmethod
@@ -297,7 +330,6 @@ class GaussLattice(object):
         return cstates
 
 
-
     def check_lattice(self, latt_str):
         """ Checks whether the provided lattice string is valid. Also works on
             partial lattice information, however, only check the "checkable"
@@ -326,28 +358,11 @@ class GaussLattice(object):
         return True
 
 
-
-    # def _find_states_allchecks(self, prefix):
-    #     """ Finds all possible states of length L that can be constructed from the base,
-    #         which holds all possible basis states.
-    #     """
-    #     if self.check_lattice(prefix):
-    #     # if True:
-    #         if not len(prefix)-self.N_sublattice:
-    #             return [prefix]
-    #         res = []
-    #         for b in self.base_elements:
-    #             res += self._find_states(prefix+b)
-    #         return res
-    #     return []
-
-
     def _find_states(self, prefix):
         """ Finds all possible states of length L that can be constructed from the base,
             which holds all possible basis states.
         """
         if self.check_lattice(prefix):
-        # if True:
             if not len(prefix)-self.N_sublattice:
                 self._collect_state(prefix)
                 return
@@ -361,7 +376,10 @@ class GaussLattice(object):
         """ Wraps the recursive function for external use.
         """
         self._find_states([])
+        if self.write_states:
+            self._flush_buffer()
         return self.winding_bins
+
 
 
     def _collect_state(self, state):
@@ -372,7 +390,44 @@ class GaussLattice(object):
         if not s % 100000:
             print(datetime.datetime.now().strftime("%H:%M:%S") + ' - {:d}'.format(s))
 
-        self.winding_bins[self.get_winding_numbers(state)] += 1
+        w = self.get_winding_numbers(state)
+        self.winding_bins[tuple(w)] += 1
+
+        if self.write_states:
+            self.buffer.put([self.base_to_link(state)] + w.tolist())
+            if self.buffer.full():
+                self._flush_buffer()
+
+
+    def _init_file(self, state_file):
+        """ Sets up the state output.
+        """
+        self.state_file = self.out_dir + '/' + state_file
+        self.output_format = state_file.split(',')[-1]
+
+        if self.output_format == 'hdf5':
+            raise NotImplementedError("HDF5 is not supported (yet)!")
+        else:
+            # Attention: truncates existing file.
+            with open(self.state_file, 'w') as f:
+                # This is a dimensional "limitation" - works only for up to 3D.
+                labels = np.array(['x', 'y', 'z'])[:self.d]
+                f.write('state,' + ('w_{:s},'*self.d).format(*labels)[:-1] + '\n')
+
+
+    def _flush_buffer(self):
+        """ Writes the buffer to file and clears it.
+        """
+        if self.output_format == 'hdf5':
+            raise NotImplementedError("HDF5 is not supported (yet)!")
+        else:
+            # Iterates through the queue and empties it in a FIFO manner.
+            with open(self.state_file, 'a+') as f:
+                try:
+                    for line in iter(self.buffer.get_nowait, None):
+                        f.write(','.join(map(str, line))+'\n')
+                except queue.Empty:
+                    pass
 
 
     def get_winding_numbers(self, latt_str):
@@ -388,8 +443,7 @@ class GaussLattice(object):
             for k in wm:
                 w[i] += (latt >> k)&1
             # w[i] = w[i] // self.L[i]
-        return tuple(w)
-
+        return w
 
 
     def prepare_winding_numbers(self):
@@ -444,7 +498,5 @@ class GaussLattice(object):
                 wmz = np.concatenate((wmz, np.arange(j*3*S[1], 3*(j*S[1]+S[1]), 3*S[0])))
             winding_masks.append(np.array(wmz, dtype=np.int)+2)
             # winding_masks.append(np.arange(2,3*S[3],3))
-
-            print(winding_masks)
 
         return winding_bins, winding_masks

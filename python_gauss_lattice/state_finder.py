@@ -7,8 +7,9 @@ def wrap_state_finder(gl, *args, **kwargs):
 
 
 # Create a GaussLattice with appropriate parameters.
-L = [2,2,2]
-glatt = GaussLattice(L=L)
+L = [2,8]
+# glatt = GaussLattice(L=L)
+glatt = GaussLattice(L=L, state_file='test.dat', buffer_length=1000)
 
 # Constructs the states & times the execution.
 wn = wrap_state_finder(glatt)
