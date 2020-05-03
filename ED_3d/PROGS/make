@@ -1,0 +1,4 @@
+icc -std=c99 -Wall -I/space5/dbanerjee/GSL/include -c u1link.c construct.c common.c hamiltonian.c hamiltonianF.c 
+#teval.c chconj.c chconj1.c measurePOL.c measureWLOOP.c trans.c diagTrans.c 
+icc -std=c99 -L/space5/dbanerjee/GSL/lib u1link.o construct.o common.o  hamiltonian.o hamiltonianF.o -lgsl -lgslcblas -lm -o u1link
+rm -rf *.o
