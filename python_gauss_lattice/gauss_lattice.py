@@ -6,13 +6,14 @@
     that obey Gauss' Law.
 
 ---------------------------------------------------------------------------- """
-import itertools
 import numpy as np
-import math
-import os
-import datetime
+import math, os, datetime
+import h5py as hdf
+from itertools import product
 from queue import Empty, Queue
 from multiprocessing import Pool
+from gl_aux import winding_tag
+
 
 class GaussLattice(object):
     """ Represents a Gauss lattice in arbitrary dimension.
@@ -34,7 +35,7 @@ class GaussLattice(object):
                 the index-based representation of the basis states.
     """
 
-    def __init__(self, L, state_file=None, n_threads=1, **kwargs):
+    def __init__(self, L, state_file=None, **kwargs):
         self.L = np.array(L)
         self.d = len(L)
 
@@ -77,7 +78,7 @@ class GaussLattice(object):
         # Some settings for storage and I/O.
 
         # For winding number counts.
-        self.filename ='winding_sectors{:d}.txt'
+        self.filename ='winding_sectors{:d}.dat'
         self.out_dir = kwargs.get('directory')
         if self.out_dir is None:
             self.out_dir = 'output/'
@@ -108,14 +109,6 @@ class GaussLattice(object):
             self._init_file(state_file)
 
 
-        # ----------------------------------------------------------------------
-        # Set up a parallelized version.
-        self.parallel = False
-        if threaded_levels > 0:
-            self.parallel = True
-            self.threaded_levels = threaded_levels
-
-
     @staticmethod
     def _checkerboard_decomposition(L):
         """ Recursively loops through the dimensions and returns an mask for the
@@ -133,12 +126,12 @@ class GaussLattice(object):
         b = GaussLattice._checkerboard_decomposition(L[:-1])
         return (b + [1-c for c in b]) * (L[-1]//2)
 
+
     def checkerboard_indices(self):
         """ Returns the indidces of the sublattices.
         """
         l = GaussLattice._checkerboard_decomposition(self.L)
         return [i for i, s in enumerate(l) if not s], [i for i, s in enumerate(l) if s]
-
 
 
     def base_to_link(self, base_str):
@@ -222,7 +215,7 @@ class GaussLattice(object):
         d = self.d
 
         # Produces all possible combinations.
-        all_vertices = itertools.product([0,1], repeat=2*d)
+        all_vertices = product([0,1], repeat=2*d)
 
         # Loops throgh and checks if the GL is valid, if so, adds it to permissible
         # basis states.
@@ -373,43 +366,17 @@ class GaussLattice(object):
         if self.check_lattice(prefix):
             if not len(prefix)-self.N_sublattice:
                 self._collect_state(prefix)
-                return 1
-            res = 0
+                return
             for b in self.base_elements:
-                res += self._find_states(prefix+b)
-            return res
-        return 0
-
-
-    def _find_states_parallel(self, prefix):
-        """ Parallelized version of the recursive state finder.
-
-            The recursion may be embarrasinlgy parallelized by spreading the function evaluations to mutiple cores. This can only be done until a certain depth is reached, but it will generally.
-
-        """
-        if len(prefix) < self.threaded_levels:
-            with Pool(len(self.base_elements)) as p:
-                prefixed_basis_elements = list(map(lambda b: prefix+b, self.base_elements))
-                # for b in prefixed_basis_elements:
-                #     self._find_states(b)
-                res = p.map(self._find_states_parallel, prefixed_basis_elements)
-                return sum(res)
-        else:
-            res = 0
-            for b in self.base_elements:
-                res += self._find_states(prefix+b)
-            return res
+                self._find_states(prefix+b)
+            return
+        return
 
 
     def find_states(self):
         """ Wraps the recursive function for external use.
         """
-        if self.parallel:
-            n_states = self._find_states_parallel([])
-            # print(n_states)
-        else:
-            self._find_states([])
-
+        self._find_states([])
         if self.write_states:
             self._flush_buffer()
         return self.winding_bins
@@ -431,37 +398,6 @@ class GaussLattice(object):
             self.buffer.put([self.base_to_link(state)] + w.tolist())
             if self.buffer.full():
                 self._flush_buffer()
-
-
-    def _init_file(self, state_file):
-        """ Sets up the state output.
-        """
-        self.state_file = self.out_dir + '/' + state_file
-        self.output_format = state_file.split(',')[-1]
-
-        if self.output_format == 'hdf5':
-            raise NotImplementedError("HDF5 is not supported (yet)!")
-        else:
-            # Attention: truncates existing file.
-            with open(self.state_file, 'w') as f:
-                # This is a dimensional "limitation" - works only for up to 3D.
-                labels = np.array(['x', 'y', 'z'])[:self.d]
-                f.write('state,' + ('w_{:s},'*self.d).format(*labels)[:-1] + '\n')
-
-
-    def _flush_buffer(self):
-        """ Writes the buffer to file and clears it.
-        """
-        if self.output_format == 'hdf5':
-            raise NotImplementedError("HDF5 is not supported (yet)!")
-        else:
-            # Iterates through the queue and empties it in a FIFO manner.
-            with open(self.state_file, 'a+') as f:
-                try:
-                    for line in iter(self.buffer.get_nowait, None):
-                        f.write(','.join(map(str, line))+'\n')
-                except Empty:
-                    pass
 
 
     def get_winding_numbers(self, latt_str):
@@ -534,3 +470,74 @@ class GaussLattice(object):
             # winding_masks.append(np.arange(2,3*S[3],3))
 
         return winding_bins, winding_masks
+
+
+
+    # ==========================================================================
+    # I/O stuff.
+
+    def _init_file(self, state_file):
+        """ Sets up the state output.
+        """
+        self.state_file = self.out_dir + '/' + state_file
+        self.output_format = state_file.split('.')[-1]
+
+        if self.output_format == 'hdf5':
+            with hdf.File(self.state_file, 'w') as f:
+                # We can loop through all winding number sectors with the product
+                # functions, which is essentially a cartesian product generator.
+                winding_indices = product(*map(lambda n: range(n), self.winding_bins.shape))
+                for ws in winding_indices:
+                    dset = f.create_dataset(
+                        winding_tag(ws),
+                        (0,),
+                        maxshape=(None,),
+                        dtype='i8',
+                        chunks=True
+                    )
+        else:
+            # Attention: truncates existing file.
+            with open(self.state_file, 'w') as f:
+                # This is a dimensional "limitation" - works only for up to 3D.
+                labels = np.array(['x', 'y', 'z'])[:self.d]
+                f.write('state,' + ('w_{:s},'*self.d).format(*labels)[:-1] + '\n')
+
+
+    def _flush_buffer(self):
+        """ Writes the buffer to file and clears it.
+        """
+        # Writing with the HDF5 format requires some extra work, since we want to also sort it by winding sector. To do this, we need to first sort the corresponding winding sectors and then loop through all of them to append to the file.
+        # We could, alternatively, append to the HDF5 datasets one-by-one, but this will likely increase the overhead in file storage time and disk space significantly (I say that without testing it though).
+        if self.output_format == 'hdf5':
+
+            # Sorting (probably inefficient, but this is a rare task).
+            wn_dict = {}
+            try:
+                for line in iter(self.buffer.get_nowait, None):
+                    state, ws = line[0], tuple(line[1:])
+                    wlist = wn_dict.get(ws)
+                    if not wlist:
+                        wn_dict[ws] = [state]
+                    else:
+                        # For all the C-programmers who may or may not make it to this
+                        # point: this works, because Python defaults to call-by-reference!
+                        wlist.append(state)
+            except Empty:
+                pass
+
+            # Write to HDF5 file.
+            with hdf.File(self.state_file, 'a') as f:
+                for ws, states in wn_dict.items():
+                    dset = f[winding_tag(ws)]
+                    dset.resize(dset.shape[0]+len(states), axis=0)
+                    dset[-len(states):] = states
+
+
+        else:
+            # Iterates through the queue and empties it in a FIFO manner.
+            with open(self.state_file, 'a+') as f:
+                try:
+                    for line in iter(self.buffer.get_nowait, None):
+                        f.write(','.join(map(str, line))+'\n')
+                except Empty:
+                    pass
