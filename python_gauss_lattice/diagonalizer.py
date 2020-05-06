@@ -7,10 +7,11 @@
 ---------------------------------------------------------------------------- """
 from hamiltonian_builder import HamiltonianBuilder
 from gl_aux import file_tag, winding_tag, timeit
+import numpy as np
 import h5py as hdf
 
 
-def read_winding_sector(param):
+def read_winding_sector(param, filename):
     """ Takes in a parameter dictionary and reads in the appropriate states
         for the specified winding sector.
     """
@@ -18,10 +19,11 @@ def read_winding_sector(param):
     if not ws:
         raise KeyError("No winding sector specified!")
 
-    return [1]
-
-    with hdf.File(file_tag(param['L']), 'r') as f:
-        winding_states = f[winding_tag(ws)][...]
+    # The winding sectors are labelled differently in the HDF5 file (for
+    # convenience reasons) so we have to relabel them here.
+    ws_shifted = np.array(ws) + np.array(param['L'])
+    with hdf.File(filename, 'r') as f:
+        winding_states = f[winding_tag(ws_shifted)][...]
     return winding_states
 
 
@@ -45,10 +47,12 @@ param = {
     'J' : 1.0
 }
 
+winding_states = read_winding_sector(param, filename='output/'+file_tag(param['L'], filetype='hdf5'))
+
 # Set up the builder object.
 builder = HamiltonianBuilder(
     param,
-    states=read_winding_sector(param)
+    states=winding_states
 )
 
 # Get the hamiltonian.

@@ -6,7 +6,6 @@
 
 ---------------------------------------------------------------------------- """
 import numpy as np
-import datetime as dt
 from bisect import bisect_left
 from hamiltonian import Hamiltonian
 
@@ -19,26 +18,21 @@ class HamiltonianBuilder(object):
         """
         """
         self.L = param['L']
+        self.d = len(param['L'])
 
         # Shift operators to get the link indices.
         self.S = [1]
         for l in self.L:
             self.S.append(l*self.S[-1])
 
-
-        # Set up the lookup table.
-        self.generate_lookup_table()
+        # Set up the lookup table, which is merely ordering the states such that
+        # the inverse lookup can be done efficiently with bisection.
+        self.lookup_table = sorted(states)
         self.n_fock = len(self.lookup_table)
+        print(f'Setting up the Hamiltonian with {self.n_fock} Fock states.')
 
         # Pre-compute all plaquette indicies to save some time.
         self.plaquettes = self.get_plaquette_list()
-
-
-    def generate_lookup_table(self):
-        """ Produces the ordered lookup table for the states.
-        """
-        # raise NotImplementedError("sorry")
-        self.lookup_table = [1]
 
 
     def get_plaquette_list(self):
@@ -67,14 +61,10 @@ class HamiltonianBuilder(object):
         return []
 
 
-    def construct(self, timing=True):
+    def construct(self):
         """ Actually builds the Hamiltonian and returns a Hamiltonian object
             ready to be diagonalized.
         """
-        if timing:
-            print('Starting construction of Hamiltonian matrix.')
-            start = dt.datetime.now()
-
         # Loop through all Fock states and create the overlap matrix. First step:
         # do it naively (with some doubled work). Then try to improve on that (by
         # using, e.g., Hermiticity).
@@ -82,19 +72,10 @@ class HamiltonianBuilder(object):
         for n in range(self.n_fock):
             all_entries += self.do_single_state(n)
 
-        #DEV: take out!
-        all_entries = [[0, 0, 1]]
-
         # Make a sparse matrix out ot this -although pretty plain, this can handle
         # reasonably sized lists of indices (will do fo now).
         row, col, data = zip(*all_entries)
-        ham = Hamiltonian(data, row, col, shape=(self.n_fock, self.n_fock))
-
-        if timing:
-            print('Done with construction of Hamiltonian matrix.')
-            duration = dt.datetime.now() - start
-            print(f'[runtime was {duration}]')
-        return ham
+        return Hamiltonian(data, row, col, shape=(self.n_fock, self.n_fock))
 
 
     def do_single_state(self, n_state):
@@ -114,11 +95,9 @@ class HamiltonianBuilder(object):
         #   4 - return the list to append to the sparse matrix representation.
         states = []
         for p in self.plaquettes:
-            pass
             # U operator.
 
             # U^\dagger operator.
-
         return states
 
 

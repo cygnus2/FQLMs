@@ -8,9 +8,6 @@
 import time
 
 
-# ------------------------------------------------------------------------------
-# Some I/O stuff to be consistent across the different pieces of the code.
-
 def winding_tag(ws, labels=['x', 'y', 'z']):
     """ Returns the naming convention of the winding datasets.
     """
@@ -20,13 +17,13 @@ def winding_tag(ws, labels=['x', 'y', 'z']):
     return wtag[:-1]
 
 
-def file_tag(L):
+def file_tag(L, filetype='hdf5'):
     """ Returns the naming convention of the winding datasets.
     """
     ftag = ''
     for k in range(len(L)):
         ftag += '{:d}x'.format(L[k])
-    return 'winding_states_'+ftag[:-1]
+    return 'winding_states_' + ftag[:-1] + '.' + filetype
 
 
 
