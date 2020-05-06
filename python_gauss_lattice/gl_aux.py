@@ -8,6 +8,42 @@
 import time
 
 
+# ------------------------------------------------------------------------------
+# Some I/O stuff to be consistent across the different pieces of the code.
+
+def winding_tag(ws, labels=['x', 'y', 'z']):
+    """ Returns the naming convention of the winding datasets.
+    """
+    wtag = ''
+    for k in range(len(ws)):
+        wtag += 'w{:s}_{:d}-'.format(labels[k], ws[k])
+    return wtag[:-1]
+
+
+def file_tag(L):
+    """ Returns the naming convention of the winding datasets.
+    """
+    ftag = ''
+    for k in range(len(L)):
+        ftag += '{:d}x'.format(L[k])
+    return 'winding_states_'+ftag[:-1]
+
+
+
+def timeit(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print ('%r  %2.2f ms' % (method.__name__, (te - ts) * 1000))
+        return result
+    return timed
+
+
 def print_2D_state(state, L):
     """ Dumps a 2D lattice.
     """
@@ -43,18 +79,3 @@ def print_2D_state(state, L):
 
     for line in lines[::-1]:
         print(line)
-
-
-
-def timeit(method):
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args, **kw)
-        te = time.time()
-        if 'log_time' in kw:
-            name = kw.get('log_name', method.__name__.upper())
-            kw['log_time'][name] = int((te - ts) * 1000)
-        else:
-            print ('%r  %2.2f ms' % (method.__name__, (te - ts) * 1000))
-        return result
-    return timed

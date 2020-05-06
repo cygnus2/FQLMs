@@ -14,6 +14,8 @@ import datetime
 from queue import Empty, Queue
 from multiprocessing import Pool
 
+
+
 class GaussLattice(object):
     """ Represents a Gauss lattice in arbitrary dimension.
 
@@ -34,7 +36,7 @@ class GaussLattice(object):
                 the index-based representation of the basis states.
     """
 
-    def __init__(self, L, state_file=None, n_threads=1, **kwargs):
+    def __init__(self, L, state_file=None, **kwargs):
         self.L = np.array(L)
         self.d = len(L)
 
@@ -108,14 +110,6 @@ class GaussLattice(object):
             self._init_file(state_file)
 
 
-        # ----------------------------------------------------------------------
-        # Set up a parallelized version.
-        self.parallel = False
-        if threaded_levels > 0:
-            self.parallel = True
-            self.threaded_levels = threaded_levels
-
-
     @staticmethod
     def _checkerboard_decomposition(L):
         """ Recursively loops through the dimensions and returns an mask for the
@@ -133,12 +127,12 @@ class GaussLattice(object):
         b = GaussLattice._checkerboard_decomposition(L[:-1])
         return (b + [1-c for c in b]) * (L[-1]//2)
 
+
     def checkerboard_indices(self):
         """ Returns the indidces of the sublattices.
         """
         l = GaussLattice._checkerboard_decomposition(self.L)
         return [i for i, s in enumerate(l) if not s], [i for i, s in enumerate(l) if s]
-
 
 
     def base_to_link(self, base_str):
@@ -373,43 +367,17 @@ class GaussLattice(object):
         if self.check_lattice(prefix):
             if not len(prefix)-self.N_sublattice:
                 self._collect_state(prefix)
-                return 1
-            res = 0
+                return
             for b in self.base_elements:
-                res += self._find_states(prefix+b)
-            return res
-        return 0
-
-
-    def _find_states_parallel(self, prefix):
-        """ Parallelized version of the recursive state finder.
-
-            The recursion may be embarrasinlgy parallelized by spreading the function evaluations to mutiple cores. This can only be done until a certain depth is reached, but it will generally.
-
-        """
-        if len(prefix) < self.threaded_levels:
-            with Pool(len(self.base_elements)) as p:
-                prefixed_basis_elements = list(map(lambda b: prefix+b, self.base_elements))
-                # for b in prefixed_basis_elements:
-                #     self._find_states(b)
-                res = p.map(self._find_states_parallel, prefixed_basis_elements)
-                return sum(res)
-        else:
-            res = 0
-            for b in self.base_elements:
-                res += self._find_states(prefix+b)
-            return res
+                self._find_states(prefix+b)
+            return
+        return
 
 
     def find_states(self):
         """ Wraps the recursive function for external use.
         """
-        if self.parallel:
-            n_states = self._find_states_parallel([])
-            # print(n_states)
-        else:
-            self._find_states([])
-
+        self._find_states([])
         if self.write_states:
             self._flush_buffer()
         return self.winding_bins
