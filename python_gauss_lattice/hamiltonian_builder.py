@@ -35,6 +35,20 @@ class HamiltonianBuilder(object):
         self.plaquettes = self.get_plaquette_list()
 
 
+    def shift_index(self, i, d):
+        """ Shifts an grid index into direction d under consideration of  PBC.
+            Works only for positive shifts (in positive coordinate axes) but
+            this is also the only use case.
+        """
+        L, S = self.L, self.S
+        d += 1
+
+        n = i + S[d-1]
+        if n % S[d] < S[d-1]:
+            n -= S[d] #- S[d-1]
+        return n
+
+
     def get_plaquette_list(self):
         """ Produces a list of plaquettes that represent the lattice. This is a
             list of plaquettes represented as
@@ -57,8 +71,67 @@ class HamiltonianBuilder(object):
             This list will later be used when we loop through the states to
             construct the Hamiltonian.
         """
-        # raise NotImplementedError("sorry")
-        return []
+        S = self.S
+
+        # Find plaquettes by looping over all grid points.
+        plaquettes = []
+        for n in range(S[-1]):
+
+            # Contents of a vertex:
+            # 0  1  2  3  4  5 ...
+            # x -x  y -y  z -z ...
+            vn = self.get_vertex_links(n) # on site
+
+            # xy plane.
+            j = self.shift_index(self.shift_index(n, 0), 1) # shifted by Sx and Sy
+            vn_xy = self.get_vertex_links(j)
+            plaquettes.append([vn[0], vn_xy[3], vn_xy[1], vn[2]])
+
+
+            # In 3D, we have two additional plaquettes.
+            if self.d == 3:
+                # yz plane
+                j = self.shift_index(self.shift_index(n, 2), 1) # shifted by Sy and Sz
+                vn_yz = self.get_vertex_links(j)
+                plaquettes.append([vn[2], vn_yz[5], vn_yz[3], vn[4]])
+
+                # xz plane.
+                j = self.shift_index(self.shift_index(n, 0), 2) # shifted by Sx and Sz
+                vn_xz = self.get_vertex_links(j)
+                plaquettes.append([vn[0], vn_xz[5], vn_xz[1], vn[4]])
+
+        # Check if the right amount of plaquettes was found and if so, return
+        # the list.
+        assert len(plaquettes) == (2**(self.d-1) -1) * S[-1]
+        return plaquettes
+
+
+
+    def get_vertex_links(self, i):
+        """ Returns the indices [+x, -x, +y, -y, ...] of the links for the i-th
+            vertex *on the full lattice* (not the sublattice) under consideration
+            of periodic boundary conditions.
+
+            Note: works only for L^d lattices for now.
+        """
+        # Shorthand to avoid self all the time.
+        L, d, S = self.L, self.d, self.S
+
+        # Index in bit string.
+        j = d*i
+
+        # Loop through the dimensions and add the indicies of + and - directions.
+        ind = []
+        for k in range(1,d+1):
+            # Step forward is always 'on site'.
+            ind.append(j+k-1)
+
+            # Sep backward in k direction.
+            l = j + k -1 - d*S[k-1]
+            if i%S[k] < S[k-1]:
+                l = l + d*S[k]
+            ind.append(l)
+        return ind
 
 
     def construct(self):
@@ -96,7 +169,7 @@ class HamiltonianBuilder(object):
         states = []
         for p in self.plaquettes:
             # U operator.
-
+            pass
             # U^\dagger operator.
         return states
 
@@ -106,7 +179,9 @@ class HamiltonianBuilder(object):
         """
         return self.lookup_table[n]
 
+
     def state_to_index(self, state):
-        """ Maps the bit string to the basis index. Lookup is based on bisection.
+        """ Maps the bit string to the basis index. Lookup is based on bisection
+            which requires an ordered list (ascending, I think, is mandatory).
         """
         return bisect_left(self.lookup_table, state)

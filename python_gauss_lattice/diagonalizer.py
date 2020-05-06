@@ -23,7 +23,7 @@ def read_winding_sector(param, filename):
     # convenience reasons) so we have to relabel them here.
     ws_shifted = np.array(ws) + np.array(param['L'])
     with hdf.File(filename, 'r') as f:
-        winding_states = f[winding_tag(ws_shifted)][...]
+        winding_states = f[winding_tag(ws_shifted[::-1])][...]
     return winding_states
 
 
@@ -42,8 +42,8 @@ def hamiltonian_diagonalization(ham, *args, **kwargs):
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
-    'L' : [2, 2, 2],
-    'winding_sector' : (0,0,0),
+    'L' : [2, 2],
+    'winding_sector' : (0,0),
     'J' : 1.0
 }
 
