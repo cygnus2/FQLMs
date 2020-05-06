@@ -18,7 +18,8 @@ class Hamiltonian(object):
         """
         self.sparse_rep = csr_matrix(
             (data, (row, col)),
-            shape=shape
+            shape=shape,
+            dtype=np.float
         )
         self.diagonalized = False
 
@@ -34,17 +35,14 @@ class Hamiltonian(object):
             treat hermitean matrices (such as the Hamiltonian).
         """
         self.diagonalized = True
-
-        self.eigenvalues = [1]
-        return [1]
-
         if dense:
             # self.eigenvalues, _ = eigs(self.sparse_rep.todense(), n_eigenvalues)
-            self.eigenvalues, _ = eigs(self.sparse_rep.todense(), n_eigenvalues, which=which)
+            self.eigenvalues, _ = eigsh(self.sparse_rep.todense(), n_eigenvalues, which=which)
         else:
             # self.eigenvalues, _ = eigs(self.sparse_rep, n_eigenvalues)
-            self.eigenvalues, _ = eigs(self.sparse_rep, n_eigenvalues, which=which)
+            self.eigenvalues, _ = eigsh(self.sparse_rep, n_eigenvalues, which=which)
 
+        self.eigenvalues = sorted(self.eigenvalues)
         return self.eigenvalues
         # raise NotImplementedError('Not done yet - sorry.')
 
@@ -55,6 +53,6 @@ class Hamiltonian(object):
         if self.diagonalized:
             with open(filename, 'w') as f:
                 for e in self.eigenvalues:
-                    f.write(f'{e}\n')
+                    f.write('{:.8f},{:.8f}\n'.format(e.real, e.imag))
         else:
             raise ValueError('Hamiltonian cannot be stored yet - it is not diagonalized!')

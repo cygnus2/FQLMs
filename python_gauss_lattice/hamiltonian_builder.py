@@ -73,6 +73,9 @@ class HamiltonianBuilder(object):
         """
         S = self.S
 
+        # Generates a bit mask for later use when we flip plaquettes.
+        make_mask = lambda ilist: sum([1<<k for k in ilist])
+
         # Find plaquettes by looping over all grid points.
         plaquettes = []
         for n in range(S[-1]):
@@ -85,20 +88,22 @@ class HamiltonianBuilder(object):
             # xy plane.
             j = self.shift_index(self.shift_index(n, 0), 1) # shifted by Sx and Sy
             vn_xy = self.get_vertex_links(j)
-            plaquettes.append([vn[0], vn_xy[3], vn_xy[1], vn[2]])
-
+            ind = [vn[0], vn_xy[3], vn_xy[1], vn[2]]
+            plaquettes.append(ind + [make_mask(ind)])
 
             # In 3D, we have two additional plaquettes.
             if self.d == 3:
                 # yz plane
                 j = self.shift_index(self.shift_index(n, 2), 1) # shifted by Sy and Sz
                 vn_yz = self.get_vertex_links(j)
-                plaquettes.append([vn[2], vn_yz[5], vn_yz[3], vn[4]])
+                ind=[vn[2], vn_yz[5], vn_yz[3], vn[4]]
+                plaquettes.append(ind + [make_mask(ind)])
 
                 # xz plane.
                 j = self.shift_index(self.shift_index(n, 0), 2) # shifted by Sx and Sz
                 vn_xz = self.get_vertex_links(j)
-                plaquettes.append([vn[0], vn_xz[5], vn_xz[1], vn[4]])
+                ind = [vn[0], vn_xz[5], vn_xz[1], vn[4]]
+                plaquettes.append(ind + [make_mask(ind)])
 
         # Check if the right amount of plaquettes was found and if so, return
         # the list.
@@ -168,9 +173,36 @@ class HamiltonianBuilder(object):
         #   4 - return the list to append to the sparse matrix representation.
         states = []
         for p in self.plaquettes:
-            # U operator.
-            pass
-            # U^\dagger operator.
+            flip = False
+
+            # If links 1&2 are occupied and links 2&3 are free, then we can apply
+            # the U operation.
+            if state & (1<<p[0]):
+                if state & (1<< p[1]):
+                    if not state & (1 << p[2]):
+                        if not state & (1 << p[3]):
+                            # Here we flip the spins that are in the mask.
+                            flip = True
+
+            # If links 1&2 are free and links 2&3 are occupied, then we can apply
+            # the U^dagger operation.
+            if not state & (1<<p[0]):
+                if not state &( 1<< p[1]):
+                    if state & (1 << p[2]):
+                        if state & (1 << p[3]):
+                            # Here we flip the spins that are in the mask.
+                            flip = True
+
+            if flip:
+                new_state = state^p[-1]
+
+                sign = 1
+                states.append([
+                    n_state,
+                    self.state_to_index(new_state),
+                    sign
+                ])
+
         return states
 
 

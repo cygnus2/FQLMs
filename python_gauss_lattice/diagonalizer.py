@@ -42,8 +42,8 @@ def hamiltonian_diagonalization(ham, *args, **kwargs):
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
-    'L' : [2, 2],
-    'winding_sector' : (0,0),
+    'L' : [2, 2, 2],
+    'winding_sector' : (0,0,0),
     'J' : 1.0
 }
 
@@ -59,7 +59,7 @@ builder = HamiltonianBuilder(
 ham = hamiltonian_construction(builder)
 
 # Diagonalization.
-eigenvalues = hamiltonian_diagonalization(ham)
+eigenvalues = hamiltonian_diagonalization(ham, n_eigenvalues=200, which='BE')
 
 # Some I/O.
 print(eigenvalues)
