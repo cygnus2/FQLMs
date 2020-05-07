@@ -29,7 +29,7 @@ def hamiltonian_diagonalization(ham, full_diag=False, **kwargs):
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
-    'L' : [2,2],
+    'L' : [2,2,2],
     'gauge_particles' : 'bosons'
     # 'winding_sector' : (0,0),
 }
@@ -42,7 +42,7 @@ builder = HamiltonianBuilder(param, states=all_states)
 ham = hamiltonian_construction(builder)
 
 # Diagonalization.
-full_diag = True
+full_diag = False
 n_eigenvalues = min(100, builder.n_fock//2)
 eigenvalues = hamiltonian_diagonalization(ham, full_diag=full_diag, n_eigenvalues=n_eigenvalues, which='BE', dense=False)
 

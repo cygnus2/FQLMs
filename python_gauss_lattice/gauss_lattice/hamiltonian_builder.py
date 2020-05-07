@@ -41,6 +41,11 @@ class HamiltonianBuilder(object):
         self.plaquettes = self.get_plaquette_list()
 
 
+        # Prepare for operator application.
+        self.op_u = [False, False, True, True]
+        self.op_u_dagger = [True, True, False, False]
+
+
     def shift_index(self, i, d):
         """ Shifts an grid index into direction d under consideration of  PBC.
             Works only for positive shifts (in positive coordinate axes) but
@@ -178,13 +183,15 @@ class HamiltonianBuilder(object):
         for p in self.plaquettes:
 
             # First apply the U term.
-            new_state, sign = self.apply_u(state, p)
+            # new_state, sign = self.apply_u_dagger(state, p)
+            new_state, sign = self.apply_plaquette_operator(state, p, mask=self.op_u)
 
             # If U term was not successful, try the U^dagger term.
             # (the order could have been switched - there's always only one
             # possibility for overlap to be generated)
             if not new_state:
-                new_state, sign = self.apply_u_dagger(state, p)
+                # new_state, sign = self.apply_u(state, p)
+                new_state, sign = self.apply_plaquette_operator(state, p, mask=self.op_u_dagger)
 
             if new_state:
                 states.append([
@@ -193,6 +200,31 @@ class HamiltonianBuilder(object):
                     sign if self.fermions else 1
                 ])
         return states
+
+
+    def apply_plaquette_operator(self, state, p, mask):
+        """ Applies the U operator
+
+                c1+ c2+ c3 c4
+
+            or the U^dagger term
+
+                c1 c2 c3+ c4+
+
+            to a given plaquette in a given state (link configuration starting
+            with x-mu link and going counter-clockwise).
+        """
+        a, b, n = max(p[:-1]), min(p[:-1]), 0
+        new_state = copy(state)
+        for k in range(4):
+            m = 1 << p[k]
+            if bool(new_state & m) == mask[k]:
+                if self.fermions:
+                    n += sum_occupancies(a, p[k], new_state)
+                new_state = copy(new_state^m)
+            else:
+                return 0, 0
+        return new_state, (-1)**n
 
 
     def apply_u(self, state, p):
@@ -227,19 +259,13 @@ class HamiltonianBuilder(object):
                     if new_state & m:
                         n += sum_occupancies(a, p[3], new_state)
                         new_state = copy(new_state^m)
-                        # Bit flip is done via XOR operation (which is correct,
-                        # since we ensured the pre-requisites with the if
-                        # statements above).
                         return new_state, (-1)**n
         return 0, 0
 
 
     def apply_u_dagger(self, state, p):
         """ Applies the U^dagger opator term
-
-
             to a given plaquete in a given state.
-
             Logic: If links 1&2 are free and links 2&3 are occupied, then we can
                    apply the U^dagger operation.
         """
@@ -264,11 +290,9 @@ class HamiltonianBuilder(object):
                     if not new_state & m:
                         n += sum_occupancies(a, p[3], new_state)
                         new_state = copy(new_state^m)
-                        # Bit flip is done via XOR operation (which is correct,
-                        # since we ensured the pre-requisites with the if
-                        # statements above).
                         return new_state, (-1)**n
         return 0, 0
+
 
 
     def index_to_state(self, n):
