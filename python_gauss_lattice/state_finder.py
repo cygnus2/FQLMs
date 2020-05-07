@@ -5,8 +5,8 @@
     Finds and stores the Gauss law states for a given lattice configuration.
 
 ---------------------------------------------------------------------------- """
-from gl_aux import timeit, file_tag
 from gauss_lattice import GaussLattice
+from gauss_lattice.aux import timeit, file_tag
 
 
 def write_winding_sectors(L, wn, filename='output/winding_sectors.dat'):

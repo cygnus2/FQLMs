@@ -6,7 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
-from gl_aux import file_tag, winding_tag, timeit
+from gauss_lattice.aux import file_tag, winding_tag, timeit
 import numpy as np
 import h5py as hdf
 
