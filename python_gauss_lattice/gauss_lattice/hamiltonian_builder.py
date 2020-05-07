@@ -8,7 +8,8 @@
 import numpy as np
 from bisect import bisect_left
 from .hamiltonian import Hamiltonian
-
+from .bit_magic import set_bits, sum_occupancies
+from copy import copy
 
 class HamiltonianBuilder(object):
     """ Constructs the Hamiltonian in a general single-particle basis.
@@ -30,6 +31,11 @@ class HamiltonianBuilder(object):
         self.lookup_table = sorted(states)
         self.n_fock = len(self.lookup_table)
         print(f'Setting up the Hamiltonian with {self.n_fock} Fock states.')
+
+        # Set the type of partilces we're considering (only changes the sign
+        # factors in the Hamiltonian).
+        gp = param.get('gauge_particles')
+        self.fermions = gp == 'fermions'
 
         # Pre-compute all plaquette indicies to save some time.
         self.plaquettes = self.get_plaquette_list()
@@ -73,9 +79,6 @@ class HamiltonianBuilder(object):
         """
         S = self.S
 
-        # Generates a bit mask for later use when we flip plaquettes.
-        make_mask = lambda ilist: sum([1<<k for k in ilist])
-
         # Find plaquettes by looping over all grid points.
         plaquettes = []
         for n in range(S[-1]):
@@ -89,7 +92,7 @@ class HamiltonianBuilder(object):
             j = self.shift_index(self.shift_index(n, 0), 1) # shifted by Sx and Sy
             vn_xy = self.get_vertex_links(j)
             ind = [vn[0], vn_xy[3], vn_xy[1], vn[2]]
-            plaquettes.append(ind + [make_mask(ind)])
+            plaquettes.append(ind + [set_bits(ind)])
 
             # In 3D, we have two additional plaquettes.
             if self.d == 3:
@@ -97,13 +100,13 @@ class HamiltonianBuilder(object):
                 j = self.shift_index(self.shift_index(n, 2), 1) # shifted by Sy and Sz
                 vn_yz = self.get_vertex_links(j)
                 ind=[vn[2], vn_yz[5], vn_yz[3], vn[4]]
-                plaquettes.append(ind + [make_mask(ind)])
+                plaquettes.append(ind + [set_bits(ind)])
 
                 # xz plane.
                 j = self.shift_index(self.shift_index(n, 0), 2) # shifted by Sx and Sz
                 vn_xz = self.get_vertex_links(j)
                 ind = [vn[0], vn_xz[5], vn_xz[1], vn[4]]
-                plaquettes.append(ind + [make_mask(ind)])
+                plaquettes.append(ind + [set_bits(ind)])
 
         # Check if the right amount of plaquettes was found and if so, return
         # the list.
@@ -175,20 +178,19 @@ class HamiltonianBuilder(object):
         for p in self.plaquettes:
 
             # First apply the U term.
-            new_state = self.apply_u(state, p)
+            new_state, sign = self.apply_u(state, p)
 
-            # If U term was not successful, try the U^\dagger term.
+            # If U term was not successful, try the U^dagger term.
             # (the order could have been switched - there's always only one
             # possibility for overlap to be generated)
             if not new_state:
-                new_state = self.apply_u_dagger(state, p)
+                new_state, sign = self.apply_u_dagger(state, p)
 
             if new_state:
-                sign = 1
                 states.append([
                     n_state,
                     self.state_to_index(new_state),
-                    sign
+                    sign if self.fermions else 1
                 ])
         return states
 
@@ -204,19 +206,36 @@ class HamiltonianBuilder(object):
             Logic: If links 1&2 are occupied and links 2&3 are free, then we can
                    apply U operation.
         """
-        if not state & (1<<p[0]):
-            if not state & (1<< p[1]):
-                if state & (1 << p[2]):
-                    if state & (1 << p[3]):
+        a, b = max(p[:-1]), min(p[:-1])
+
+        m = 1 << p[0]
+        if not state & m:
+            n = sum_occupancies(a, p[0], state)
+            new_state = copy(state^m)
+
+            m = 1 << p[1]
+            if not new_state & m:
+                n += sum_occupancies(a, p[1], new_state)
+                new_state = copy(new_state^m)
+
+                m = 1 << p[2]
+                if new_state & m:
+                    n += sum_occupancies(a, p[2], new_state)
+                    new_state = copy(new_state^m)
+
+                    m = 1 << p[3]
+                    if new_state & m:
+                        n += sum_occupancies(a, p[3], new_state)
+                        new_state = copy(new_state^m)
                         # Bit flip is done via XOR operation (which is correct,
                         # since we ensured the pre-requisites with the if
                         # statements above).
-                        return state ^ p[-1]
-        return 0
+                        return new_state, (-1)**n
+        return 0, 0
 
 
     def apply_u_dagger(self, state, p):
-        """ Applies the U^\dagger opator term
+        """ Applies the U^dagger opator term
 
 
             to a given plaquete in a given state.
@@ -224,15 +243,32 @@ class HamiltonianBuilder(object):
             Logic: If links 1&2 are free and links 2&3 are occupied, then we can
                    apply the U^dagger operation.
         """
-        if state & (1<<p[0]):
-            if state &( 1<< p[1]):
-                if not state & (1 << p[2]):
-                    if not state & (1 << p[3]):
+        a, b = max(p[:-1]), min(p[:-1])
+
+        m = 1 << p[0]
+        if state & m:
+            n = sum_occupancies(a, p[0], state)
+            new_state = copy(state^m)
+
+            m = 1 << p[1]
+            if new_state & m:
+                n += sum_occupancies(a, p[1], new_state)
+                new_state = copy(new_state^m)
+
+                m = 1 << p[2]
+                if not new_state & m:
+                    n += sum_occupancies(a, p[2], new_state)
+                    new_state = copy(new_state^m)
+
+                    m = 1 << p[3]
+                    if not new_state & m:
+                        n += sum_occupancies(a, p[3], new_state)
+                        new_state = copy(new_state^m)
                         # Bit flip is done via XOR operation (which is correct,
                         # since we ensured the pre-requisites with the if
                         # statements above).
-                        return state ^ p[-1]
-        return 0
+                        return new_state, (-1)**n
+        return 0, 0
 
 
     def index_to_state(self, n):

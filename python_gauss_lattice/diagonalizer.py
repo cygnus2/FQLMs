@@ -30,6 +30,7 @@ def hamiltonian_diagonalization(ham, full_diag=False, **kwargs):
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
     'L' : [2,2,2],
+    'gauge_particles' : 'fermions'
     # 'winding_sector' : (0,0),
 }
 
@@ -46,7 +47,7 @@ n_eigenvalues = min(100, builder.n_fock//2)
 eigenvalues = hamiltonian_diagonalization(ham, full_diag=full_diag, n_eigenvalues=n_eigenvalues, which='BE', dense=False)
 
 # Some I/O.
-filename = 'spectrum_'+file_tag(param['L'], filetype='dat')
+filename = 'spectrum_'+param['gauge_particles']+'_'+file_tag(param['L'], filetype='dat')
 if full_diag:
     filename = 'FULL_' + filename
 ham.store_results(filename='output/'+filename)

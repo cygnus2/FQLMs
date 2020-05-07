@@ -6,7 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
-from test_defs import _set_bits
+from gauss_lattice.bit_magic import set_bits, sum_occupancies
 import numpy as np
 
 
@@ -173,33 +173,33 @@ def test_u_operator():
     builder = HamiltonianBuilder({'L':[2,4]}, states=[])
     state = int('0000000100100000', 2)
     expected_state = int('0000000010010000', 2)
-    constructed_state = builder.apply_u(state, builder.plaquettes[2])
+    constructed_state, _ = builder.apply_u(state, builder.plaquettes[2])
     assert expected_state == constructed_state
 
     # Same test, but slightly different.
     state = int('0000000100100000', 2)
     expected_state = int('0000000010010000', 2)
-    constructed_state = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
+    constructed_state, _ = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
     assert expected_state == constructed_state
 
     # Testcase 2: should anihilate
     # |0010 0000 0010 0000> ---> 0
     state = int('0010 0000 0000 0000'.replace(' ', ''), 2)
-    constructed_state = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
+    constructed_state, _ = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
     assert constructed_state == 0
 
     # ---
 
     # Testcase 3: 3D builder.
     builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
-    state = _set_bits([20,7])
-    expected = _set_bits([19,14])
+    state = set_bits([20,7])
+    expected = set_bits([19,14])
 
     p_ind = [19, 14, 7, 20]
-    constructed = HamiltonianBuilder.apply_u(None, state, p_ind + [_set_bits(p_ind)])
+    constructed, _ = HamiltonianBuilder.apply_u(None, state, p_ind + [set_bits(p_ind)])
     assert expected == constructed
 
-    constructed = builder.apply_u(state, builder.plaquettes[19])
+    constructed, _ = builder.apply_u(state, builder.plaquettes[19])
     assert expected == constructed
 
 
@@ -208,21 +208,21 @@ def test_u_dagger_operator():
     """ Check if the inverse plaquette operator U^+ does what it should do.
     """
     builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
-    state = _set_bits([20,7])
-    expected = _set_bits([19,14])
+    state = set_bits([20,7])
+    expected = set_bits([19,14])
 
     p_ind = [19, 14, 7, 20]
-    constructed = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [_set_bits(p_ind)])
+    constructed, _ = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [set_bits(p_ind)])
     assert 0 == constructed
 
-    constructed = builder.apply_u_dagger(state, builder.plaquettes[19])
+    constructed, _ = builder.apply_u_dagger(state, builder.plaquettes[19])
     assert 0 == constructed
 
     # ---
 
-    state = _set_bits([19,14])
-    expected = _set_bits([20,7])
+    state = set_bits([19,14])
+    expected = set_bits([20,7])
 
     p_ind = [19, 14, 7, 20]
-    constructed = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [_set_bits(p_ind)])
+    constructed, _ = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [set_bits(p_ind)])
     assert expected == constructed
