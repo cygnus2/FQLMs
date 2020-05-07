@@ -7,7 +7,7 @@
 ---------------------------------------------------------------------------- """
 import numpy as np
 from bisect import bisect_left
-from hamiltonian import Hamiltonian
+from .hamiltonian import Hamiltonian
 
 
 class HamiltonianBuilder(object):

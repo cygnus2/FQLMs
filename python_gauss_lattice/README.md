@@ -8,6 +8,8 @@ There are two parts:
  - finding the Gauss law states
  - constructing and diagonalizing the Hamiltonian
 
+Prerequisites:
+ - Python 3
 
  ## Finding the states
 Code to find states on a d-dimensional lattice that obey some sort of Gauss Law.

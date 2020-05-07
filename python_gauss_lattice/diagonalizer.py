@@ -5,7 +5,7 @@
     Run script for diagonalizing the Hamiltonian for the gauss lattice.
 
 ---------------------------------------------------------------------------- """
-from hamiltonian_builder import HamiltonianBuilder
+from gauss_lattice import HamiltonianBuilder
 from gl_aux import file_tag, winding_tag, timeit
 import numpy as np
 import h5py as hdf
@@ -21,9 +21,23 @@ def read_winding_sector(param, filename):
 
     # The winding sectors are labelled differently in the HDF5 file (for
     # convenience reasons) so we have to relabel them here.
-    ws_shifted = np.array(ws) + np.array(param['L'])
+    L = param['L']
+    if len(L) == 2:
+        shift = np.array(L[::-1]) // 2
+    elif len(L) == 3:
+        shift = np.array([
+            L[1]*L[2] // 2,
+            L[0]*L[2] // 2,
+            L[0]*L[1] // 2
+        ])
+    else:
+        raise NotImplementedError('Dimension not implemented!')
+
+    ws_shifted = ws + shift
+    print(ws)
+    print(ws_shifted)
     with hdf.File(filename, 'r') as f:
-        winding_states = f[winding_tag(ws_shifted[::-1])][...]
+        winding_states = f[winding_tag(ws_shifted)][...]
     return winding_states
 
 
@@ -42,7 +56,7 @@ def hamiltonian_diagonalization(ham, *args, **kwargs):
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
-    'L' : [2, 2, 2],
+    'L' : [2,2,2],
     'winding_sector' : (0,0,0),
     'J' : 1.0
 }
@@ -59,8 +73,8 @@ builder = HamiltonianBuilder(
 ham = hamiltonian_construction(builder)
 
 # Diagonalization.
-eigenvalues = hamiltonian_diagonalization(ham, n_eigenvalues=200, which='BE')
+eigenvalues = hamiltonian_diagonalization(ham, n_eigenvalues=10, which='BE', dense=False)
 
 # Some I/O.
 print(eigenvalues)
-ham.store_results(filename='output/lower_spectrum_2x2x2.dat')
+ham.store_results(filename='output/spectrum_'+file_tag(param['L'], filetype='dat'))
