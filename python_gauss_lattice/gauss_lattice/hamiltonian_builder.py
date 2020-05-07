@@ -173,37 +173,66 @@ class HamiltonianBuilder(object):
         #   4 - return the list to append to the sparse matrix representation.
         states = []
         for p in self.plaquettes:
-            flip = False
 
-            # If links 1&2 are occupied and links 2&3 are free, then we can apply
-            # the U operation.
-            if state & (1<<p[0]):
-                if state & (1<< p[1]):
-                    if not state & (1 << p[2]):
-                        if not state & (1 << p[3]):
-                            # Here we flip the spins that are in the mask.
-                            flip = True
+            # First apply the U term.
+            new_state = self.apply_u(state, p)
 
-            # If links 1&2 are free and links 2&3 are occupied, then we can apply
-            # the U^dagger operation.
-            if not state & (1<<p[0]):
-                if not state &( 1<< p[1]):
-                    if state & (1 << p[2]):
-                        if state & (1 << p[3]):
-                            # Here we flip the spins that are in the mask.
-                            flip = True
+            # If U term was not successful, try the U^\dagger term.
+            # (the order could have been switched - there's always only one
+            # possibility for overlap to be generated)
+            if not new_state:
+                new_state = self.apply_u_dagger(state, p)
 
-            if flip:
-                new_state = state^p[-1]
-
+            if new_state:
                 sign = 1
                 states.append([
                     n_state,
                     self.state_to_index(new_state),
                     sign
                 ])
-
         return states
+
+
+    def apply_u(self, state, p):
+        """ Applies the U operator term
+
+                c_1^+ c_2^+ c_3 c_4
+
+            to a given plaquette in a given state (link configuration starting
+            with x-mu link and going counter-clockwise).
+
+            Logic: If links 1&2 are occupied and links 2&3 are free, then we can
+                   apply U operation.
+        """
+        if not state & (1<<p[0]):
+            if not state & (1<< p[1]):
+                if state & (1 << p[2]):
+                    if state & (1 << p[3]):
+                        # Bit flip is done via XOR operation (which is correct,
+                        # since we ensured the pre-requisites with the if
+                        # statements above).
+                        return state ^ p[-1]
+        return 0
+
+
+    def apply_u_dagger(self, state, p):
+        """ Applies the U^\dagger opator term
+
+
+            to a given plaquete in a given state.
+
+            Logic: If links 1&2 are free and links 2&3 are occupied, then we can
+                   apply the U^dagger operation.
+        """
+        if state & (1<<p[0]):
+            if state &( 1<< p[1]):
+                if not state & (1 << p[2]):
+                    if not state & (1 << p[3]):
+                        # Bit flip is done via XOR operation (which is correct,
+                        # since we ensured the pre-requisites with the if
+                        # statements above).
+                        return state ^ p[-1]
+        return 0
 
 
     def index_to_state(self, n):

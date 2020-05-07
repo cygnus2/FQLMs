@@ -73,7 +73,7 @@ builder = HamiltonianBuilder(
 ham = hamiltonian_construction(builder)
 
 # Diagonalization.
-eigenvalues = hamiltonian_diagonalization(ham, n_eigenvalues=10, which='BE', dense=False)
+eigenvalues = hamiltonian_diagonalization(ham, n_eigenvalues=50, which='BE', dense=False)
 
 # Some I/O.
 print(eigenvalues)

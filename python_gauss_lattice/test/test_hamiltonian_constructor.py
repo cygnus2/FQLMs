@@ -6,6 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
+from test_defs import _set_bits
 import numpy as np
 
 
@@ -162,3 +163,68 @@ def test_plaquette_list_3D():
         for k in expected[i]:
             mask = mask + (1 << k)
         assert mask == p[-1]
+
+
+def test_u_operator():
+    """ Check if the plaquette operator U does what it should do.
+    """
+    # Testcase 1: should give an overlap.
+    # |0000 0001 0010 0000> ---> |0000000010010000>
+    builder = HamiltonianBuilder({'L':[2,4]}, states=[])
+    state = int('0000000100100000', 2)
+    expected_state = int('0000000010010000', 2)
+    constructed_state = builder.apply_u(state, builder.plaquettes[2])
+    assert expected_state == constructed_state
+
+    # Same test, but slightly different.
+    state = int('0000000100100000', 2)
+    expected_state = int('0000000010010000', 2)
+    constructed_state = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
+    assert expected_state == constructed_state
+
+    # Testcase 2: should anihilate
+    # |0010 0000 0010 0000> ---> 0
+    state = int('0010 0000 0000 0000'.replace(' ', ''), 2)
+    constructed_state = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
+    assert constructed_state == 0
+
+    # ---
+
+    # Testcase 3: 3D builder.
+    builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
+    state = _set_bits([20,7])
+    expected = _set_bits([19,14])
+
+    p_ind = [19, 14, 7, 20]
+    constructed = HamiltonianBuilder.apply_u(None, state, p_ind + [_set_bits(p_ind)])
+    assert expected == constructed
+
+    constructed = builder.apply_u(state, builder.plaquettes[19])
+    assert expected == constructed
+
+
+
+
+def test_u_dagger_operator():
+    """ Check if the inverse plaquette operator U^+ does what it should do.
+    """
+    # Testcase 3: 3D builder.
+    builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
+    state = _set_bits([20,7])
+    expected = _set_bits([19,14])
+
+    p_ind = [19, 14, 7, 20]
+    constructed = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [_set_bits(p_ind)])
+    assert 0 == constructed
+
+    constructed = builder.apply_u_dagger(state, builder.plaquettes[19])
+    assert 0 == constructed
+
+    # ---
+
+    state = _set_bits([19,14])
+    expected = _set_bits([20,7])
+
+    p_ind = [19, 14, 7, 20]
+    constructed = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [_set_bits(p_ind)])
+    assert expected == constructed
