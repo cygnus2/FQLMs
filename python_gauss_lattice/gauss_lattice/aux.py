@@ -106,3 +106,17 @@ def read_winding_sector(L, ws, debug=True):
     with hdf.File(filename, 'r') as f:
         winding_states = f[winding_tag(ws_shifted)][...]
     return winding_states
+
+
+
+def read_all_states(L):
+    """ Takes in a parameter dictionary and reads in the appropriate states
+        for the specified winding sector.
+    """
+    # Read and return the appropriate list.
+    filename='output/'+file_tag(L, filetype='hdf5')
+    states = []
+    with hdf.File(filename, 'r') as f:
+        for ws in f:
+            states += list(f[ws][...])
+    return states
