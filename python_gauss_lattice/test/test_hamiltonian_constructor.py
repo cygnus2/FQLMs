@@ -176,16 +176,10 @@ def test_u_operator():
     constructed_state, _ = builder.apply_u(state, builder.plaquettes[2])
     assert expected_state == constructed_state
 
-    # Same test, but slightly different.
-    state = int('0000000100100000', 2)
-    expected_state = int('0000000010010000', 2)
-    constructed_state, _ = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
-    assert expected_state == constructed_state
-
     # Testcase 2: should anihilate
     # |0010 0000 0010 0000> ---> 0
     state = int('0010 0000 0000 0000'.replace(' ', ''), 2)
-    constructed_state, _ = HamiltonianBuilder.apply_u(None, state, [4, 7, 8, 5, 432])
+    constructed_state, _ = builder.apply_u(state, builder.plaquettes[2])
     assert constructed_state == 0
 
     # ---
@@ -196,7 +190,7 @@ def test_u_operator():
     expected = set_bits([19,14])
 
     p_ind = [19, 14, 7, 20]
-    constructed, _ = HamiltonianBuilder.apply_u(None, state, p_ind + [set_bits(p_ind)])
+    constructed, _ = builder.apply_u(state, p_ind + [set_bits(p_ind)])
     assert expected == constructed
 
     constructed, _ = builder.apply_u(state, builder.plaquettes[19])
@@ -212,7 +206,7 @@ def test_u_dagger_operator():
     expected = set_bits([19,14])
 
     p_ind = [19, 14, 7, 20]
-    constructed, _ = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [set_bits(p_ind)])
+    constructed, _ = builder.apply_u_dagger(state, p_ind + [set_bits(p_ind)])
     assert 0 == constructed
 
     constructed, _ = builder.apply_u_dagger(state, builder.plaquettes[19])
@@ -224,5 +218,5 @@ def test_u_dagger_operator():
     expected = set_bits([20,7])
 
     p_ind = [19, 14, 7, 20]
-    constructed, _ = HamiltonianBuilder.apply_u_dagger(None, state, p_ind + [set_bits(p_ind)])
+    constructed, _ = builder.apply_u_dagger(state, p_ind + [set_bits(p_ind)])
     assert expected == constructed

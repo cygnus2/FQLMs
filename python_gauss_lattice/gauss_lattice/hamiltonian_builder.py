@@ -41,11 +41,6 @@ class HamiltonianBuilder(object):
         self.plaquettes = self.get_plaquette_list()
 
 
-        # Prepare for operator application.
-        self.op_u = [False, False, True, True]
-        self.op_u_dagger = [True, True, False, False]
-
-
     def shift_index(self, i, d):
         """ Shifts an grid index into direction d under consideration of  PBC.
             Works only for positive shifts (in positive coordinate axes) but
@@ -183,15 +178,13 @@ class HamiltonianBuilder(object):
         for p in self.plaquettes:
 
             # First apply the U term.
-            # new_state, sign = self.apply_u_dagger(state, p)
-            new_state, sign = self.apply_plaquette_operator(state, p, mask=self.op_u)
+            new_state, sign = self.apply_u_dagger(state, p)
 
             # If U term was not successful, try the U^dagger term.
             # (the order could have been switched - there's always only one
             # possibility for overlap to be generated)
             if not new_state:
-                # new_state, sign = self.apply_u(state, p)
-                new_state, sign = self.apply_plaquette_operator(state, p, mask=self.op_u_dagger)
+                new_state, sign = self.apply_u(state, p)
 
             if new_state:
                 states.append([
@@ -201,13 +194,22 @@ class HamiltonianBuilder(object):
                 ])
         return states
 
+    def apply_u(self, state, p):
+        """ Wrapper to apply U
+        """
+        return self._apply_plaquette_operator(state, p, mask=[False, False, True, True])
 
-    def apply_plaquette_operator(self, state, p, mask):
+    def apply_u_dagger(self, state, p):
+        """ Wrapper to apply U+
+        """
+        return self._apply_plaquette_operator(state, p, mask=[True, True, False, False])
+
+    def _apply_plaquette_operator(self, state, p, mask):
         """ Applies the U operator
 
                 c1+ c2+ c3 c4
 
-            or the U^dagger term
+            or the U+ term
 
                 c1 c2 c3+ c4+
 
@@ -225,74 +227,6 @@ class HamiltonianBuilder(object):
             else:
                 return 0, 0
         return new_state, (-1)**n
-
-
-    def apply_u(self, state, p):
-        """ Applies the U operator term
-
-                c_1^+ c_2^+ c_3 c_4
-
-            to a given plaquette in a given state (link configuration starting
-            with x-mu link and going counter-clockwise).
-
-            Logic: If links 1&2 are occupied and links 2&3 are free, then we can
-                   apply U operation.
-        """
-        a, b = max(p[:-1]), min(p[:-1])
-
-        m = 1 << p[0]
-        if not state & m:
-            n = sum_occupancies(a, p[0], state)
-            new_state = copy(state^m)
-
-            m = 1 << p[1]
-            if not new_state & m:
-                n += sum_occupancies(a, p[1], new_state)
-                new_state = copy(new_state^m)
-
-                m = 1 << p[2]
-                if new_state & m:
-                    n += sum_occupancies(a, p[2], new_state)
-                    new_state = copy(new_state^m)
-
-                    m = 1 << p[3]
-                    if new_state & m:
-                        n += sum_occupancies(a, p[3], new_state)
-                        new_state = copy(new_state^m)
-                        return new_state, (-1)**n
-        return 0, 0
-
-
-    def apply_u_dagger(self, state, p):
-        """ Applies the U^dagger opator term
-            to a given plaquete in a given state.
-            Logic: If links 1&2 are free and links 2&3 are occupied, then we can
-                   apply the U^dagger operation.
-        """
-        a, b = max(p[:-1]), min(p[:-1])
-
-        m = 1 << p[0]
-        if state & m:
-            n = sum_occupancies(a, p[0], state)
-            new_state = copy(state^m)
-
-            m = 1 << p[1]
-            if new_state & m:
-                n += sum_occupancies(a, p[1], new_state)
-                new_state = copy(new_state^m)
-
-                m = 1 << p[2]
-                if not new_state & m:
-                    n += sum_occupancies(a, p[2], new_state)
-                    new_state = copy(new_state^m)
-
-                    m = 1 << p[3]
-                    if not new_state & m:
-                        n += sum_occupancies(a, p[3], new_state)
-                        new_state = copy(new_state^m)
-                        return new_state, (-1)**n
-        return 0, 0
-
 
 
     def index_to_state(self, n):
