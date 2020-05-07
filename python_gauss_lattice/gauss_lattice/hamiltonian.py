@@ -8,6 +8,7 @@
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigsh, eigs
+from scipy.linalg import eigvals
 
 
 class Hamiltonian(object):
@@ -45,6 +46,17 @@ class Hamiltonian(object):
         self.eigenvalues = sorted(self.eigenvalues)
         return self.eigenvalues
         # raise NotImplementedError('Not done yet - sorry.')
+
+
+    def full_diagonalization(self):
+        """ Full diagonalization of the Hamiltonian.
+
+            Clearly, this should/only be done for small systems - for larger ones
+            this routine will explode in runtime.
+        """
+        self.diagonalized = True
+        self.eigenvalues = sorted(eigvals(self.sparse_rep.todense()))
+        return self.eigenvalues
 
 
     def store_results(self, filename='diagonalization_results.dat'):

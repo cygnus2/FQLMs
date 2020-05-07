@@ -6,15 +6,8 @@
 
 ---------------------------------------------------------------------------- """
 import time
-
-
-def winding_tag(ws, labels=['x', 'y', 'z']):
-    """ Returns the naming convention of the winding datasets.
-    """
-    wtag = ''
-    for k in range(len(ws)):
-        wtag += 'w{:s}_{:d}-'.format(labels[k], ws[k])
-    return wtag[:-1]
+import numpy as np
+import h5py as hdf
 
 
 def file_tag(L, filetype='hdf5'):
@@ -76,3 +69,40 @@ def print_2D_state(state, L):
 
     for line in lines[::-1]:
         print(line)
+
+
+def winding_tag(ws, labels=['x', 'y', 'z']):
+    """ Returns the naming convention of the winding datasets.
+    """
+    wtag = ''
+    for k in range(len(ws)):
+        wtag += 'w{:s}_{:d}-'.format(labels[k], ws[k])
+    return wtag[:-1]
+
+
+def read_winding_sector(L, ws, debug=True):
+    """ Takes in a parameter dictionary and reads in the appropriate states
+        for the specified winding sector.
+    """
+    # The winding sectors are labelled differently in the HDF5 file (for
+    # convenience reasons) so we have to relabel them here.
+    if len(L) == 2:
+        shift = np.array(L[::-1]) // 2
+    elif len(L) == 3:
+        shift = np.array([
+            L[1]*L[2] // 2,
+            L[0]*L[2] // 2,
+            L[0]*L[1] // 2
+        ])
+    else:
+        raise NotImplementedError('Dimension not implemented!')
+    ws_shifted = ws + shift
+
+    if debug:
+        print(f'Supplied winding numbers {ws} are mapped to {tuple(ws_shifted)}')
+
+    # Read and return the appropriate list.
+    filename='output/'+file_tag(L, filetype='hdf5')
+    with hdf.File(filename, 'r') as f:
+        winding_states = f[winding_tag(ws_shifted)][...]
+    return winding_states

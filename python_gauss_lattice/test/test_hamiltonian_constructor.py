@@ -204,11 +204,9 @@ def test_u_operator():
 
 
 
-
 def test_u_dagger_operator():
     """ Check if the inverse plaquette operator U^+ does what it should do.
     """
-    # Testcase 3: 3D builder.
     builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
     state = _set_bits([20,7])
     expected = _set_bits([19,14])
