@@ -10,13 +10,16 @@ import numpy as np
 import h5py as hdf
 
 
+def size_tag(L):
+    stag = ''
+    for k in range(len(L)):
+        stag += '{:d}x'.format(L[k])
+    return stag[:-1]
+
 def file_tag(L, filetype='hdf5'):
     """ Returns the naming convention of the winding datasets.
     """
-    ftag = ''
-    for k in range(len(L)):
-        ftag += '{:d}x'.format(L[k])
-    return 'winding_states_' + ftag[:-1] + '.' + filetype
+    return 'winding_states_' + size_tag(L) + '.' + filetype
 
 
 

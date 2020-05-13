@@ -10,6 +10,7 @@ from bisect import bisect_left
 from .hamiltonian import Hamiltonian
 from .bit_magic import set_bits, sum_occupancies
 from copy import copy
+from tqdm import tqdm as tbar
 
 class HamiltonianBuilder(object):
     """ Constructs the Hamiltonian in a general single-particle basis.
@@ -150,7 +151,7 @@ class HamiltonianBuilder(object):
         # do it naively (with some doubled work). Then try to improve on that (by
         # using, e.g., Hermiticity).
         all_entries = []
-        for n in range(self.n_fock):
+        for n in tbar(range(self.n_fock)):
             all_entries += self.do_single_state(n)
 
         # Make a sparse matrix out ot this -although pretty plain, this can handle

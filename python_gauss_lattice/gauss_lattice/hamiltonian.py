@@ -6,7 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, save_npz
 from scipy.sparse.linalg import eigsh, eigs
 from scipy.linalg import eigvals
 
@@ -27,6 +27,10 @@ class Hamiltonian(object):
     def __repr__(self):
         return str(self.sparse_rep.todense())
 
+    def store(self, filename):
+        """ Stores the Hamiltonian matrix in sparse format.
+        """
+        save_npz(filename, self.sparse_rep)
 
     def compute_lower_spectrum(self, n_eigenvalues=20, which='LM', dense=False):
         """ Performs the diagonalization with ARPACK and returns the lower part
