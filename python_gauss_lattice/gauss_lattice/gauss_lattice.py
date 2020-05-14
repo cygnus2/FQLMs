@@ -66,7 +66,7 @@ class GaussLattice(object):
         assert self.lattice_base.shape == (len(self.base_elements), self.N_sublattice)
 
         # Pre-compute stuff to check the validity of Gauss Law.
-        self.mpos, self.mneg = self.gls_masks = self.create_gls_masks(ind_gls)
+        self.mpos, self.mneg = self.create_gls_masks(ind_gls)
         self.checkable_gls = self.find_checkable_gls(ind_bs, ind_gls)
         assert len(self.checkable_gls[-1]) == self.N_sublattice
 

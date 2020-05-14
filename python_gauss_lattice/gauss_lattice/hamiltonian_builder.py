@@ -7,7 +7,7 @@
 ---------------------------------------------------------------------------- """
 import numpy as np
 from bisect import bisect_left
-from .hamiltonian import Hamiltonian
+from .hamiltonian import GaussLatticeHamiltonian
 from .bit_magic import set_bits, sum_occupancies
 from copy import copy
 from tqdm import tqdm as tbar
@@ -17,8 +17,6 @@ class HamiltonianBuilder(object):
     """
 
     def __init__(self, param, states):
-        """
-        """
         self.L = param['L']
         self.d = len(param['L'])
 
@@ -32,11 +30,6 @@ class HamiltonianBuilder(object):
         self.lookup_table = sorted(states)
         self.n_fock = len(self.lookup_table)
         print(f'Setting up the Hamiltonian with {self.n_fock} Fock states.')
-
-        # Set the type of partilces we're considering (only changes the sign
-        # factors in the Hamiltonian).
-        gp = param.get('gauge_particles')
-        self.fermions = gp == 'fermions'
 
         # Pre-compute all plaquette indicies to save some time.
         self.plaquettes = self.get_plaquette_list()
@@ -73,7 +66,7 @@ class HamiltonianBuilder(object):
                                     O--------O
                                       link1
 
-            (ASCII art stolen from Debasish)
+            (ASCII art shamelessly stolen from Debasish)
 
             This list will later be used when we loop through the states to
             construct the Hamiltonian.
@@ -154,10 +147,15 @@ class HamiltonianBuilder(object):
         for n in tbar(range(self.n_fock)):
             all_entries += self.do_single_state(n)
 
+        print("# of nonzero entries: " + str(len(all_entries)))
         # Make a sparse matrix out ot this -although pretty plain, this can handle
         # reasonably sized lists of indices (will do fo now).
-        row, col, data = zip(*all_entries)
-        return Hamiltonian(data, row, col, shape=(self.n_fock, self.n_fock))
+
+        if len(all_entries):
+            row, col, data = zip(*all_entries)
+            return GaussLatticeHamiltonian(data, row, col, n_fock=self.n_fock)
+        else:
+            return GaussLatticeHamiltonian([], [], [], n_fock=self.n_fock)
 
 
     def do_single_state(self, n_state):
@@ -191,7 +189,7 @@ class HamiltonianBuilder(object):
                 states.append([
                     n_state,
                     self.state_to_index(new_state),
-                    sign if self.fermions else 1
+                    sign
                 ])
         return states
 
@@ -222,8 +220,7 @@ class HamiltonianBuilder(object):
         for k in range(4):
             m = 1 << p[k]
             if bool(new_state & m) == mask[k]:
-                if self.fermions:
-                    n += sum_occupancies(a, p[k], new_state)
+                n += sum_occupancies(a, p[k], new_state)
                 new_state = copy(new_state^m)
             else:
                 return 0, 0

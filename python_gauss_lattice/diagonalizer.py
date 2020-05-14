@@ -16,20 +16,16 @@ def hamiltonian_construction(builder):
     return builder.construct()
 
 @timeit
-def hamiltonian_diagonalization(ham, full_diag=False, **kwargs):
+def hamiltonian_diagonalization(ham, **kwargs):
     """ This method just exists to be able to time the routine efficiently.
     """
-    if full_diag:
-        return ham.full_diagonalization()
-    return ham.compute_lower_spectrum(**kwargs)
-
+    return ham.diagonalize(**kwargs)
 
 # ------------------------------------------------------------------------------
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
-    'L' : [2,2,4],
-    'gauge_particles' : 'bosons'
+    'L' : [2,2,2]
     # 'winding_sector' : (0,0),
 }
 if param.get('winding_sector'):
@@ -42,15 +38,26 @@ builder = HamiltonianBuilder(param, states=states)
 ham = hamiltonian_construction(builder)
 
 # Just to have it.
-ham.store('output/hamiltonian_'+size_tag(param['L'])+'.npz')
+ham.store_hamiltonian('output/hamiltonian_'+size_tag(param['L'])+'.npz')
 
+# ----------------------
 # Diagonalization.
+
+particles = 'bosons'
 full_diag = False
 n_eigenvalues = min(100, builder.n_fock//2)
-eigenvalues = hamiltonian_diagonalization(ham, full_diag=full_diag, n_eigenvalues=n_eigenvalues, which='BE', dense=False)
+
+eigenvalues = hamiltonian_diagonalization(
+    ham,
+    gauge_particles='bosons',
+    lam=1,
+    full_diag=full_diag,
+    n_eigenvalues=n_eigenvalues,
+    which='BE'
+)
 
 # Some I/O.
-filename = 'spectrum_'+param['gauge_particles']+'_'+size_tag(param['L']) + '.dat'
+filename = 'spectrum_' + particles + '_' + size_tag(param['L']) + '.dat'
 if full_diag:
     filename = 'FULL_' + filename
 ham.store_results(filename='output/'+filename)

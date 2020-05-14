@@ -30,7 +30,8 @@ def wrap_state_finder(gl, *args, **kwargs):
 # Create a GaussLattice with appropriate parameters. If the optional keyword
 # `state_file` is provided, *all* states will be stored - either in a hdf5 or
 # plain text format, depending of the ending of the filename.
-L = [2,2,4]
+L = [2,2,2]
+
 # glatt = GaussLattice(L=L)
 state_file = file_tag(L, filetype='hdf5')
 glatt = GaussLattice(L=L, state_file=state_file)
@@ -39,7 +40,7 @@ glatt = GaussLattice(L=L, state_file=state_file)
 wn = wrap_state_finder(glatt)
 
 print(f"Found {wn.sum()} states in total.")
-print(f"Found {wn.max()} states in the larges winding sector.")
+print(f"Found {wn.max()} states in the largest winding sector.")
 
 # Output.
 write_winding_sectors(L, wn)

@@ -112,7 +112,7 @@ def read_winding_sector(L, ws, debug=True):
 
 
 
-def read_all_states(L):
+def read_all_states(L, merged=True):
     """ Takes in a parameter dictionary and reads in the appropriate states
         for the specified winding sector.
     """
@@ -121,5 +121,22 @@ def read_all_states(L):
     states = []
     with hdf.File(filename, 'r') as f:
         for ws in f:
-            states += list(f[ws][...])
+            if merged:
+                states += list(f[ws][...])
+            else:
+                states.append([ws, list(f[ws][...])])
     return states
+
+
+def read_sequential_spectrum(filename):
+    spectrum = []
+    with hdf.File(filename, 'r') as f:
+        for ds in f:
+            spectrum += f[ds][...].tolist()
+    return sorted(lr_sequential)
+
+
+def write_simple_spectrum(spectrum, filename):
+    with open(filename, 'w') as f:
+        for e in spectrum:
+            f.write('{:.8f},{:.8f}\n'.format(e.real, e.imag))
