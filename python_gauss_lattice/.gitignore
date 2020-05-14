@@ -3,3 +3,4 @@ output/
 *ipynb_checkpoints*
 *pytest_cache*
 *.png
+*dev_checks*

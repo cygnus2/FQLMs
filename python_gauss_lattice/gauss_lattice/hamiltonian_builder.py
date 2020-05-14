@@ -20,6 +20,8 @@ class HamiltonianBuilder(object):
         self.L = param['L']
         self.d = len(param['L'])
 
+        self.lam = param['lambda']
+
         # Shift operators to get the link indices.
         self.S = [1]
         for l in self.L:
@@ -174,6 +176,7 @@ class HamiltonianBuilder(object):
         #       the newly generated states.
         #   4 - return the list to append to the sparse matrix representation.
         states = []
+        # n_flippable = 0
         for p in self.plaquettes:
 
             # First apply the U term.
@@ -186,11 +189,14 @@ class HamiltonianBuilder(object):
                 new_state, sign = self.apply_u(state, p)
 
             if new_state:
+                # n_flippable += 1
                 states.append([
                     n_state,
                     self.state_to_index(new_state),
                     sign
                 ])
+
+        # states.append([n_state, n_state, n_flippable*self.lam])
         return states
 
     def apply_u(self, state, p):

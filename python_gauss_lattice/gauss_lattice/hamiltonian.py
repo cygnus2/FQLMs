@@ -146,9 +146,10 @@ class GaussLatticeHamiltonian(Hamiltonian):
         # If an interaction term exists, we must construct it.
         if lam:
             diag = np.zeros(self.n_fock)
-            for k in range(self.n_fock):
-                diag[self.row[k]] += lam
+            for k in self.row:
+                diag[k] += lam
             self.sparse_rep.setdiag(diag)
+
 
         # Perform the usual diagonalization.
         super().diagonalize(**kwargs)

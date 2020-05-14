@@ -70,7 +70,7 @@ eigenvalues = hamiltonian_diagonalization(ham,
 
 # ------------------------------------------------------------------------------
 # Some I/O.
-filename = 'spectrum_' + param['gauge_particles'] + '_' + size_tag(param['L']) + '.dat'
+filename = 'spectrum_' + param['gauge_particles'] + '_' + size_tag(param['L']) + '_lam{:.2f}'.format(param['lambda']) + '.dat'
 if param['full_diag']:
     filename = 'FULL_' + filename
 ham.store_results(filename='output/'+filename)

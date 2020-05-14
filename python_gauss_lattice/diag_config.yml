@@ -1,10 +1,13 @@
 # This is an input file for the diagonalization routine. The format is YAML,
 # which is quite flexible.
-L : [2,2,2]
+# The values don't have to be in any specific order. It is important though,
+# that the names stay as they are - these are the variable names, essentially,
+# in the code.
+L : [2,10]
 gauge_particles : 'bosons'
-# 'winding_sector' : (0,0)
+winding_sector : [0,0]
 full_diag : False
 ev_type : 'BE'
 n_eivenvalues : 100
-lambda : 0
+lambda : -1.2
 J : -1.0
