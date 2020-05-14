@@ -8,6 +8,8 @@
 from gauss_lattice import HamiltonianBuilder
 from gauss_lattice.aux import size_tag, timeit, read_winding_sector, read_all_states
 import numpy as np
+import yaml, argparse
+
 
 @timeit
 def hamiltonian_construction(builder):
@@ -22,12 +24,25 @@ def hamiltonian_diagonalization(ham, **kwargs):
     return ham.diagonalize(**kwargs)
 
 # ------------------------------------------------------------------------------
+# Input handling.
 
-# This sets the parameters fof the calculation (everything else is fixed).
-param = {
-    'L' : [2,2,2]
-    # 'winding_sector' : (0,0),
-}
+parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer.")
+parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
+args = parser.parse_args()
+
+if args.i is not None:
+    # Loads parameters from file.
+    with open(args.i, 'r') as f:
+        try:
+            param = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            print(exc)
+else:
+    sys.exit('fatal: no input file specified')
+
+
+# ------------------------------------------------------------------------------
+# Hamiltonian setup.
 if param.get('winding_sector'):
     states = read_winding_sector(param['L'], param['winding_sector'])
 else:
@@ -40,24 +55,22 @@ ham = hamiltonian_construction(builder)
 # Just to have it.
 ham.store_hamiltonian('output/hamiltonian_'+size_tag(param['L'])+'.npz')
 
-# ----------------------
+
+# ------------------------------------------------------------------------------
 # Diagonalization.
-
-particles = 'bosons'
-full_diag = False
-n_eigenvalues = min(100, builder.n_fock//2)
-
-eigenvalues = hamiltonian_diagonalization(
-    ham,
-    gauge_particles='bosons',
-    lam=1,
-    full_diag=full_diag,
-    n_eigenvalues=n_eigenvalues,
-    which='BE'
+eigenvalues = hamiltonian_diagonalization(ham,
+    gauge_particles = param['gauge_particles'],
+    J = param['J'],
+    lam = param['lambda'],
+    full_diag = param['full_diag'],
+    n_eigenvalues = min(param['n_eivenvalues'], builder.n_fock//2),
+    which = param['ev_type']
 )
 
+
+# ------------------------------------------------------------------------------
 # Some I/O.
-filename = 'spectrum_' + particles + '_' + size_tag(param['L']) + '.dat'
-if full_diag:
+filename = 'spectrum_' + param['gauge_particles'] + '_' + size_tag(param['L']) + '.dat'
+if param['full_diag']:
     filename = 'FULL_' + filename
 ham.store_results(filename='output/'+filename)
