@@ -16,7 +16,9 @@ def test_hamiltonian_builder_index_shift_2D():
     """
     # 2D check.
     param = {
-        'L' : [2,4]
+        'L' : [2,4],
+        'lambda' : 0,
+        'J' : -1.0
     }
     builder = HamiltonianBuilder(param, states=[])
 
@@ -43,7 +45,9 @@ def test_hamiltonian_builder_index_shift_3D():
         fact, in the construction of the plaquette list).
     """
     param = {
-        'L' : [2,2,4]
+        'L' : [2,2,4],
+        'lambda' : 0,
+        'J' : -1.0
     }
     builder = HamiltonianBuilder(param, states=[])
 
@@ -80,7 +84,9 @@ def test_plaquette_list_2D():
     """ Check if the correct list of plaquettes is found in 2D.
     """
     param = {
-        'L' : [2,4]
+        'L' : [2,4],
+        'lambda' : 0,
+        'J' : -1.0
     }
     builder = HamiltonianBuilder(param, states=[])
 
@@ -113,7 +119,9 @@ def test_plaquette_list_3D():
     """ Check if the correct list of plaquettes is found in 3D.
     """
     param = {
-        'L' : [2,2,2]
+        'L' : [2,2,2],
+        'lambda' : 0,
+        'J' : -1.0
     }
     builder = HamiltonianBuilder(param, states=[])
 
@@ -168,9 +176,15 @@ def test_plaquette_list_3D():
 def test_u_operator():
     """ Check if the plaquette operator U does what it should do.
     """
+    param = {
+        'lambda' : 0,
+        'J' : -1.0
+    }
+
     # Testcase 1: should give an overlap.
     # |0000 0001 0010 0000> ---> |0000000010010000>
-    builder = HamiltonianBuilder({'L':[2,4]}, states=[])
+    param['L'] = [2,4]
+    builder = HamiltonianBuilder(param, states=[])
     state = int('0000000100100000', 2)
     expected_state = int('0000000010010000', 2)
     constructed_state, _ = builder.apply_u(state, builder.plaquettes[2])
@@ -185,7 +199,8 @@ def test_u_operator():
     # ---
 
     # Testcase 3: 3D builder.
-    builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
+    param['L'] = [2,2,2]
+    builder = HamiltonianBuilder(param, states=[])
     state = set_bits([20,7])
     expected = set_bits([19,14])
 
@@ -201,7 +216,13 @@ def test_u_operator():
 def test_u_dagger_operator():
     """ Check if the inverse plaquette operator U^+ does what it should do.
     """
-    builder = HamiltonianBuilder({'L':[2,2,2]}, states=[])
+    param = {
+        'lambda' : 0,
+        'J' : -1.0
+    }
+
+    param['L'] = [2,2,2]
+    builder = HamiltonianBuilder(param, states=[])
     state = set_bits([20,7])
     expected = set_bits([19,14])
 

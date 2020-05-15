@@ -6,12 +6,13 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import GaussLattice
-from gauss_lattice.aux import timeit, file_tag
+from gauss_lattice.aux import timeit, file_tag, size_tag
 
 
-def write_winding_sectors(L, wn, filename='output/winding_sectors.dat'):
+def write_winding_sectors(L, wn):
     """ Dirty output function.
     """
+    filename='output/winding_sectors_' +size_tag(L) + '.dat'
     if len(L) == 3:
         with open(filename, 'w') as f:
             for i in range(wn.shape[0]):

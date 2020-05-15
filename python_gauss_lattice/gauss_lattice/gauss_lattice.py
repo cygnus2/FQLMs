@@ -451,7 +451,7 @@ class GaussLattice(object):
             # In 3D we have to sum over entire faces of the cube - here we
             # construct the indices for all of them.
             wmx = []
-            for j in range(L[1]):
+            for j in range(L[2]):
                 wmx = np.concatenate((wmx, np.arange(j*3*S[2], 3*(j*S[2]+S[2]), 3*S[1])))
             winding_masks.append(np.array(wmx, dtype=np.int))
             # winding_masks.append(np.arange(0,3*S[3],3))
@@ -464,7 +464,7 @@ class GaussLattice(object):
             # winding_masks.append(np.arange(1,3*S[3],3))
 
             wmz = []
-            for j in range(L[1]):
+            for j in range(L[0]):
                 wmz = np.concatenate((wmz, np.arange(j*3*S[1], 3*(j*S[1]+S[1]), 3*S[0])))
             winding_masks.append(np.array(wmz, dtype=np.int)+2)
             # winding_masks.append(np.arange(2,3*S[3],3))

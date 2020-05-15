@@ -93,6 +93,7 @@ class Hamiltonian(object):
         # most general case.
         if self.n_fock == 1:
             self.eigenvalues = [0]
+            return
         self.eigenvalues, _ = eigsh(self.sparse_rep, n_eigenvalues, which=which)
 
 
@@ -152,4 +153,4 @@ class GaussLatticeHamiltonian(Hamiltonian):
 
 
         # Perform the usual diagonalization.
-        super().diagonalize(**kwargs)
+        return super().diagonalize(**kwargs)

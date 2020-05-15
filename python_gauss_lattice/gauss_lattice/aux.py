@@ -21,6 +21,20 @@ def file_tag(L, filetype='hdf5'):
     """
     return 'winding_states_' + size_tag(L) + '.' + filetype
 
+def param_tag(param, precision=2):
+    """ Fixed naming convention.
+    """
+    tag = param['gauge_particles'] + "_" + size_tag(param['L'])
+
+    J = param.get('J')
+    if J:
+        tag += ('_J{:.'+str(precision)+'f}').format(J)
+
+    lam = param.get('lam')
+    if lam:
+        tag += ('_lam{:.'+str(precision)+'f}').format(lam)
+
+    return tag
 
 
 def timeit(method):
@@ -133,7 +147,7 @@ def read_sequential_spectrum(filename):
     with hdf.File(filename, 'r') as f:
         for ds in f:
             spectrum += f[ds][...].tolist()
-    return sorted(lr_sequential)
+    return sorted(spectrum)
 
 
 def write_simple_spectrum(spectrum, filename):
