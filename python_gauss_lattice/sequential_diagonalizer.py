@@ -7,7 +7,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
-from gauss_lattice.aux import param_tag, file_tag, timeit, read_all_states, write_simple_spectrum
+from gauss_lattice.aux import param_tag, file_tag, size_tag, timeit, read_all_states, write_simple_spectrum
 import numpy as np
 import h5py as hdf
 
@@ -69,7 +69,7 @@ with hdf.File(spectrum_file, 'w') as f:
     pass
 
 if param['store_hamiltonian']:
-    hamiltonian_file = 'output/SEQUENTIAL_hamiltonian_' + param_tag(param) + '.hdf5'
+    hamiltonian_file = 'output/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
     with hdf.File(hamiltonian_file, 'w') as f:
         pass
 
@@ -88,6 +88,12 @@ for i, winding_sector in enumerate(all_winding_sectors):
     builder = HamiltonianBuilder(param, states=states)
     ham = builder.construct()
 
+
+    if param['store_hamiltonian']:
+        with hdf.File(hamiltonian_file, 'a') as f:
+            f.create_dataset(ws, data= np.array([ham.col, ham.row, ham.data]))
+
+
     # Diagonalization.
     spectrum = hamiltonian_diagonalization(ham,
         full_diag=False,
@@ -101,11 +107,6 @@ for i, winding_sector in enumerate(all_winding_sectors):
     # Save into a dataset in the HDF5 file.
     with hdf.File(spectrum_file, 'a') as f:
         f.create_dataset(ws, data=np.array(spectrum))
-
-    if param['store_hamiltonian']:
-        with hdf.File(hamiltonian_file, 'a') as f:
-            f.create_dataset(ws, data=np.array(spectrum))
-
 
 # Clean up (keep the HDF5 file, but also produce an easier to read spectrum file).
 spectrum = convert_sequential_spectrum(spectrum_file)

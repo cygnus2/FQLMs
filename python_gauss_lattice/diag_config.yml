@@ -9,5 +9,5 @@ gauge_particles : 'bosons'
 # full_diag : False
 ev_type : 'BE'
 n_eivenvalues : 100
-lambda : -1.2
+lambda : 0.0
 J : -1.0

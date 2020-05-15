@@ -31,7 +31,7 @@ def wrap_state_finder(gl, *args, **kwargs):
 # Create a GaussLattice with appropriate parameters. If the optional keyword
 # `state_file` is provided, *all* states will be stored - either in a hdf5 or
 # plain text format, depending of the ending of the filename.
-L = [2,2,2]
+L = [2,4]
 
 # glatt = GaussLattice(L=L)
 state_file = file_tag(L, filetype='hdf5')

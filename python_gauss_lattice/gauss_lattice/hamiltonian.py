@@ -6,7 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 import numpy as np
-from scipy.sparse import csr_matrix, save_npz
+from scipy.sparse import coo_matrix, save_npz, load_npz
 from scipy.sparse.linalg import eigsh, eigs
 from scipy.linalg import eigvals
 from .aux import write_simple_spectrum
@@ -32,6 +32,20 @@ class Hamiltonian(object):
         self.diagonalized = False
         self.sparsified = False
 
+    @classmethod
+    def from_scipy_dump(cls, input_file):
+        """ Alternate setup with data from file.
+        """
+        sp = load_npz(input_file)
+        return cls(sp.data, sp.row, sp.col, sp.shape[0])
+
+    @classmethod
+    def from_hdf5_dump(cls, input_file, ws):
+        """ Alternate setup with data from file.
+        """
+        raise NotImplementedError('HDF5 loading not implemented yet, sorry!')
+
+
     def __repr__(self):
         return str(self.sparse_rep.todense())
 
@@ -40,13 +54,13 @@ class Hamiltonian(object):
         """ Constructs the sparse matrix from the pieces we stored.
         """
         if entries is None:
-            self.sparse_rep = csr_matrix(
+            self.sparse_rep = coo_matrix(
                 (self.data, (self.row, self.col)),
                 shape=(self.n_fock, self.n_fock),
                 dtype=np.float
             )
         else:
-            self.sparse_rep = csr_matrix(
+            self.sparse_rep = coo_matrix(
                 entries,
                 shape=(self.n_fock, self.n_fock),
                 dtype=np.float

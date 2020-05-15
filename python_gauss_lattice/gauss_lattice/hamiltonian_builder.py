@@ -20,8 +20,6 @@ class HamiltonianBuilder(object):
         self.L = param['L']
         self.d = len(param['L'])
 
-        self.lam = param['lambda']
-
         # Shift operators to get the link indices.
         self.S = [1]
         for l in self.L:
