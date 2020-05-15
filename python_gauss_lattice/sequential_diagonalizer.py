@@ -7,9 +7,40 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
-from gauss_lattice.aux import param_tag, file_tag, timeit, read_all_states, read_sequential_spectrum, write_simple_spectrum
+from gauss_lattice.aux import param_tag, file_tag, timeit, read_all_states, write_simple_spectrum
 import numpy as np
 import h5py as hdf
+
+
+
+def convert_sequential_spectrum(filename, which='BE'):
+    """ Takes in a HDF5 file which contains the spectra of several winding
+        sectors and combines them in a single list.
+
+        Returns the lowest part of the entire spectrum, up to the value where
+        it is sure that it is the lowest value. This cutoff is given by the lowest
+        maximum of the sub spectra.
+
+        Disclaimer: only tested for which='BE', but this should work either way.
+    """
+    spectrum = []
+    with hdf.File(filename, 'r') as f:
+        min_max = np.inf
+        for ds in f:
+            sub_spectrum = np.array(sorted(f[ds][...]))
+            if which == 'BE':
+                cutoff = len(sub_spectrum) // 2
+            else:
+                cutoff = len(sub_spectrum)
+            if cutoff:
+                m = np.max(sub_spectrum[:cutoff])
+                if m < min_max:
+                    min_max = m
+                spectrum += sub_spectrum.tolist()
+
+    spectrum = np.array(sorted(spectrum))
+    return spectrum[spectrum<min_max]
+
 
 
 @timeit
@@ -23,8 +54,8 @@ def hamiltonian_diagonalization(ham, **kwargs):
 param = {
     'L' : [2,2,2],
     'J' : -1.0,
-    'lambda' : -0,
-    'gauge_particles' : 'bosons',
+    'lambda' : 0,
+    'gauge_particles' : 'fermions',
 
     'ev_type' : 'BE',
     'n_eigenvalues' : 100,
@@ -58,8 +89,14 @@ for i, winding_sector in enumerate(all_winding_sectors):
     ham = builder.construct()
 
     # Diagonalization.
-    n_eigenvalues = max(1, min(param['n_eigenvalues'], builder.n_fock//2))
-    spectrum = hamiltonian_diagonalization(ham, full_diag=False, n_eigenvalues=n_eigenvalues, which=param['ev_type'])
+    spectrum = hamiltonian_diagonalization(ham,
+        full_diag=False,
+        J = param['J'],
+        lam = param['lambda'],
+        gauge_particles = param['gauge_particles'],
+        n_eigenvalues = max(1, min(param['n_eigenvalues'], builder.n_fock//2)),
+        which = param['ev_type']
+    )
 
     # Save into a dataset in the HDF5 file.
     with hdf.File(spectrum_file, 'a') as f:
@@ -71,5 +108,5 @@ for i, winding_sector in enumerate(all_winding_sectors):
 
 
 # Clean up (keep the HDF5 file, but also produce an easier to read spectrum file).
-spectrum = read_sequential_spectrum(spectrum_file)
-write_simple_spectrum(spectrum, spectrum_file)
+spectrum = convert_sequential_spectrum(spectrum_file)
+write_simple_spectrum(spectrum, spectrum_file.replace('.hdf5', '.dat'))
