@@ -37,18 +37,20 @@ def param_tag(param, precision=2):
     return tag
 
 
-def timeit(method):
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args, **kw)
-        te = time.time()
-        if 'log_time' in kw:
-            name = kw.get('log_name', method.__name__.upper())
-            kw['log_time'][name] = int((te - ts) * 1000)
-        else:
-            print ('%r  %2.2f ms' % (method.__name__, (te - ts) * 1000))
-        return result
-    return timed
+def timeit(logger=None):
+    def wrap(method):
+        def timed(*args, **kw):
+            ts = time.time()
+            result = method(*args, **kw)
+            te = time.time()
+            text = '%r  %2.2f ms' % (method.__name__, (te - ts) * 1000)
+            if logger:
+                logger.info(text)
+            else:
+                print(text)
+            return result
+        return timed
+    return wrap
 
 
 def print_2D_state(state, L):
