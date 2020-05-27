@@ -5,9 +5,11 @@
     Holds some auxiliary stuff.
 
 ---------------------------------------------------------------------------- """
-import time
+import time, yaml, sys
 import numpy as np
 import h5py as hdf
+import numpy as np
+from itertools import product
 
 
 def size_tag(L):
@@ -156,3 +158,42 @@ def write_simple_spectrum(spectrum, filename):
     with open(filename, 'w') as f:
         for e in spectrum:
             f.write('{:.8f},{:.8f}\n'.format(e.real, e.imag))
+
+
+
+
+def winding_sectors(L, tag=False):
+    """ A generator for all winding number sectors.
+    """
+    if len(L) == 2:
+        winding_numbers = tuple(np.array(L[::-1])+1)
+    elif len(L) == 3:
+        winding_numbers = (
+            L[1]*L[2] + 1,
+            L[0]*L[2] + 1,
+            L[0]*L[1] + 1
+        )
+    else:
+        raise NotimplementedError('Only 2D and 3D lattices are allowed.')
+
+    sectors = product(*map(lambda n: range(n), winding_numbers))
+    for sector in sectors:
+        if tag:
+            yield winding_tag(sector)
+        else:
+            yield sector
+
+
+def load_config(filename):
+    """ Reads a config from a yaml file, with appropriate chekcs.
+    """
+    if filename is not None:
+        # Loads parameters from file.
+        with open(filename, 'r') as f:
+            try:
+                return yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                print(exc)
+                raise yaml.YAMLError()
+    else:
+        sys.exit('fatal: no input file specified')

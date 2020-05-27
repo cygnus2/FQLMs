@@ -6,22 +6,21 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import GaussLattice
-from gauss_lattice.aux import timeit, file_tag, size_tag
+from gauss_lattice.aux import timeit, file_tag, size_tag, winding_sectors
 
 
 def write_winding_sectors(L, wn):
     """ Dirty output function.
     """
     filename='output/winding_sectors_' +size_tag(L) + '.dat'
-    if len(L) == 3:
-        with open(filename, 'w') as f:
-            for i in range(wn.shape[0]):
-                for j in range(wn.shape[1]):
-                    for k in range(wn.shape[2]):
-                        f.write("{:d},{:d},{:d},{:d}\n".format(i,j,k,wn[i,j,k]))
+    with open(filename, 'w') as f:
+        for ws in winding_sectors(L):
+            f.write(
+                ("{:d},"*len(L)).format(*ws) +
+                "{:d}\n".format(wn[ws])
+            )
 
-
-@timeit
+@timeit(logger=None)
 def wrap_state_finder(gl, *args, **kwargs):
     """ Wrapper function, purely for timing.
     """
@@ -31,7 +30,7 @@ def wrap_state_finder(gl, *args, **kwargs):
 # Create a GaussLattice with appropriate parameters. If the optional keyword
 # `state_file` is provided, *all* states will be stored - either in a hdf5 or
 # plain text format, depending of the ending of the filename.
-L = [2,4]
+L = [4,6]
 
 # glatt = GaussLattice(L=L)
 state_file = file_tag(L, filetype='hdf5')

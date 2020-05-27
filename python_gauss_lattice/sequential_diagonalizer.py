@@ -7,7 +7,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder, GaussLatticeHamiltonian
-from gauss_lattice.aux import param_tag, file_tag, size_tag, timeit, read_all_states, write_simple_spectrum
+from gauss_lattice.aux import param_tag, file_tag, size_tag, timeit, read_all_states, write_simple_spectrum, winding_sectors
 import numpy as np
 import h5py as hdf
 import argparse, logging
@@ -49,10 +49,10 @@ args = parser.parse_args()
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = {
-    'L' : [4,4],
+    'L' : [2,2,2],
     'J' : -1.0,
     'lambda' : 0,
-    'gauge_particles' : 'fermions',
+    'gauge_particles' : 'bosons',
 
     'ev_type' : 'BE',
     'n_eigenvalues' : 100,
@@ -60,12 +60,8 @@ param = {
     'store_hamiltonian' : True,
     'logfile' : 'output/log_sequential_diagonalization.log'
 }
-
-
 spectrum_file = 'output/SEQUENTIAL_spectrum_' + param_tag(param) + '.hdf5'
-with hdf.File(spectrum_file, 'w') as f:
-    pass
-
+hamiltonian_file = 'output/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 # Set up a logger with a handler for the terminal output.
 logger = logging.getLogger('sequential diagonalization logger')
@@ -89,7 +85,6 @@ def hamiltonian_construction(builder, **kwargs):
 
 # Read all winding sectors from file.
 all_winding_sectors = read_all_states(param['L'], merged=False)
-hamiltonian_file = 'output/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 total_progress = 0
 total_states = sum(list(map(lambda x: len(x[1]), all_winding_sectors)))
@@ -133,7 +128,7 @@ for i, winding_sector in enumerate(all_winding_sectors):
     )
 
     # Save into a dataset in the HDF5 file.
-    with hdf.File(spectrum_file, 'a') as f:
+    with hdf.File(spectrum_file, 'a' if i else 'w') as f:
         f.create_dataset(ws, data=np.array(spectrum))
 
     logger.info('---')

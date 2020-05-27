@@ -6,18 +6,18 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
-from gauss_lattice.aux import size_tag, timeit, read_winding_sector, read_all_states
+from gauss_lattice.aux import size_tag, timeit, read_winding_sector, read_all_states, load_config
 import numpy as np
-import yaml, argparse
+import argparse
 
 
-@timeit
+@timeit(logger=None)
 def hamiltonian_construction(builder):
     """ This method just exists to be able to time the routine efficiently.
     """
     return builder.construct()
 
-@timeit
+@timeit(logger=None)
 def hamiltonian_diagonalization(ham, **kwargs):
     """ This method just exists to be able to time the routine efficiently.
     """
@@ -30,16 +30,8 @@ parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer.
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
 args = parser.parse_args()
 
-if args.i is not None:
-    # Loads parameters from file.
-    with open(args.i, 'r') as f:
-        try:
-            param = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            print(exc)
-else:
-    sys.exit('fatal: no input file specified')
-
+# Get parameters.
+param = load_config(args.i)
 
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
@@ -71,6 +63,6 @@ eigenvalues = hamiltonian_diagonalization(ham,
 # ------------------------------------------------------------------------------
 # Some I/O.
 filename = 'spectrum_' + param['gauge_particles'] + '_' + size_tag(param['L']) + '_lam{:.2f}'.format(param['lambda']) + '.dat'
-if param['full_diag']:
+if param.get('full_diag'):
     filename = 'FULL_' + filename
 ham.store_results(filename='output/'+filename)

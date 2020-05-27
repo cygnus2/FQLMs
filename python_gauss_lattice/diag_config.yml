@@ -8,6 +8,7 @@ gauge_particles : 'bosons'
 # winding_sector : [0,0]
 # full_diag : False
 ev_type : 'BE'
-n_eivenvalues : 100
-lambda : 0.0
+n_eigenvalues : 10
+lambdas : [-1, 1, 5]
 J : -1.0
+logfile : 'parameter_run.log'
