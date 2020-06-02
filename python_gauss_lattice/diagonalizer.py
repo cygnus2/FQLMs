@@ -55,7 +55,7 @@ eigenvalues = hamiltonian_diagonalization(ham,
     J = param['J'],
     lam = param['lambda'],
     full_diag = param.get('full_diag'),
-    n_eigenvalues = min(param['n_eivenvalues'], builder.n_fock//2),
+    n_eigenvalues = min(param['n_eigenvalues'], builder.n_fock//2),
     which = param['ev_type']
 )
 

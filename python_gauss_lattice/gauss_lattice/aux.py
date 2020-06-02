@@ -130,12 +130,12 @@ def read_winding_sector(L, ws, debug=True):
 
 
 
-def read_all_states(L, merged=True):
+def read_all_states(L, merged=True, basedir='./'):
     """ Takes in a parameter dictionary and reads in the appropriate states
         for the specified winding sector.
     """
     # Read and return the appropriate list.
-    filename='output/'+file_tag(L, filetype='hdf5')
+    filename =  basedir+'/output/'+file_tag(L, filetype='hdf5')
     states = []
     with hdf.File(filename, 'r') as f:
         for ws in f:

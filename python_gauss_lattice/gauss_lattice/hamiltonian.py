@@ -154,12 +154,12 @@ class GaussLatticeHamiltonian(Hamiltonian):
             the specific parameter choice.
         """
         if gauge_particles == 'bosons':
-            self._sparsify(entries=(np.abs(self.data), (self.row, self.col)))
+            self._sparsify(entries=(J*np.abs(self.data), (self.row, self.col)))
         else:
-            self._sparsify(entries=(self.data, (self.row, self.col)))
+            self._sparsify(entries=(J*self.data, (self.row, self.col)))
 
         # If an interaction term exists, we must construct it.
-        if lam:
+        if abs(lam):
             diag = np.zeros(self.n_fock)
             for k in self.row:
                 diag[k] += lam
