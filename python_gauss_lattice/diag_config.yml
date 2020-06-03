@@ -3,13 +3,13 @@
 # The values don't have to be in any specific order. It is important though,
 # that the names stay as they are - these are the variable names, essentially,
 # in the code.
-L : [4,4]
-gauge_particles : 'bosons'
+L : [2,2,2]
+gauge_particles : 'fermions'
 # winding_sector : [0,0]
 full_diag : False
 ev_type : 'BE'
 n_eigenvalues : 50
-lambdas : [-1, 1, 51]
+lambdas : [-5, 1, 201]
 # lambda: 0
 J : -1.0
 logfile : 'parameter_run.log'

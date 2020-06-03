@@ -71,7 +71,7 @@ for i, l in enumerate(lambdas):
         which = param['ev_type']
     )
 
-    with hdf.File('output/multi_spectrum_'+size_tag(param['L']) + '.hdf5', 'a' if i else 'w') as f:
+    with hdf.File('output/multi_spectrum_{:s}_'.format(param['gauge_particles'])+size_tag(param['L']) + '.hdf5', 'a' if i else 'w') as f:
         f.attrs['lambdas'] = lambdas
         ds = f.create_dataset('lam_{:6f}'.format(l), data=spectra[l])
         ds.attrs['lambda'] = l
