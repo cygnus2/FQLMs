@@ -50,13 +50,14 @@ ham.store_hamiltonian('output/hamiltonian_'+size_tag(param['L'])+'.npz')
 
 # ------------------------------------------------------------------------------
 # Diagonalization.
-eigenvalues = hamiltonian_diagonalization(ham,
+eigenvalues, eigenstates = hamiltonian_diagonalization(ham,
     gauge_particles = param['gauge_particles'],
     J = param['J'],
     lam = param['lambda'],
     full_diag = param.get('full_diag'),
     n_eigenvalues = min(param['n_eigenvalues'], builder.n_fock//2),
-    which = param['ev_type']
+    which = param['ev_type'],
+    compute_eigenstates=True
 )
 
 
@@ -65,4 +66,4 @@ eigenvalues = hamiltonian_diagonalization(ham,
 filename = 'spectrum_' + param['gauge_particles'] + '_' + size_tag(param['L']) + '_lam{:.2f}'.format(param['lambda']) + '.dat'
 if param.get('full_diag'):
     filename = 'FULL_' + filename
-ham.store_results(filename='output/'+filename)
+ham.store_results(filename='output/'+filename, store_eigenvalues=True)

@@ -50,16 +50,17 @@ def loop_state(path, ml):
 
 
 # Actually finding the loops (without checking anything).
-# n_state = 26
+n_state = 26
+loops = loop_state([n_state], 8)[:1]
 
-n_particles = 12
-for state in gsl_states:
-    if count_particles(state) == n_particles:
-        n_state = builder.state_to_index(state)
-        print('{:024b}'.format(state))
-        loops = loop_state([n_state], 8)[:1]
-        if len(loops):
-            break
+# n_particles = 12
+# for state in gsl_states:
+#     if count_particles(state) == n_particles:
+#         n_state = builder.state_to_index(state)
+#         print('{:024b}'.format(state))
+#         loops = loop_state([n_state], 8)[:1]
+#         if len(loops):
+#             break
 
 # Here we prepare the loops for efficient later use.
 #   1) which indicies changed?
@@ -100,6 +101,7 @@ for k, loop in enumerate(loops):
 
     # More explicit.
     for j in range(len(loop)-1):
+        st = '[ {:d} --> {:d} ] '.format(loop[j], loop[j+1])
         op = '{:s}[{:2d},{:2d},{:2d},{:2d}] '.format(operator_strings[k][j], *plaquette_strings[k][j])
         state = '| '+ ('{:2d}, '*len(ind_loops[k][j])).format(*ind_loops[k][j][::-1])[:-2] + '  >'
-        print(op + ' ' + state)
+        print(st + op + ' ' + state)

@@ -8,7 +8,7 @@
 import numpy as np
 from scipy.sparse import coo_matrix, save_npz, load_npz
 from scipy.sparse.linalg import eigsh, eigs
-from scipy.linalg import eigvals
+from scipy.linalg import eigvals, eig
 from .aux import write_simple_spectrum
 from copy import copy
 
@@ -76,7 +76,7 @@ class Hamiltonian(object):
         save_npz(filename, self.sparse_rep)
 
 
-    def diagonalize(self, n_eigenvalues=50, which='BE', full_diag=False):
+    def diagonalize(self, n_eigenvalues=50, which='BE', full_diag=False, compute_eigenstates=False):
         """ The diagonalization routine which is called from the outside. If
             full_diag is set to True, a full eigensolver (not ARPACK) will be
             used which could lead to a dramatic loss of performance.
@@ -86,14 +86,16 @@ class Hamiltonian(object):
 
         # Perform the actual diagonalization.
         if full_diag:
-            self._full_diagonalization()
+            self._full_diagonalization(compute_eigenstates=compute_eigenstates)
         else:
             self._compute_lower_spectrum(n_eigenvalues, which)
         self.diagonalized = True
 
-        # Sort and return.
-        self.eigenvalues = sorted(self.eigenvalues)
-        return self.eigenvalues
+        # Sorting.
+        m = np.argsort(self.eigenvalues)
+        if compute_eigenstates:
+            return self.eigenvalues[m], self.eigenstates[:,m]
+        return self.eigenvalues[m]
 
 
     def _compute_lower_spectrum(self, n_eigenvalues, which):
@@ -106,25 +108,30 @@ class Hamiltonian(object):
         # Warning: the diagonal of the Hamiltonian is set to 0 - this is not the
         # most general case.
         if self.n_fock == 1:
-            self.eigenvalues = [0]
-            return
-        self.eigenvalues, _ = eigsh(self.sparse_rep, n_eigenvalues, which=which)
+            self.eigenvalues, self.eigenstates = [0], [0]
+        else:
+            self.eigenvalues, self.eigenstates = eigsh(self.sparse_rep, n_eigenvalues, which=which)
 
 
-    def _full_diagonalization(self):
+    def _full_diagonalization(self, compute_eigenstates=False):
         """ Full diagonalization of the Hamiltonian.
 
             Clearly, this should/only be done for small systems - for larger ones
             this routine will explode in runtime.
         """
-        self.eigenvalues = eigvals(self.sparse_rep.todense())
+        if compute_eigenstates:
+            self.eigenvalues, self.eigenstates = eig(self.sparse_rep.todense())
+        else:
+            self.eigenvalues = eigvals(self.sparse_rep.todense())
 
 
-    def store_results(self, filename='diagonalization_results.dat'):
+    def store_results(self, filename='diagonalization_results.dat', store_eigenvalues=False):
         """ Dumps the results for the spectrum to file.
         """
         if self.diagonalized:
             write_simple_spectrum(self.eigenvalues, filename)
+            if store_eigenvalues:
+                np.save(filename.replace('spectrum', 'eigenstates'), self.eigenstates)
         else:
             raise ValueError('Hamiltonian cannot be stored yet - it is not diagonalized!')
 
