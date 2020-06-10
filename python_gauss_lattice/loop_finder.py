@@ -50,7 +50,7 @@ def loop_state(path, ml):
 
 
 # Actually finding the loops (without checking anything).
-n_state = 26
+n_state = 4815
 loops = loop_state([n_state], 8)[:1]
 
 # n_particles = 12
