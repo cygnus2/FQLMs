@@ -7,7 +7,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder, GaussLatticeHamiltonian
-from gauss_lattice.aux import param_tag, file_tag, size_tag, timeit, read_all_states, write_simple_spectrum, winding_sectors
+from gauss_lattice.aux import param_tag, file_tag, size_tag, timeit, read_all_states, write_simple_spectrum, winding_sectors, load_config
 import numpy as np
 import h5py as hdf
 import argparse, logging
@@ -42,31 +42,21 @@ def convert_sequential_spectrum(filename, which='BE'):
     return spectrum[spectrum<min_max]
 
 
-parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer.")
+parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (sequential).")
+parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
 parser.add_argument('-notify', action='store_true', help='Toggles whether a notification should be sent when done. Should only be used by Lukas (sorry).')
 args = parser.parse_args()
 
 
 # This sets the parameters fof the calculation (everything else is fixed).
-param = {
-    'L' : [2,2,2],
-    'J' : -1.0,
-    'lambda' : 0,
-    'gauge_particles' : 'bosons',
-
-    'ev_type' : 'BE',
-    'n_eigenvalues' : 100,
-
-    'store_hamiltonian' : True,
-    'logfile' : 'output/log_sequential_diagonalization.log'
-}
-spectrum_file = 'output/SEQUENTIAL_spectrum_' + param_tag(param) + '.hdf5'
-hamiltonian_file = 'output/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
+param = load_config(args.i)
+spectrum_file = param['working_directory'] + '/SEQUENTIAL_spectrum_' + param_tag(param) + '.hdf5'
+hamiltonian_file = param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 # Set up a logger with a handler for the terminal output.
 logger = logging.getLogger('sequential diagonalization logger')
 logger.addHandler(logging.StreamHandler())
-logger.addHandler(logging.FileHandler(param['logfile'], mode='w'))
+logger.addHandler(logging.FileHandler(param['working_directory'] + "/" + param['logfile'], mode='w'))
 logger.setLevel(logging.DEBUG)
 
 
@@ -84,7 +74,7 @@ def hamiltonian_construction(builder, **kwargs):
 
 
 # Read all winding sectors from file.
-all_winding_sectors = read_all_states(param['L'], merged=False)
+all_winding_sectors = read_all_states(param['L'], merged=False, basedir=param['working_directory'])
 
 total_progress = 0
 total_states = sum(list(map(lambda x: len(x[1]), all_winding_sectors)))
@@ -96,7 +86,6 @@ for i, winding_sector in enumerate(all_winding_sectors):
 
     # Either get an existing Hamiltonian matrix or produce it from scratch.
     try:
-        # raise FileNotFoundError()
         with hdf.File(hamiltonian_file, 'r') as f:
             mat = f[ws][...]
         if mat.shape[-1]:

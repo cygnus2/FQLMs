@@ -22,7 +22,7 @@ param = load_config(args.i)
 # Set up a logger with a handler for the terminal output.
 logger = logging.getLogger('parameter run logger')
 logger.addHandler(logging.StreamHandler())
-logger.addHandler(logging.FileHandler(param['logfile'], mode='w'))
+logger.addHandler(logging.FileHandler(param['working_directory'] + '/' + param['logfile'], mode='w'))
 logger.setLevel(logging.DEBUG)
 
 
@@ -35,20 +35,20 @@ def hamiltonian_diagonalization(ham, **kwargs):
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.
 
-input_file = 'output/hamiltonian_' + size_tag(param['L']) + '.npz'
+input_file = param['working_directory']+'/hamiltonian_' + size_tag(param['L']) + '.npz'
 try:
     ham = GaussLatticeHamiltonian.from_scipy_dump(input_file)
     logger.info('Read Hamiltonian from file.')
 except FileNotFoundError:
     logger.info('Could not find stored Hamiltonian, attempting to read Fock states.')
     try:
-        states = read_all_states(param['L'])
+        states = read_all_states(param['L'], basedir=param['working_directory'])
         logger.info('Read Fock states from file, constructing Hamiltonian.')
     except FileNotFoundError:
         logger.info('Could not find stored states, constructing Fock state list from scratch.')
         glatt = GaussLattice(param['L'], state_file=file_tag(L, filetype='hdf5'))
         glatt.find_states()
-        states = read_all_states(param['L'])
+        states = read_all_states(param['L'], basedir=param['working_directory'])
         logger.info('Constructed states.')
     builder = HamiltonianBuilder(param, states, logger=logger)
     ham = builder.construct()
@@ -71,7 +71,7 @@ for i, l in enumerate(lambdas):
         which = param['ev_type']
     )
 
-    with hdf.File('output/multi_spectrum_{:s}_'.format(param['gauge_particles'])+size_tag(param['L']) + '.hdf5', 'a' if i else 'w') as f:
+    with hdf.File(param['working_directory']+'/multi_spectrum_{:s}_'.format(param['gauge_particles'])+size_tag(param['L']) + '.hdf5', 'a' if i else 'w') as f:
         f.attrs['lambdas'] = lambdas
         ds = f.create_dataset('lam_{:6f}'.format(l), data=spectra[l])
         ds.attrs['lambda'] = l

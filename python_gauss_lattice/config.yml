@@ -18,9 +18,10 @@ ev_type : 'BE' # ARPACK style specification of the types of eigenvalues.
 n_eigenvalues : 50 # Number of eigenvalues to compute.
 lambda: -5 # lambda Coupling.
 J : 0.0 # J Coupling.
-compute_eigenstates: True
 # winding_sector : [0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
+compute_eigenstates: True # If true, the eigenstates will be exported.
+store_hamiltonian: True # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-#lambdas : [-5, 1, 201] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-5, 1, 21] # Range that specifies the lambda values to scan (min, max, n_steps)

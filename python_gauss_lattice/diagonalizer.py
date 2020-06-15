@@ -25,7 +25,6 @@ def hamiltonian_diagonalization(ham, **kwargs):
 
 # ------------------------------------------------------------------------------
 # Input handling.
-
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (single lambda).")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
 args = parser.parse_args()
