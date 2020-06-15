@@ -101,7 +101,7 @@ def winding_tag(ws, labels=['x', 'y', 'z']):
     return wtag[:-1]
 
 
-def read_winding_sector(L, ws, debug=True):
+def read_winding_sector(L, ws, debug=True, basedir='./output/'):
     """ Takes in a parameter dictionary and reads in the appropriate states
         for the specified winding sector.
     """
@@ -123,7 +123,7 @@ def read_winding_sector(L, ws, debug=True):
         print(f'Supplied winding numbers {ws} are mapped to {tuple(ws_shifted)}')
 
     # Read and return the appropriate list.
-    filename='output/'+file_tag(L, filetype='hdf5')
+    filename=basedir+file_tag(L, filetype='hdf5')
     with hdf.File(filename, 'r') as f:
         winding_states = f[winding_tag(ws_shifted)][...]
     return winding_states

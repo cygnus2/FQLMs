@@ -26,7 +26,7 @@ def hamiltonian_diagonalization(ham, **kwargs):
 # ------------------------------------------------------------------------------
 # Input handling.
 
-parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer.")
+parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (single lambda).")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
 args = parser.parse_args()
 
@@ -36,34 +36,37 @@ param = load_config(args.i)
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
 if param.get('winding_sector'):
-    states = read_winding_sector(param['L'], param['winding_sector'])
+    states = read_winding_sector(param['L'], param['winding_sector'], basedir=param['working_directory'])
 else:
-    states = read_all_states(param['L'])
+    states = read_all_states(param['L'], basedir=param['working_directory'])
 
 # Set up the builder object & construct the Hamiltonian.
 builder = HamiltonianBuilder(param, states=states)
 ham = hamiltonian_construction(builder)
 
 # Just to have it.
-ham.store_hamiltonian('output/hamiltonian_'+size_tag(param['L'])+'.npz')
+ham.store_hamiltonian(param['working_directory'] + 'hamiltonian_'+size_tag(param['L'])+'.npz')
 
 
 # ------------------------------------------------------------------------------
 # Diagonalization.
-eigenvalues, eigenstates = hamiltonian_diagonalization(ham,
+results = hamiltonian_diagonalization(ham,
     gauge_particles = param['gauge_particles'],
     J = param['J'],
     lam = param['lambda'],
     full_diag = param.get('full_diag'),
     n_eigenvalues = min(param['n_eigenvalues'], builder.n_fock//2),
     which = param['ev_type'],
-    compute_eigenstates=True
+    compute_eigenstates=bool(param.get('compute_eigenstates'))
 )
-
+if param['compute_eigenstates']:
+    eigenvalues, eigenstates = results
+else:
+    eivenvalues = results
 
 # ------------------------------------------------------------------------------
 # Some I/O.
 filename = 'spectrum_' + param['gauge_particles'] + '_' + size_tag(param['L']) + '_lam{:.2f}'.format(param['lambda']) + '.dat'
 if param.get('full_diag'):
     filename = 'FULL_' + filename
-ham.store_results(filename='output/'+filename, store_eigenvalues=True)
+ham.store_results(filename=param['working_directory']+filename, store_eigenvalues=True)

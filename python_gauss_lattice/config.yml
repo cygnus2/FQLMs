@@ -1,0 +1,26 @@
+# This is an input file for the diagonalization routine. The format is YAML,
+# which is quite flexible.
+# The values don't have to be in any specific order. It is important though,
+# that the names stay as they are - these are the variable names, essentially,
+# in the code.
+
+# ----------------------------------
+# General parameters:
+working_directory: /home/lukas/ # Directory where everything is stored/loaded.
+L : [2,2,2] # Spatial extent of the lattice.
+logfile : 'logfile.log' # Logfile to store the output.
+
+# ----------------------------------
+# Important for diagonalization.
+gauge_particles : 'bosons' # Either bosons or fermions.
+full_diag : False # If True, the full matrix is diagonalized - extremely costly.
+ev_type : 'BE' # ARPACK style specification of the types of eigenvalues.
+n_eigenvalues : 50 # Number of eigenvalues to compute.
+lambda: -5 # lambda Coupling.
+J : 0.0 # J Coupling.
+compute_eigenstates: True
+# winding_sector : [0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
+
+# ----------------------------------
+# Important for multi-lambda diagonalization. (overrides lambda parameter)
+#lambdas : [-5, 1, 201] # Range that specifies the lambda values to scan (min, max, n_steps)

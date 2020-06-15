@@ -79,7 +79,7 @@ class GaussLattice(object):
 
         # For winding number counts.
         self.filename ='winding_sectors{:d}.dat'
-        self.out_dir = kwargs.get('directory')
+        self.out_dir = kwargs.get('basedir')
         if self.out_dir is None:
             self.out_dir = 'output/'
         if not os.path.exists(self.out_dir):
