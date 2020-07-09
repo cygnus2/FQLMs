@@ -13,6 +13,7 @@ import argparse, logging
 
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer.")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
+parser.add_argument('-readonly', action='store_true', help='If this is set, the script only runs if the necessary files are found in the working directory (good for cluster usage if large files would be produced).')
 parser.add_argument('-notify', action='store_true', help='Toggles whether a notification should be sent when done. Should only be used by Lukas (sorry).')
 args = parser.parse_args()
 
@@ -41,6 +42,7 @@ try:
     logger.info('Read Hamiltonian from file.')
 except FileNotFoundError:
     logger.info('Could not find stored Hamiltonian, attempting to read Fock states.')
+
     try:
         states = read_all_states(param['L'], basedir=param['working_directory'])
         logger.info('Read Fock states from file, constructing Hamiltonian.')
@@ -61,6 +63,7 @@ spectra = {}
 lambdas = np.linspace(*param['lambdas'])
 for i, l in enumerate(lambdas):
     logger.info('[{:d} / {:d}] diagonalizing Hamiltonian for lambda={:.4f}'.format(i+1, len(lambdas), l))
+
     # Diagonalization.
     spectra[l] = hamiltonian_diagonalization(ham,
         full_diag = param.get('full_diag'),

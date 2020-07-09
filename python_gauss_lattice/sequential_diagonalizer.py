@@ -44,6 +44,7 @@ def convert_sequential_spectrum(filename, which='BE'):
 
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (sequential).")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
+parser.add_argument('-readonly', action='store_true', help='If this is set, the script only runs if the necessary files are found in the working directory (good for cluster usage if large files would be produced).')
 parser.add_argument('-notify', action='store_true', help='Toggles whether a notification should be sent when done. Should only be used by Lukas (sorry).')
 args = parser.parse_args()
 
