@@ -16,7 +16,7 @@ class HamiltonianBuilder(object):
     """ Constructs the Hamiltonian in a general single-particle basis.
     """
 
-    def __init__(self, param, states, logger=None):
+    def __init__(self, param, states, logger=None, silent=False):
         self.L = param['L']
         self.d = len(param['L'])
 
@@ -26,13 +26,15 @@ class HamiltonianBuilder(object):
             self.S.append(l*self.S[-1])
 
         # Some I/O business.
+        self.silent = silent
         self.logger = logger
 
         # Set up the lookup table, which is merely ordering the states such that
         # the inverse lookup can be done efficiently with bisection.
         self.lookup_table = sorted(states)
         self.n_fock = len(self.lookup_table)
-        self._log(f'Setting up the Hamiltonian with {self.n_fock} Fock states.')
+        if not self.silent:
+            self._log(f'Setting up the Hamiltonian with {self.n_fock} Fock states.')
 
         # Pre-compute all plaquette indicies to save some time.
         self.plaquettes = self.get_plaquette_list()
@@ -160,7 +162,8 @@ class HamiltonianBuilder(object):
         for n in tbar(range(self.n_fock)):
             all_entries += self.do_single_state(n)
 
-        self._log("# of nonzero entries: " + str(len(all_entries)))
+        if not self.silent:
+            self._log("# of nonzero entries: " + str(len(all_entries)))
         # Make a sparse matrix out ot this -although pretty plain, this can handle
         # reasonably sized lists of indices (will do fo now).
 
