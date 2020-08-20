@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     37877,        977]
-NotebookOptionsPosition[     35714,        934]
-NotebookOutlinePosition[     36104,        950]
-CellTagsIndexPosition[     36061,        947]
+NotebookDataLength[     61234,       1542]
+NotebookOptionsPosition[     58187,       1487]
+NotebookOutlinePosition[     58520,       1502]
+CellTagsIndexPosition[     58477,       1499]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -509,6 +509,118 @@ Cell[BoxData[{
    3.805044887366991*^9}, {3.805795064013033*^9, 3.805795088458205*^9}},
  CellLabel->"In[23]:=",ExpressionUUID->"15de3817-63b6-4311-8c48-3f29535a6677"],
 
+Cell[TextData[{
+ "Define Rotation Axes as used in the Overleaf, Fig 10, 11, 12\nNotations: 1. \
+",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    RowBox[{"(", 
+     SuperscriptBox["C", "0"], ")"}], "3"], TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "f7b8d256-252b-4767-983c-72a14123caa4"],
+ ",  ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     RowBox[{"(", 
+      SuperscriptBox["C", "1"], ")"}], "3"], ",", " ", 
+    SubscriptBox[
+     RowBox[{"(", 
+      SuperscriptBox["C", "2"], ")"}], "3"]}], TraditionalForm]],
+  ExpressionUUID->"1f2a748e-62d1-4535-9b6d-897485fd131b"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    RowBox[{"(", 
+     SuperscriptBox["C", "3"], ")"}], "3"], TraditionalForm]],ExpressionUUID->
+  "c5a0280d-952e-4df5-9979-ec58d418eb6b"],
+ " are the axes about which the ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["C", "3"], TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "7b1ad8e0-e7b4-4720-b949-845f6cd70a2a"],
+ " rotations are done.\n                       2. pC3 is the point at which \
+the axes are anchored. For all the ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["C", "3"], TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "393732be-fd11-430b-bd23-84030f2705ab"],
+ " rotations this is (1,1,1) unambiguously. "
+}], "Text",
+ CellChangeTimes->{{3.806836010011911*^9, 3.806836079321001*^9}, {
+  3.806836160894773*^9, 3.806836252443385*^9}, {3.806836595601568*^9, 
+  3.806836721637457*^9}},ExpressionUUID->"6c2e5a00-6a9d-4756-a18d-\
+a2d110aa9030"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"C3", " ", "rotations"}], " ", "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"pC3", " ", "=", " ", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"C30", " ", "=", " ", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], ";", " ", 
+    RowBox[{"C31", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1", ",", "1"}], "}"}]}], ";", "  ", 
+    RowBox[{"C32", " ", "=", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"-", "1"}], ",", "1"}], "}"}]}], ";", " ", 
+    RowBox[{"C33", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "1"}], ",", "1"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+   
+   RowBox[{
+    RowBox[{"pC2", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"C20", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "0", ",", 
+       RowBox[{"-", "1"}]}], "}"}]}], ";", " ", 
+    RowBox[{"C21", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "0", ",", "1"}], "}"}]}], ";", " ", 
+    RowBox[{"C22", "=", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "1", ",", 
+       RowBox[{"-", "1"}]}], "}"}]}], ";", " ", 
+    RowBox[{"C23", "=", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "1", ",", "1"}], "}"}]}], ";", " ", 
+    RowBox[{"C24", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "1"}], ",", "0"}], "}"}]}], ";", " ", 
+    RowBox[{"C25", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "0"}], "}"}]}], ";"}], 
+   "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.8068360803495398`*^9, 3.806836153180097*^9}, {
+  3.8068362564907427`*^9, 3.806836297293963*^9}, {3.806836744452853*^9, 
+  3.806836775420865*^9}, {3.80683681943381*^9, 3.806836820055252*^9}, {
+  3.806843224918359*^9, 3.80684326293727*^9}, {3.806843308402906*^9, 
+  3.8068434052197723`*^9}},
+ CellLabel->
+  "In[139]:=",ExpressionUUID->"2c25483e-b07c-49b9-88ed-837e3a024f87"],
+
 Cell[CellGroupData[{
 
 Cell[BoxData[
@@ -547,7 +659,7 @@ Cell[BoxData[
    3.805044326394599*^9}, {3.805044616849277*^9, 3.80504462252978*^9}, {
    3.805044703535756*^9, 3.805044707972063*^9}, {3.805044893780061*^9, 
    3.805044896316806*^9}, {3.805795077920665*^9, 3.805795093101163*^9}},
- CellLabel->"In[74]:=",ExpressionUUID->"6e2fdb08-a85b-4a8e-a013-eabf9146ca03"],
+ CellLabel->"In[37]:=",ExpressionUUID->"6e2fdb08-a85b-4a8e-a013-eabf9146ca03"],
 
 Cell[BoxData[
  Graphics3DBox[{{Line3DBox[{{0, 0, 0}, {2, 0, 0}}], 
@@ -573,18 +685,18 @@ Cell[BoxData[
     FormBox["x", TraditionalForm], 
     FormBox["y", TraditionalForm], 
     FormBox["z", TraditionalForm]},
-  ImageSize->{633.0709378790503, 463.},
-  ViewPoint->{2.2868927796481313`, -2.365135449725295, 0.7913632028632432},
-  ViewVertical->{0.18352590057813234`, -0.2508087960945855, 
-   0.9504805056488903}]], "Output",
+  ImageSize->{369.07093787905035`, 269.},
+  ViewPoint->{1.8342364367324406`, -2.7467187427183553`, 0.7356037265829836},
+  ViewVertical->{0.09899250107181144, -0.324585912815703, 
+   0.9406617191813135}]], "Output",
  CellChangeTimes->{
   3.80504327570308*^9, {3.805043309223151*^9, 3.8050433334411097`*^9}, 
    3.805043549754725*^9, 3.805044082000599*^9, 3.805044235109069*^9, {
    3.805044327044285*^9, 3.805044348745882*^9}, 3.805044623054819*^9, 
    3.805044708523676*^9, 3.805044900665886*^9, 3.8055657702614202`*^9, 
    3.8057947081881733`*^9, 3.805795098786005*^9, 3.8057975559940434`*^9, 
-   3.805797893032949*^9},
- CellLabel->"Out[74]=",ExpressionUUID->"06e3cbbf-83da-42e1-ab72-7e9b4c18f24c"]
+   3.805797893032949*^9, 3.8068302782259827`*^9, 3.8068359472948923`*^9},
+ CellLabel->"Out[37]=",ExpressionUUID->"641e4f3e-308b-4b1c-8795-d62cd2509473"]
 }, Open  ]],
 
 Cell["\<\
@@ -677,7 +789,7 @@ Cell[BoxData[{
    3.805796318857786*^9, 3.80579632816425*^9}, 3.805797999158071*^9, {
    3.805798481833886*^9, 3.805798484053303*^9}, {3.805798535320517*^9, 
    3.8057985378604727`*^9}},
- CellLabel->"In[45]:=",ExpressionUUID->"b593eb37-a064-48b7-aca3-11de3f37c252"],
+ CellLabel->"In[38]:=",ExpressionUUID->"b593eb37-a064-48b7-aca3-11de3f37c252"],
 
 Cell[BoxData[
  Graphics3DBox[{{Line3DBox[{{0, 0, 0}, {2, 0, 0}}], 
@@ -724,9 +836,25 @@ Cell[BoxData[
    3.805795108714658*^9, {3.8057959379778633`*^9, 3.805795949030168*^9}, 
    3.805796036913179*^9, {3.8057963199647017`*^9, 3.805796328716236*^9}, 
    3.80579789967627*^9, {3.805798470301578*^9, 3.805798484532596*^9}, 
-   3.805798562592325*^9},
- CellLabel->"Out[46]=",ExpressionUUID->"a669756e-b75e-4359-8cd5-255ce26588ed"]
+   3.805798562592325*^9, 3.806830287504498*^9, 3.806835952537327*^9},
+ CellLabel->"Out[39]=",ExpressionUUID->"16287b3a-4fa4-4092-a6e2-45ab185c024e"]
 }, Open  ]],
+
+Cell[TextData[{
+ "Testing the ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    RowBox[{"(", 
+     SuperscriptBox["C", "0"], ")"}], "3"], TraditionalForm]],ExpressionUUID->
+  "d157bdf1-6c14-459d-b5aa-07c1fc6ab209"],
+ " rotations; which is closed for the set of states we consider.  \nChange \
+the initial and the final states to produce the plots."
+}], "Text",
+ CellChangeTimes->{{3.806836902677658*^9, 3.806836919003227*^9}, {
+  3.806840930701063*^9, 3.8068409433896112`*^9}, {3.806841137368108*^9, 
+  3.806841179189004*^9}},ExpressionUUID->"51936804-6722-411c-ac31-\
+11ed8a1ac7cf"],
 
 Cell[CellGroupData[{
 
@@ -740,87 +868,509 @@ Cell[BoxData[{
      RowBox[{"{", 
       RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "]"}]}], 
   ";"}], "\[IndentingNewLine]", 
- RowBox[{"Graphics3D", "[", 
-  RowBox[{
-   RowBox[{"{", 
+ RowBox[{
+  RowBox[{"init", "=", "state6"}], ";", " ", 
+  RowBox[{"f1", "=", "state9"}], ";", " ", 
+  RowBox[{"f2", "=", "state12"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g1", "=", 
+   RowBox[{"Graphics3D", "[", 
     RowBox[{
      RowBox[{"{", 
       RowBox[{
        RowBox[{"{", 
         RowBox[{
-         RowBox[{"Opacity", "[", "0.1", "]"}], ",", "cub"}], "}"}], ",", 
-       RowBox[{"{", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"Opacity", "[", "0.1", "]"}], ",", "cub"}], "}"}], ",", 
+         "lineGrid", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Red", ",", 
+           RowBox[{"Point", "[", "f2", "]"}]}], "}"}]}], "}"}], ",", 
+       RowBox[{"GeometricTransformation", "[", 
         RowBox[{
-        "Line1", ",", "Line2", ",", "Line3", ",", "Line4", ",", "Line5", ",", 
-         "Line6", ",", "Line7", ",", "Line8", ",", "Line9", ",", "Line10", 
-         ",", "Line11", ",", "Line12", ",", "Line13", ",", "Line14", ",", 
-         "Line15", ",", "Line16", ",", "Line17", ",", "Line18", ",", "Line19",
-          ",", "Line20", ",", "Line21", ",", "Line22", ",", "Line23", ",", 
-         "Line24", ",", "Line25", ",", "Line26"}], "}"}], ",", 
-       RowBox[{"{", 
-        RowBox[{
-         RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Red", ",", 
-         RowBox[{"Point", "[", "state8", "]"}]}], "}"}]}], "}"}], ",", 
-     RowBox[{"GeometricTransformation", "[", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Blue", ",", 
+           RowBox[{"Point", "[", "init", "]"}]}], "}"}], ",", 
+         RowBox[{"RotationTransform", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"-", "4"}], 
+            RowBox[{"Pi", "/", "3"}]}], ",", "C30", ",", "pC3"}], "]"}]}], 
+        "]"}]}], "}"}], ",", 
+     RowBox[{"Axes", "->", "True"}], ",", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"x", ",", "y", ",", "z"}], "}"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g2", "=", 
+   RowBox[{"Graphics3D", "[", 
+    RowBox[{
+     RowBox[{"{", 
       RowBox[{
        RowBox[{"{", 
         RowBox[{
-         RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Blue", ",", 
-         RowBox[{"Point", "[", "state1", "]"}]}], "}"}], ",", 
-       RowBox[{"RotationTransform", "[", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"Opacity", "[", "0.1", "]"}], ",", "cub"}], "}"}], ",", 
+         "lineGrid", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Red", ",", 
+           RowBox[{"Point", "[", "f1", "]"}]}], "}"}]}], "}"}], ",", 
+       RowBox[{"GeometricTransformation", "[", 
         RowBox[{
-         RowBox[{"2", 
-          RowBox[{"Pi", "/", "3"}]}], ",", 
          RowBox[{"{", 
-          RowBox[{"1", ",", "1", ",", "1"}], "}"}], ",", 
-         RowBox[{"{", 
-          RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], "]"}]}], "]"}]}], "}"}],
-    ",", 
-   RowBox[{"Axes", "->", "True"}], ",", 
-   RowBox[{"AxesLabel", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"x", ",", "y", ",", "z"}], "}"}]}]}], "]"}]}], "Input",
- CellChangeTimes->{{3.805565863482489*^9, 3.805565910940423*^9}},
- CellLabel->"In[27]:=",ExpressionUUID->"8c6a61f7-7f50-4eae-af39-159c34f970e2"],
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Blue", ",", 
+           RowBox[{"Point", "[", "init", "]"}]}], "}"}], ",", 
+         RowBox[{"RotationTransform", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"-", "2"}], 
+            RowBox[{"Pi", "/", "3"}]}], ",", "C30", ",", "pC3"}], "]"}]}], 
+        "]"}]}], "}"}], ",", 
+     RowBox[{"Axes", "->", "True"}], ",", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"x", ",", "y", ",", "z"}], "}"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GraphicsRow", "[", 
+  RowBox[{"{", 
+   RowBox[{"g1", ",", "g2"}], "}"}], "]"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.805565863482489*^9, 3.805565910940423*^9}, {
+  3.8068303593805*^9, 3.806830360622447*^9}, {3.806830410305883*^9, 
+  3.806830486999304*^9}, {3.806830722776247*^9, 3.8068308054917994`*^9}, {
+  3.80683094667754*^9, 3.806830956942686*^9}, {3.8068327474125566`*^9, 
+  3.80683286863233*^9}, {3.806836843805107*^9, 3.806836855760852*^9}, {
+  3.806836897878047*^9, 3.8068368999287*^9}, {3.806836931198703*^9, 
+  3.8068370228510923`*^9}, {3.806837240657032*^9, 3.8068372442192287`*^9}, {
+  3.806837341749248*^9, 3.806837420459784*^9}, {3.806837479264873*^9, 
+  3.806837495963862*^9}, {3.806841035780572*^9, 3.8068410956923656`*^9}, {
+  3.806843920324526*^9, 
+  3.806843955544416*^9}},ExpressionUUID->"8c6a61f7-7f50-4eae-af39-\
+159c34f970e2"],
 
 Cell[BoxData[
- Graphics3DBox[{{
-    {Opacity[0.1], CuboidBox[{0, 0, 0}, {2, 2, 2}]}, {
-     Line3DBox[{{0, 0, 0}, {2, 0, 0}}], Line3DBox[{{0, 0, 1}, {2, 0, 1}}], 
-     Line3DBox[{{0, 1, 0}, {2, 1, 0}}], Line3DBox[{{0, 1, 1}, {2, 1, 1}}], 
-     Line3DBox[{{0, 0, 0}, {0, 2, 0}}], Line3DBox[{{1, 0, 0}, {1, 2, 0}}], 
-     Line3DBox[{{0, 0, 1}, {0, 2, 1}}], Line3DBox[{{1, 0, 1}, {1, 2, 1}}], 
-     Line3DBox[{{0, 0, 0}, {0, 0, 2}}], Line3DBox[{{0, 1, 0}, {0, 1, 2}}], 
-     Line3DBox[{{1, 0, 0}, {1, 0, 2}}], Line3DBox[{{1, 1, 0}, {1, 1, 2}}], 
-     Line3DBox[{{0, 2, 0}, {2, 2, 0}}], Line3DBox[{{0, 2, 1}, {2, 2, 1}}], 
-     Line3DBox[{{0, 2, 2}, {2, 2, 2}}], Line3DBox[{{0, 2, 0}, {0, 2, 2}}], 
-     Line3DBox[{{1, 2, 0}, {1, 2, 2}}], Line3DBox[{{2, 2, 0}, {2, 2, 2}}], 
-     Line3DBox[{{0, 1, 2}, {2, 1, 2}}], Line3DBox[{{0, 0, 2}, {2, 0, 2}}], 
-     Line3DBox[{{0, 0, 2}, {0, 2, 2}}], Line3DBox[{{1, 0, 2}, {1, 2, 2}}], 
-     Line3DBox[{{2, 0, 2}, {2, 2, 2}}], Line3DBox[{{2, 0, 1}, {2, 2, 1}}], 
-     Line3DBox[{{2, 0, 0}, {2, 2, 0}}], Line3DBox[{{2, 1, 0}, {2, 1, 2}}]}, 
-    {RGBColor[1, 0, 0], PointSize[0.05], 
-     Point3DBox[{{0.5, 0, 0}, {1, 0.5, 0}, {1, 0, 0.5}, {0, 1, 0.5}, {
-       1.5, 1, 0}, {1, 1.5, 0}, {0, 0.5, 1}, {0, 0, 1.5}, {1.5, 0, 1}, {
-       0.5, 1, 1}, {0, 1.5, 1}, {1, 1, 1.5}}]}}, 
-   GeometricTransformation3DBox[
-    {RGBColor[0, 0, 1], PointSize[0.05], 
-     Point3DBox[{{0, 0, 0.5}, {1.5, 0, 0}, {1, 0.5, 0}, {0.5, 1., 0}, {
-       1., 1.5, 0}, {1, 1, 0.5}, {0.5, 0, 1}, {0, 0.5, 1}, {1, 0, 1.5}, {
-       0, 1.5, 1}, {0, 1, 1.5}, {1.5, 1, 1}}]}, {{{0, 0, 1}, {1, 0, 0}, {0, 1,
-      0}}, {0, 0, 0}}]},
-  Axes->True,
-  AxesLabel->{
-    FormBox["x", TraditionalForm], 
-    FormBox["y", TraditionalForm], 
-    FormBox["z", TraditionalForm]},
-  ImageSize->{413.03400273285126`, 392.2921387182488},
-  ImageSizeRaw->Automatic,
-  ViewPoint->{-1.8699261684803803`, -2.30240254685007, -1.6285940674982822`},
-  ViewVertical->{-0.902647025485557, -0.3305327712373204, 
-   0.27563823123843617`}]], "Output",
- CellChangeTimes->{3.805565911703744*^9},
- CellLabel->"Out[28]=",ExpressionUUID->"74237a57-128b-460f-8bc6-9ee45eedaddd"]
+ GraphicsBox[{{}, {InsetBox[
+     Graphics3DBox[{{
+        {Opacity[0.1], CuboidBox[{0, 0, 0}, {2, 2, 2}]}, {
+         Line3DBox[{{0, 0, 0}, {2, 0, 0}}], Line3DBox[{{0, 0, 1}, {2, 0, 1}}],
+          Line3DBox[{{0, 1, 0}, {2, 1, 0}}], 
+         Line3DBox[{{0, 1, 1}, {2, 1, 1}}], Line3DBox[{{0, 0, 0}, {0, 2, 0}}],
+          Line3DBox[{{1, 0, 0}, {1, 2, 0}}], 
+         Line3DBox[{{0, 0, 1}, {0, 2, 1}}], Line3DBox[{{1, 0, 1}, {1, 2, 1}}],
+          Line3DBox[{{0, 0, 0}, {0, 0, 2}}], 
+         Line3DBox[{{0, 1, 0}, {0, 1, 2}}], Line3DBox[{{1, 0, 0}, {1, 0, 2}}],
+          Line3DBox[{{1, 1, 0}, {1, 1, 2}}], 
+         Line3DBox[{{0, 2, 0}, {2, 2, 0}}], Line3DBox[{{0, 2, 1}, {2, 2, 1}}],
+          Line3DBox[{{0, 2, 2}, {2, 2, 2}}], 
+         Line3DBox[{{0, 2, 0}, {0, 2, 2}}], Line3DBox[{{1, 2, 0}, {1, 2, 2}}],
+          Line3DBox[{{2, 2, 0}, {2, 2, 2}}], 
+         Line3DBox[{{0, 1, 2}, {2, 1, 2}}], Line3DBox[{{0, 0, 2}, {2, 0, 2}}],
+          Line3DBox[{{0, 0, 2}, {0, 2, 2}}], 
+         Line3DBox[{{1, 0, 2}, {1, 2, 2}}], Line3DBox[{{2, 0, 2}, {2, 2, 2}}],
+          Line3DBox[{{2, 0, 1}, {2, 2, 1}}], 
+         Line3DBox[{{2, 0, 0}, {2, 2, 0}}], 
+         Line3DBox[{{2, 1, 0}, {2, 1, 2}}]}, 
+        {RGBColor[1, 0, 0], PointSize[0.05], 
+         Point3DBox[{{0.5, 0, 0}, {0, 0.5, 0}, {1, 0, 0.5}, {0, 1.5, 0}, {
+           0, 1, 0.5}, {1.5, 1, 0}, {0, 0, 1.5}, {1.5, 0, 1}, {1, 0.5, 1}, {
+           0.5, 1, 1}, {1, 1.5, 1}, {1, 1, 1.5}}]}}, 
+       GeometricTransformation3DBox[
+        {RGBColor[0, 0, 1], PointSize[0.05], 
+         Point3DBox[{{0.5, 0, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {1, 0.5, 0}, {
+           0, 1.5, 0}, {1, 1, 0.5}, {0, 0.5, 1}, {1, 0, 1.5}, {0.5, 1, 1}, {
+           0, 1, 1.5}, {1.5, 1, 1}, {1, 1.5, 1}}]}, {{{0, 0, 1}, {1, 0, 0}, {
+         0, 1, 0}}, {0, 0, 0}}]},
+      Axes->True,
+      AxesLabel->{
+        FormBox["x", TraditionalForm], 
+        FormBox["y", TraditionalForm], 
+        FormBox["z", TraditionalForm]}], {192., -189.}, 
+     ImageScaled[{0.5, 0.5}], {360., 360.},
+     ContentSelectable->True], InsetBox[
+     Graphics3DBox[{{
+        {Opacity[0.1], CuboidBox[{0, 0, 0}, {2, 2, 2}]}, {
+         Line3DBox[{{0, 0, 0}, {2, 0, 0}}], Line3DBox[{{0, 0, 1}, {2, 0, 1}}],
+          Line3DBox[{{0, 1, 0}, {2, 1, 0}}], 
+         Line3DBox[{{0, 1, 1}, {2, 1, 1}}], Line3DBox[{{0, 0, 0}, {0, 2, 0}}],
+          Line3DBox[{{1, 0, 0}, {1, 2, 0}}], 
+         Line3DBox[{{0, 0, 1}, {0, 2, 1}}], Line3DBox[{{1, 0, 1}, {1, 2, 1}}],
+          Line3DBox[{{0, 0, 0}, {0, 0, 2}}], 
+         Line3DBox[{{0, 1, 0}, {0, 1, 2}}], Line3DBox[{{1, 0, 0}, {1, 0, 2}}],
+          Line3DBox[{{1, 1, 0}, {1, 1, 2}}], 
+         Line3DBox[{{0, 2, 0}, {2, 2, 0}}], Line3DBox[{{0, 2, 1}, {2, 2, 1}}],
+          Line3DBox[{{0, 2, 2}, {2, 2, 2}}], 
+         Line3DBox[{{0, 2, 0}, {0, 2, 2}}], Line3DBox[{{1, 2, 0}, {1, 2, 2}}],
+          Line3DBox[{{2, 2, 0}, {2, 2, 2}}], 
+         Line3DBox[{{0, 1, 2}, {2, 1, 2}}], Line3DBox[{{0, 0, 2}, {2, 0, 2}}],
+          Line3DBox[{{0, 0, 2}, {0, 2, 2}}], 
+         Line3DBox[{{1, 0, 2}, {1, 2, 2}}], Line3DBox[{{2, 0, 2}, {2, 2, 2}}],
+          Line3DBox[{{2, 0, 1}, {2, 2, 1}}], 
+         Line3DBox[{{2, 0, 0}, {2, 2, 0}}], 
+         Line3DBox[{{2, 1, 0}, {2, 1, 2}}]}, 
+        {RGBColor[1, 0, 0], PointSize[0.05], 
+         Point3DBox[{{0, 0.5, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {0.5, 1, 0}, {
+           1, 1.5, 0}, {1, 1, 0.5}, {0.5, 0, 1}, {0, 0, 1.5}, {1, 0.5, 1}, {
+           0, 1.5, 1}, {1.5, 1, 1}, {1, 1, 1.5}}]}}, 
+       GeometricTransformation3DBox[
+        {RGBColor[0, 0, 1], PointSize[0.05], 
+         Point3DBox[{{0.5, 0, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {1, 0.5, 0}, {
+           0, 1.5, 0}, {1, 1, 0.5}, {0, 0.5, 1}, {1, 0, 1.5}, {0.5, 1, 1}, {
+           0, 1, 1.5}, {1.5, 1, 1}, {1, 1.5, 1}}]}, {{{0, 1, 0}, {0, 0, 1}, {
+         1, 0, 0}}, {0, 0, 0}}]},
+      Axes->True,
+      AxesLabel->{
+        FormBox["x", TraditionalForm], 
+        FormBox["y", TraditionalForm], 
+        FormBox["z", TraditionalForm]}], {576., -189.}, 
+     ImageScaled[{0.5, 0.5}], {360., 360.},
+     ContentSelectable->True]}, {}},
+  ContentSelectable->True,
+  ImageSize->Automatic,
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{{3.806837410007753*^9, 3.806837421094923*^9}, {
+  3.8068374829228354`*^9, 3.806837497013062*^9}, {3.806841049709342*^9, 
+  3.806841096191722*^9}},
+ CellLabel->"Out[96]=",ExpressionUUID->"577d03bd-1be0-400d-8f1a-22f4a0b997b3"]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Testing", " ", "the", 
+   FormBox[
+    RowBox[{
+     SubscriptBox[
+      RowBox[{"(", 
+       SuperscriptBox["C", "1"], ")"}], "3"], ",", " ", 
+     SubscriptBox[
+      RowBox[{"(", 
+       SuperscriptBox["C", "2"], ")"}], "3"], ",", " ", 
+     SubscriptBox[
+      RowBox[{"(", 
+       SuperscriptBox["C", "3"], ")"}], "3"]}],
+    TraditionalForm], "rotations"}], ";", 
+  RowBox[{
+  "which", " ", "is", " ", "closed", " ", "for", " ", "the", " ", "set", " ", 
+   "of", " ", "states", " ", "we", " ", 
+   RowBox[{"consider", ".", "Change"}], " ", "the", " ", "initial", " ", 
+   "and", " ", "the", " ", "final", " ", "states", " ", "to", " ", "produce", 
+   " ", "the", " ", 
+   RowBox[{"plots", "."}]}]}]], "Text",
+ CellChangeTimes->{{3.8068411892956753`*^9, 3.806841235574917*^9}, 
+   3.806842131035701*^9},ExpressionUUID->"ae12f7d3-0476-4850-b330-\
+964751bb6298"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"cub", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"0", ",", "0", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"init", "=", "state5"}], ";", " ", 
+  RowBox[{"f1", "=", "state9"}], ";", " ", 
+  RowBox[{"f2", "=", "state6"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g1", "=", 
+   RowBox[{"Graphics3D", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"lineGrid", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Red", ",", 
+           RowBox[{"Point", "[", "f1", "]"}]}], "}"}]}], "}"}], ",", 
+       RowBox[{"GeometricTransformation", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Blue", ",", 
+           RowBox[{"Point", "[", "init", "]"}]}], "}"}], ",", 
+         RowBox[{"RotationTransform", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"-", "4"}], 
+            RowBox[{"Pi", "/", "3"}]}], ",", "C31", ",", "pC3"}], "]"}]}], 
+        "]"}]}], "}"}], ",", 
+     RowBox[{"Axes", "->", "True"}], ",", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"x", ",", "y", ",", "z"}], "}"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g2", "=", 
+   RowBox[{"Graphics3D", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"lineGrid", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Red", ",", 
+           RowBox[{"Point", "[", "f2", "]"}]}], "}"}]}], "}"}], ",", 
+       RowBox[{"GeometricTransformation", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Blue", ",", 
+           RowBox[{"Point", "[", "init", "]"}]}], "}"}], ",", 
+         RowBox[{"RotationTransform", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"-", "2"}], 
+            RowBox[{"Pi", "/", "3"}]}], ",", "C32", ",", "pC3"}], "]"}]}], 
+        "]"}]}], "}"}], ",", 
+     RowBox[{"Axes", "->", "True"}], ",", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"x", ",", "y", ",", "z"}], "}"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GraphicsRow", "[", 
+  RowBox[{"{", 
+   RowBox[{"g1", ",", "g2"}], "}"}], "]"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.806841123432178*^9, 3.806841124617405*^9}, {
+  3.8068412408742933`*^9, 3.806841314471805*^9}, {3.806841358364317*^9, 
+  3.806841373750524*^9}, {3.806841929899508*^9, 3.806841942599581*^9}, {
+  3.806843730525795*^9, 3.806843783106328*^9}, {3.806844088302986*^9, 
+  3.8068441106476717`*^9}, {3.806844184408969*^9, 3.806844250925448*^9}, {
+  3.806844300227182*^9, 3.806844300567615*^9}, {3.8068443395437326`*^9, 
+  3.806844356095928*^9}, {3.806844406358362*^9, 3.806844406594427*^9}, {
+  3.806844437595498*^9, 3.806844444223012*^9}},
+ CellLabel->
+  "In[195]:=",ExpressionUUID->"3332e885-cb97-484c-8fa7-f97f38d3dbc5"],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {InsetBox[
+     Graphics3DBox[{{{Line3DBox[{{0, 0, 0}, {2, 0, 0}}], 
+         Line3DBox[{{0, 0, 1}, {2, 0, 1}}], Line3DBox[{{0, 1, 0}, {2, 1, 0}}],
+          Line3DBox[{{0, 1, 1}, {2, 1, 1}}], 
+         Line3DBox[{{0, 0, 0}, {0, 2, 0}}], Line3DBox[{{1, 0, 0}, {1, 2, 0}}],
+          Line3DBox[{{0, 0, 1}, {0, 2, 1}}], 
+         Line3DBox[{{1, 0, 1}, {1, 2, 1}}], Line3DBox[{{0, 0, 0}, {0, 0, 2}}],
+          Line3DBox[{{0, 1, 0}, {0, 1, 2}}], 
+         Line3DBox[{{1, 0, 0}, {1, 0, 2}}], Line3DBox[{{1, 1, 0}, {1, 1, 2}}],
+          Line3DBox[{{0, 2, 0}, {2, 2, 0}}], 
+         Line3DBox[{{0, 2, 1}, {2, 2, 1}}], Line3DBox[{{0, 2, 2}, {2, 2, 2}}],
+          Line3DBox[{{0, 2, 0}, {0, 2, 2}}], 
+         Line3DBox[{{1, 2, 0}, {1, 2, 2}}], Line3DBox[{{2, 2, 0}, {2, 2, 2}}],
+          Line3DBox[{{0, 1, 2}, {2, 1, 2}}], 
+         Line3DBox[{{0, 0, 2}, {2, 0, 2}}], Line3DBox[{{0, 0, 2}, {0, 2, 2}}],
+          Line3DBox[{{1, 0, 2}, {1, 2, 2}}], 
+         Line3DBox[{{2, 0, 2}, {2, 2, 2}}], Line3DBox[{{2, 0, 1}, {2, 2, 1}}],
+          Line3DBox[{{2, 0, 0}, {2, 2, 0}}], 
+         Line3DBox[{{2, 1, 0}, {2, 1, 2}}]}, 
+        {RGBColor[1, 0, 0], PointSize[0.05], 
+         Point3DBox[{{0, 0.5, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {0.5, 1, 0}, {
+           1, 1.5, 0}, {1, 1, 0.5}, {0.5, 0, 1}, {0, 0, 1.5}, {1, 0.5, 1}, {
+           0, 1.5, 1}, {1.5, 1, 1}, {1, 1, 1.5}}]}}, 
+       GeometricTransformation3DBox[
+        {RGBColor[0, 0, 1], PointSize[0.05], 
+         Point3DBox[{{0, 0.5, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {0.5, 1, 0}, {
+           0, 1.5, 0}, {1, 1, 0.5}, {0.5, 0, 1}, {1, 0.5, 1}, {1, 0, 1.5}, {
+           0, 1, 1.5}, {1.5, 1, 1}, {1, 1.5, 1}}]}, {{{0, -1, 0}, {0, 0, 
+         1}, {-1, 0, 0}}, {2, 0, 2}}]},
+      Axes->True,
+      AxesLabel->{
+        FormBox["x", TraditionalForm], 
+        FormBox["y", TraditionalForm], 
+        FormBox["z", TraditionalForm]},
+      SphericalRegion->True,
+      ViewAngle->0.5011114127587019,
+      ViewPoint->{1.601198287537455, -2.691670436934693, 1.2810442236390278`},
+      
+      ViewVertical->{0.15028183331027123`, -0.1920761268551902, 
+       0.9698052031563931}], {192., -189.}, ImageScaled[{0.5, 0.5}], {360., 360.},
+     
+     ContentSelectable->True], InsetBox[
+     Graphics3DBox[{{{Line3DBox[{{0, 0, 0}, {2, 0, 0}}], 
+         Line3DBox[{{0, 0, 1}, {2, 0, 1}}], Line3DBox[{{0, 1, 0}, {2, 1, 0}}],
+          Line3DBox[{{0, 1, 1}, {2, 1, 1}}], 
+         Line3DBox[{{0, 0, 0}, {0, 2, 0}}], Line3DBox[{{1, 0, 0}, {1, 2, 0}}],
+          Line3DBox[{{0, 0, 1}, {0, 2, 1}}], 
+         Line3DBox[{{1, 0, 1}, {1, 2, 1}}], Line3DBox[{{0, 0, 0}, {0, 0, 2}}],
+          Line3DBox[{{0, 1, 0}, {0, 1, 2}}], 
+         Line3DBox[{{1, 0, 0}, {1, 0, 2}}], Line3DBox[{{1, 1, 0}, {1, 1, 2}}],
+          Line3DBox[{{0, 2, 0}, {2, 2, 0}}], 
+         Line3DBox[{{0, 2, 1}, {2, 2, 1}}], Line3DBox[{{0, 2, 2}, {2, 2, 2}}],
+          Line3DBox[{{0, 2, 0}, {0, 2, 2}}], 
+         Line3DBox[{{1, 2, 0}, {1, 2, 2}}], Line3DBox[{{2, 2, 0}, {2, 2, 2}}],
+          Line3DBox[{{0, 1, 2}, {2, 1, 2}}], 
+         Line3DBox[{{0, 0, 2}, {2, 0, 2}}], Line3DBox[{{0, 0, 2}, {0, 2, 2}}],
+          Line3DBox[{{1, 0, 2}, {1, 2, 2}}], 
+         Line3DBox[{{2, 0, 2}, {2, 2, 2}}], Line3DBox[{{2, 0, 1}, {2, 2, 1}}],
+          Line3DBox[{{2, 0, 0}, {2, 2, 0}}], 
+         Line3DBox[{{2, 1, 0}, {2, 1, 2}}]}, 
+        {RGBColor[1, 0, 0], PointSize[0.05], 
+         Point3DBox[{{0.5, 0, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {1, 0.5, 0}, {
+           0, 1.5, 0}, {1, 1, 0.5}, {0, 0.5, 1}, {1, 0, 1.5}, {0.5, 1, 1}, {
+           0, 1, 1.5}, {1.5, 1, 1}, {1, 1.5, 1}}]}}, 
+       GeometricTransformation3DBox[
+        {RGBColor[0, 0, 1], PointSize[0.05], 
+         Point3DBox[{{0, 0.5, 0}, {0, 0, 0.5}, {1.5, 0, 0}, {0.5, 1, 0}, {
+           0, 1.5, 0}, {1, 1, 0.5}, {0.5, 0, 1}, {1, 0.5, 1}, {1, 0, 1.5}, {
+           0, 1, 1.5}, {1.5, 1, 1}, {1, 1.5, 1}}]}, {{{0, 1, 0}, {0, 
+         0, -1}, {-1, 0, 0}}, {0, 2, 2}}]},
+      Axes->True,
+      AxesLabel->{
+        FormBox["x", TraditionalForm], 
+        FormBox["y", TraditionalForm], 
+        FormBox["z", TraditionalForm]}], {576., -189.}, 
+     ImageScaled[{0.5, 0.5}], {360., 360.},
+     ContentSelectable->True]}, {}},
+  ContentSelectable->True,
+  ImageSize->{861., Automatic},
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{{3.806843731571603*^9, 3.8068437436879463`*^9}, {
+   3.806843774498054*^9, 3.806843783775115*^9}, 3.806844112575778*^9, {
+   3.80684424633701*^9, 3.806844251294629*^9}, 3.806844358024497*^9, 
+   3.806844407161772*^9, 3.806844444776479*^9},
+ CellLabel->
+  "Out[199]=",ExpressionUUID->"37722a91-fca1-4f1b-9d50-47f77c1e5e29"]
+}, Open  ]],
+
+Cell[BoxData[Cell[TextData[{
+  "Testing the ",
+  Cell[BoxData[
+   FormBox[
+    RowBox[{
+     SubscriptBox[
+      RowBox[{"(", 
+       SuperscriptBox["C", "1"], ")"}], "2"], " ", ",", "  ", 
+     RowBox[{
+      SubscriptBox[
+       RowBox[{"(", 
+        SuperscriptBox["C", "3"], ")"}], "2"], " ", "and", " ", 
+      SubscriptBox[
+       RowBox[{"(", 
+        SuperscriptBox["C", "5"], ")"}], "2"]}]}], TraditionalForm]],
+   ExpressionUUID->"d08617b6-6c95-4973-ba11-c5e503003a9e"],
+  " rotations; which is closed for the set of states we consider.  \nChange \
+the initial and the final states to produce the plots."
+ }], "Text",
+  CellChangeTimes->{{3.806836902677658*^9, 3.806836919003227*^9}, {
+   3.806840930701063*^9, 3.8068409433896112`*^9}, {3.806841137368108*^9, 
+   3.806841179189004*^9}},ExpressionUUID->
+  "09c17154-2ac7-4078-8b26-c7b0f35d690c"]], "Text",
+ CellChangeTimes->{{3.806842098482329*^9, 3.8068421217707443`*^9}, {
+   3.8068431627289658`*^9, 3.806843198044956*^9}, 
+   3.8068434231108418`*^9},ExpressionUUID->"e3de1728-aa6e-4c2b-a124-\
+4984a342c038"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"cub", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"0", ",", "0", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"init", "=", "state1"}], ";", " ", 
+   RowBox[{"f", "=", "state8"}], ";"}], " "}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g1", "=", 
+   RowBox[{"Graphics3D", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"Opacity", "[", "0.1", "]"}], ",", "cub"}], "}"}], ",", 
+         "lineGrid", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Red", ",", 
+           RowBox[{"Point", "[", "f", "]"}]}], "}"}]}], "}"}], ",", 
+       RowBox[{"GeometricTransformation", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"PointSize", "[", "0.05", "]"}], ",", "Blue", ",", 
+           RowBox[{"Point", "[", "init", "]"}]}], "}"}], ",", 
+         RowBox[{"RotationTransform", "[", 
+          RowBox[{
+           RowBox[{"-", "Pi"}], ",", "C21", ",", "pC2"}], "]"}]}], "]"}]}], 
+      "}"}], ",", 
+     RowBox[{"Axes", "->", "True"}], ",", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"x", ",", "y", ",", "z"}], "}"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GraphicsRow", "[", 
+  RowBox[{"{", "g1", "}"}], "]"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.8068434240183067`*^9, 3.806843457487113*^9}, {
+  3.806843504743306*^9, 3.806843514694014*^9}},
+ CellLabel->
+  "In[151]:=",ExpressionUUID->"164a64da-910c-4184-a281-8b0c690f8749"],
+
+Cell[BoxData[
+ GraphicsBox[{{}, InsetBox[
+    Graphics3DBox[{{
+       {Opacity[0.1], CuboidBox[{0, 0, 0}, {2, 2, 2}]}, {
+        Line3DBox[{{0, 0, 0}, {2, 0, 0}}], Line3DBox[{{0, 0, 1}, {2, 0, 1}}], 
+        Line3DBox[{{0, 1, 0}, {2, 1, 0}}], Line3DBox[{{0, 1, 1}, {2, 1, 1}}], 
+        Line3DBox[{{0, 0, 0}, {0, 2, 0}}], Line3DBox[{{1, 0, 0}, {1, 2, 0}}], 
+        Line3DBox[{{0, 0, 1}, {0, 2, 1}}], Line3DBox[{{1, 0, 1}, {1, 2, 1}}], 
+        Line3DBox[{{0, 0, 0}, {0, 0, 2}}], Line3DBox[{{0, 1, 0}, {0, 1, 2}}], 
+        Line3DBox[{{1, 0, 0}, {1, 0, 2}}], Line3DBox[{{1, 1, 0}, {1, 1, 2}}], 
+        Line3DBox[{{0, 2, 0}, {2, 2, 0}}], Line3DBox[{{0, 2, 1}, {2, 2, 1}}], 
+        Line3DBox[{{0, 2, 2}, {2, 2, 2}}], Line3DBox[{{0, 2, 0}, {0, 2, 2}}], 
+        Line3DBox[{{1, 2, 0}, {1, 2, 2}}], Line3DBox[{{2, 2, 0}, {2, 2, 2}}], 
+        Line3DBox[{{0, 1, 2}, {2, 1, 2}}], Line3DBox[{{0, 0, 2}, {2, 0, 2}}], 
+        Line3DBox[{{0, 0, 2}, {0, 2, 2}}], Line3DBox[{{1, 0, 2}, {1, 2, 2}}], 
+        Line3DBox[{{2, 0, 2}, {2, 2, 2}}], Line3DBox[{{2, 0, 1}, {2, 2, 1}}], 
+        Line3DBox[{{2, 0, 0}, {2, 2, 0}}], Line3DBox[{{2, 1, 0}, {2, 1, 2}}]}, 
+       {RGBColor[1, 0, 0], PointSize[0.05], 
+        Point3DBox[{{0.5, 0, 0}, {1, 0.5, 0}, {1, 0, 0.5}, {0, 1, 0.5}, {
+          1.5, 1, 0}, {1, 1.5, 0}, {0, 0.5, 1}, {0, 0, 1.5}, {1.5, 0, 1}, {
+          0.5, 1, 1}, {0, 1.5, 1}, {1, 1, 1.5}}]}}, 
+      GeometricTransformation3DBox[
+       {RGBColor[0, 0, 1], PointSize[0.05], 
+        Point3DBox[{{0, 0, 0.5}, {1.5, 0, 0}, {1, 0.5, 0}, {0.5, 1, 0}, {
+          1, 1.5, 0}, {1, 1, 0.5}, {0.5, 0, 1}, {0, 0.5, 1}, {1, 0, 1.5}, {
+          0, 1.5, 1}, {0, 1, 1.5}, {1.5, 1, 1}}]}, {{{0, 0, 1}, {0, -1, 0}, {
+        1, 0, 0}}, {0, 2, 0}}]},
+     Axes->True,
+     AxesLabel->{
+       FormBox["x", TraditionalForm], 
+       FormBox["y", TraditionalForm], 
+       FormBox["z", TraditionalForm]},
+     SphericalRegion->True,
+     ViewAngle->0.5011114127587019,
+     ViewPoint->{-2.851980033645432, -1.4406903983304005`, 
+      1.1138317035559702`},
+     ViewVertical->{-0.23136390711878943`, -0.19302323233872162`, 
+      0.9535264937379769}], {189., -189.}, ImageScaled[{0.5, 0.5}], {360., 360.},
+    
+    ContentSelectable->True], {}},
+  ContentSelectable->True,
+  ImageSize->Automatic,
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{
+  3.806843459704606*^9, {3.806843507809032*^9, 3.806843515520668*^9}},
+ CellLabel->
+  "Out[154]=",ExpressionUUID->"dbeb88dd-ddc0-40f8-8d66-30fef5e8c882"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -861,7 +1411,8 @@ Cell[BoxData[{
  CellChangeTimes->{{3.805796145971696*^9, 3.805796248179779*^9}, {
   3.805796296822937*^9, 3.805796311299728*^9}, {3.805796405415854*^9, 
   3.805796408020131*^9}, {3.805797929289031*^9, 3.805797990633692*^9}},
- CellLabel->"In[83]:=",ExpressionUUID->"4bea6803-50f8-46e0-9d79-35ed30739178"],
+ CellLabel->
+  "In[133]:=",ExpressionUUID->"4bea6803-50f8-46e0-9d79-35ed30739178"],
 
 Cell[BoxData[
  RowBox[{"{", 
@@ -890,8 +1441,10 @@ Cell[BoxData[
     RowBox[{"2", ",", "1", ",", "1.5`"}], "}"}], ",", 
    RowBox[{"{", 
     RowBox[{"1.5`", ",", "1", ",", "1"}], "}"}]}], "}"}]], "Output",
- CellChangeTimes->{{3.805797971657596*^9, 3.805797991591791*^9}},
- CellLabel->"Out[84]=",ExpressionUUID->"e4b1f526-9411-4ae0-8328-50c4557d9759"]
+ CellChangeTimes->{{3.805797971657596*^9, 3.805797991591791*^9}, 
+   3.806841796828609*^9},
+ CellLabel->
+  "Out[134]=",ExpressionUUID->"a46384fe-5ef6-4d81-8a11-d343c14b6f83"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -932,11 +1485,10 @@ Cell[BoxData[
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{1440, 762},
+WindowSize->{1534, 836},
 WindowMargins->{{0, Automatic}, {0, Automatic}},
-FrontEndVersion->"12.1 for Linux x86 (64-bit) (March 18, 2020)",
-StyleDefinitions->"Default.nb",
-ExpressionUUID->"b7106205-186c-4001-8e4d-ccc870daf8b1"
+FrontEndVersion->"12.0 for Linux x86 (64-bit) (April 8, 2019)",
+StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
 
@@ -951,32 +1503,45 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 165, 3, 68, "Section",ExpressionUUID->"6d1df428-6cdc-4e58-a7d4-bd909f167e45"],
-Cell[748, 27, 206, 4, 35, "Text",ExpressionUUID->"842b8efd-b4ec-431d-9183-ca15a505aae9"],
-Cell[957, 33, 3395, 102, 216, "Input",ExpressionUUID->"6dcfc050-ae54-41c9-8b4c-11d56a24b061"],
-Cell[4355, 137, 165, 3, 35, "Text",ExpressionUUID->"82238fb4-1a78-45b8-84fd-3f18387ea40c"],
-Cell[4523, 142, 3537, 94, 278, "Input",ExpressionUUID->"30be65d6-290c-43e6-8e9d-6440743d3642"],
-Cell[8063, 238, 186, 3, 35, "Text",ExpressionUUID->"11eadb7d-3ed0-4ca1-8a1e-8f41aebb01cd"],
-Cell[8252, 243, 8609, 266, 339, "Input",ExpressionUUID->"15de3817-63b6-4311-8c48-3f29535a6677"],
+Cell[748, 27, 206, 4, 36, "Text",ExpressionUUID->"842b8efd-b4ec-431d-9183-ca15a505aae9"],
+Cell[957, 33, 3395, 102, 239, "Input",ExpressionUUID->"6dcfc050-ae54-41c9-8b4c-11d56a24b061"],
+Cell[4355, 137, 165, 3, 36, "Text",ExpressionUUID->"82238fb4-1a78-45b8-84fd-3f18387ea40c"],
+Cell[4523, 142, 3537, 94, 308, "Input",ExpressionUUID->"30be65d6-290c-43e6-8e9d-6440743d3642"],
+Cell[8063, 238, 186, 3, 36, "Text",ExpressionUUID->"11eadb7d-3ed0-4ca1-8a1e-8f41aebb01cd"],
+Cell[8252, 243, 8609, 266, 377, "Input",ExpressionUUID->"15de3817-63b6-4311-8c48-3f29535a6677"],
+Cell[16864, 511, 1563, 46, 87, "Text",ExpressionUUID->"6c2e5a00-6a9d-4756-a18d-a2d110aa9030"],
+Cell[18430, 559, 2139, 62, 147, "Input",ExpressionUUID->"2c25483e-b07c-49b9-88ed-837e3a024f87"],
 Cell[CellGroupData[{
-Cell[16886, 513, 2204, 36, 29, "Input",ExpressionUUID->"6e2fdb08-a85b-4a8e-a013-eabf9146ca03"],
-Cell[19093, 551, 2073, 35, 480, "Output",ExpressionUUID->"06e3cbbf-83da-42e1-ab72-7e9b4c18f24c"]
+Cell[20594, 625, 2204, 36, 31, "Input",ExpressionUUID->"6e2fdb08-a85b-4a8e-a013-eabf9146ca03"],
+Cell[22801, 663, 2123, 35, 319, "Output",ExpressionUUID->"641e4f3e-308b-4b1c-8795-d62cd2509473"]
 }, Open  ]],
-Cell[21181, 589, 248, 6, 58, "Text",ExpressionUUID->"cb7c816a-48f4-4302-a642-99edf410423d"],
+Cell[24939, 701, 248, 6, 60, "Text",ExpressionUUID->"cb7c816a-48f4-4302-a642-99edf410423d"],
 Cell[CellGroupData[{
-Cell[21454, 599, 3521, 80, 257, "Input",ExpressionUUID->"b593eb37-a064-48b7-aca3-11de3f37c252"],
-Cell[24978, 681, 2802, 46, 383, "Output",ExpressionUUID->"a669756e-b75e-4359-8cd5-255ce26588ed"]
+Cell[25212, 711, 3521, 80, 285, "Input",ExpressionUUID->"b593eb37-a064-48b7-aca3-11de3f37c252"],
+Cell[28736, 793, 2846, 46, 384, "Output",ExpressionUUID->"16287b3a-4fa4-4092-a6e2-45ab185c024e"]
+}, Open  ]],
+Cell[31597, 842, 583, 14, 63, "Text",ExpressionUUID->"51936804-6722-411c-ac31-11ed8a1ac7cf"],
+Cell[CellGroupData[{
+Cell[32205, 860, 3586, 94, 193, "Input",ExpressionUUID->"8c6a61f7-7f50-4eae-af39-159c34f970e2"],
+Cell[35794, 956, 4434, 82, 205, "Output",ExpressionUUID->"577d03bd-1be0-400d-8f1a-22f4a0b997b3"]
+}, Open  ]],
+Cell[40243, 1041, 900, 24, 67, "Text",ExpressionUUID->"ae12f7d3-0476-4850-b330-964751bb6298"],
+Cell[CellGroupData[{
+Cell[41168, 1069, 3210, 84, 193, "Input",ExpressionUUID->"3332e885-cb97-484c-8fa7-f97f38d3dbc5"],
+Cell[44381, 1155, 4652, 86, 499, "Output",ExpressionUUID->"37722a91-fca1-4f1b-9d50-47f77c1e5e29"]
+}, Open  ]],
+Cell[49048, 1244, 1069, 26, 64, "Text",ExpressionUUID->"e3de1728-aa6e-4c2b-a124-4984a342c038"],
+Cell[CellGroupData[{
+Cell[50142, 1274, 1781, 50, 147, "Input",ExpressionUUID->"164a64da-910c-4184-a281-8b0c690f8749"],
+Cell[51926, 1326, 2496, 46, 377, "Output",ExpressionUUID->"dbeb88dd-ddc0-40f8-8d66-30fef5e8c882"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[27817, 732, 2012, 51, 118, "Input",ExpressionUUID->"8c6a61f7-7f50-4eae-af39-159c34f970e2"],
-Cell[29832, 785, 2151, 37, 409, "Output",ExpressionUUID->"74237a57-128b-460f-8bc6-9ee45eedaddd"]
+Cell[54459, 1377, 1353, 37, 55, "Input",ExpressionUUID->"4bea6803-50f8-46e0-9d79-35ed30739178"],
+Cell[55815, 1416, 1092, 30, 35, "Output",ExpressionUUID->"a46384fe-5ef6-4d81-8a11-d343c14b6f83"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[32020, 827, 1349, 36, 51, "Input",ExpressionUUID->"4bea6803-50f8-46e0-9d79-35ed30739178"],
-Cell[33372, 865, 1062, 28, 33, "Output",ExpressionUUID->"e4b1f526-9411-4ae0-8328-50c4557d9759"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[34471, 898, 175, 2, 29, "Input",ExpressionUUID->"babd357a-1d97-451b-bb8a-84038f68e352"],
-Cell[34649, 902, 1037, 28, 33, "Output",ExpressionUUID->"0274ee44-8f07-4b6e-bdb5-6eb93dab1ce8"]
+Cell[56944, 1451, 175, 2, 31, "Input",ExpressionUUID->"babd357a-1d97-451b-bb8a-84038f68e352"],
+Cell[57122, 1455, 1037, 28, 35, "Output",ExpressionUUID->"0274ee44-8f07-4b6e-bdb5-6eb93dab1ce8"]
 }, Open  ]]
 }, Open  ]]
 }
