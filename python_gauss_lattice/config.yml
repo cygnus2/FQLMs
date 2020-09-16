@@ -16,8 +16,8 @@ gauge_particles : 'bosons' # Either bosons or fermions.
 full_diag : False # If True, the full matrix is diagonalized - extremely costly.
 ev_type : 'BE' # ARPACK style specification of the types of eigenvalues.
 n_eigenvalues : 50 # Number of eigenvalues to compute.
-lambda: -100 # lambda Coupling.
-J : -1.0 # J Coupling.
+lambda: -50 # lambda Coupling.
+J : 0 # J Coupling.
 # winding_sector : [0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
 compute_eigenstates: True # If true, the eigenstates will be exported.
 store_hamiltonian: True # If true, the Hamiltonian will be stored.

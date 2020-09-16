@@ -55,8 +55,8 @@ class Vertex(object):
         self.v[1,1,2] = 1 - self.v[1,1,2]
         self.v[1,1,0] = 1 - self.v[1,1,0]
 
-    def rot90(self, axes):
-        self.v = np.rot90(self.v, axes=axes[::-1])
+    def rot90(self, axes, k=1):
+        self.v = np.rot90(self.v, k=k, axes=axes)
 
     def __repr__(self):
         return "{:03b}".format(self.bit_string())
@@ -68,10 +68,11 @@ class LatticeObject(object):
         Quite inefficient when thinking of acutal memory consumption, but this is just for
         the purpose of symmetry exploration - way too slow for actual computations.
     """
-    def __init__(self, state, L):
+    def __init__(self, state, L, quiet=False):
         """ Takes an integer as the bit representation for the lattice.
         """
-        print('Setting up lattice {:d}'.format(state))
+        if not quiet:
+            print('Setting up lattice {:d}'.format(state))
         self._update(L)
 
         self.vertices = np.zeros(shape=L, dtype=Vertex)
@@ -135,23 +136,6 @@ class LatticeObject(object):
 
     def to_bin(self):
         return ('|{:0'+str(self.nb)+'b}> ({:d})').format(self.to_int(), self.to_int())
-
-    def apply_charge_conjugation(self):
-        """ Flips all occupancies (spins) on the lattice.
-        """
-        for f in self.vertices.flat:
-            f.flip()
-
-    def apply_rot90(self, axes):
-        self.vertices = np.rot90(self.vertices, axes=axes)
-        for f in self.vertices.flat:
-            f.rot90(axes=axes)
-
-        # Needed for unequal lattices - to get the indicies right.
-        self._update(self.vertices.shape)
-
-    def apply_translation(self, axis, extent=1):
-        self.vertices = np.roll(self.vertices, shift=direction, axis=axis)
 
     # ----
     # Drawing stuff.
@@ -279,7 +263,104 @@ class LatticeObject(object):
             for p in builder.plaquettes:
                 if p in pflip:
                     pass
-                    self._highlight_plaquette(p[:-1], color='green', alpha=0.1)
+#                     self._highlight_plaquette(p[:-1], color='green', alpha=0.1)
                 else:
                     pass
-                    # self._highlight_plaquette(p[:-1], color='red', alpha=0.1)
+                    self._highlight_plaquette(p[:-1], color='red', alpha=0.1)
+
+                    
+                    
+    # -----
+    # Operators.
+
+    def apply_charge_conjugation(self):
+        """ Flips all occupancies (spins) on the lattice.
+        """
+        for f in self.vertices.flat:
+            f.flip()
+
+    def apply_parity_flip(self):
+        """ Reverses all axes.
+        """
+        for k in range(self.d):
+            self.vertices = np.flip(self.vertices, axis=k)
+
+    def apply_translation(self, axis, extent=1):
+        """ Translates steps along a specified axis.
+        """
+        self.vertices = np.roll(self.vertices, shift=extent, axis=axis)
+        
+    def _rotation_sequence(self, rotations, steps):
+        """ Performs a sequence of rotations.
+        """
+        for i in range(steps):
+            for ax, steps in rotations:
+                self.apply_c4(ax, steps=steps)
+                
+    def apply_c2(self, axis, steps=1):
+        """ Rotation about axes on oposite edges.
+            
+            Notes:
+             - 6 axes with 1 rotation of 180 degrees = 1 step
+             - 2 steps are the identity
+             - 6 elements
+             
+             Axis numeration, denotes connected links:
+              0 : (2,4) - (5,7)
+              1 : (1,3) - (6,8)
+              2 : (5,6) - (3,4)
+              3 : (1,2) - (7,8)
+              4 : (2,6) - (3,7)
+              5 : (1,5) - (4,8)
+        """
+        rotations = [
+            [['z', 2], ['y', 1]],
+            [['z', 2], ['y', -1]],
+            [['y', 2], ['x', 1]],
+            [['y', 2], ['x', -1]],
+            [['x', 2], ['z', 1]],
+            [['x', 2], ['z', -1]],
+        ]
+        self._rotation_sequence(rotations[axis], steps)
+    
+    def apply_c4(self, axis, steps=1):
+        """ Rotation around coordinate axes.  
+            
+            Notes:
+             - 3 axes with 3 rotations of 90 degrees = 1 step
+             - 4 steps are the identity
+             - 9 elements
+        """
+        ax = {
+            'x' : (1,2),
+            'y' : (2,0),
+            'z' : (0,1), 
+        }
+        self.vertices = np.rot90(self.vertices, k=steps, axes=ax[axis])
+        for f in self.vertices.flat:
+            f.rot90(k=steps, axes=ax[axis])
+        
+        # Needed for unequal lattices - to get the indicies right.
+        self._update(self.vertices.shape)
+    
+    def apply_c3(self, axis, steps=1):
+        """ Rotation around the diagonals between to opposite corners. 
+            
+            Notes:
+             - 4 axes with 2 rotations of 120 degrees = 1 step
+             - 3 steps are the identity
+             - 8 elements
+             
+             Axis numeration, denotes connected corners:
+              0 : (1) - (8)
+              1 : (2) - (7)
+              2 : (4) - (5)
+              3 : (3) - (6)
+        """
+        rotations = [
+            [['y', -1], ['z', -1]],
+            [['y', 1], ['z', 1]],
+            [['y', 1], ['z', -1]],
+            [['z', -1], ['y', 1]],
+        ]
+        self._rotation_sequence(rotations[axis], steps)
