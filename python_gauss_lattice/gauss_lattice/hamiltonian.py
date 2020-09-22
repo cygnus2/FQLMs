@@ -7,7 +7,7 @@
 ---------------------------------------------------------------------------- """
 import numpy as np
 from scipy.sparse import coo_matrix, save_npz, load_npz
-from scipy.sparse.linalg import eigsh, eigs
+from scipy.sparse.linalg import eigsh
 from scipy.linalg import eigvals, eig
 from .aux import write_simple_spectrum
 from copy import copy
@@ -108,7 +108,7 @@ class Hamiltonian(object):
         # Warning: the diagonal of the Hamiltonian is set to 0 - this is not the
         # most general case.
         if self.n_fock == 1:
-            self.eigenvalues, self.eigenstates = np.array([0]), np.array([0,0])
+            self.eigenvalues, self.eigenstates = np.array([0]), np.array([[0,0]])
         else:
             self.eigenvalues, self.eigenstates = eigsh(self.sparse_rep, n_eigenvalues, which=which)
 

@@ -6,10 +6,10 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import GaussLatticeHamiltonian, HamiltonianBuilder, GaussLattice
-from gauss_lattice.aux import size_tag, timeit, read_all_states, file_tag, load_config
+from gauss_lattice.aux import size_tag, timeit, read_all_states, file_tag, load_config, read_winding_sector
 import numpy as np
 import h5py as hdf
-import argparse, logging
+import argparse, logging, os
 
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer.")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
@@ -19,6 +19,7 @@ args = parser.parse_args()
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = load_config(args.i)
+hamiltonian_file = param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 # Set up a logger with a handler for the terminal output.
 logger = logging.getLogger('parameter run logger')
@@ -33,31 +34,55 @@ def hamiltonian_diagonalization(ham, **kwargs):
     """
     return ham.diagonalize(**kwargs)
 
+
+# Check if states exist, if not, construct them.
+state_file = param['working_directory']+'/'+file_tag(param['L'], filetype='hdf5')
+if not os.path.isfile(state_file):
+    logger.info('Could not find stored states, constructing Fock state list from scratch.')
+    glatt = GaussLattice(param['L'], state_file=file_tag(param['L'], filetype='hdf5'), basedir=param['working_directory'])
+    glatt.find_states()
+    logger.info('Constructed states.')
+else:
+    logger.info('Reading Fock states from file.')
+
+# Read the states.
+if param.get('winding_sector'):
+    states, ws = read_winding_sector(param['L'], param['winding_sector'], basedir=param['working_directory'])
+else:
+    states = read_all_states(param['L'], basedir=param['working_directory'])
+    ws = None
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.
-
-input_file = param['working_directory']+'/hamiltonian_' + size_tag(param['L']) + '.npz'
 try:
-    ham = GaussLatticeHamiltonian.from_scipy_dump(input_file)
-    logger.info('Read Hamiltonian from file.')
-except FileNotFoundError:
-    logger.info('Could not find stored Hamiltonian, attempting to read Fock states.')
+    with hdf.File(hamiltonian_file, 'r') as f:
+        mat = f[ws][...]
+    if mat.shape[-1]:
+        ham = GaussLatticeHamiltonian(mat[2,:], mat[1,:], mat[0,:], len(states))
+    else:
+        ham = GaussLatticeHamiltonian([], [], [], 1)
+    logger.info('Read Hamiltonian from provided file.')
 
-    try:
-        states = read_all_states(param['L'], basedir=param['working_directory'])
-        logger.info('Read Fock states from file, constructing Hamiltonian.')
-    except FileNotFoundError:
-        logger.info('Could not find stored states, constructing Fock state list from scratch.')
-        glatt = GaussLattice(param['L'], state_file=file_tag(L, filetype='hdf5'))
-        glatt.find_states()
-        states = read_all_states(param['L'], basedir=param['working_directory'])
-        logger.info('Constructed states.')
-    builder = HamiltonianBuilder(param, states, logger=logger)
-    ham = builder.construct()
-    ham.store_hamiltonian(input_file)
-    logger.info('Created and stored Hamiltonian matrix.')
+except (KeyError, OSError):
+    # Set up the builder object & construct the Hamiltonian.
+    builder = HamiltonianBuilder(param, states=states, logger=logger)
+    ham = hamiltonian_construction(builder)
+
+    # If specified, store the Hamiltonian for later use.
+    if param['store_hamiltonian']:
+        with hdf.File(hamiltonian_file, 'a' if i else 'w') as f:
+            ds = f.create_dataset(ws, data= np.array([ham.col, ham.row, ham.data]))
+            ds.attrs['n_fock'] = len(states)
 
 # ----
+# Loop through spectra.
+spectrum_file = (
+    param['working_directory'] +
+    '/multi_spectrum_' +
+    param['gauge_particles'] + '_' +
+    ('' if ws is None else ws+'_') +
+    size_tag(param['L']) +
+    '.dat'
+)
 
 spectra = {}
 lambdas = np.linspace(*param['lambdas'])
@@ -74,7 +99,8 @@ for i, l in enumerate(lambdas):
         which = param['ev_type']
     )
 
-    with hdf.File(param['working_directory']+'/multi_spectrum_{:s}_'.format(param['gauge_particles'])+size_tag(param['L']) + '.hdf5', 'a' if i else 'w') as f:
+    # Output.
+    with hdf.File(spectrum_file, 'a' if i else 'w') as f:
         f.attrs['lambdas'] = lambdas
         ds = f.create_dataset('lam_{:6f}'.format(l), data=spectra[l])
         ds.attrs['lambda'] = l

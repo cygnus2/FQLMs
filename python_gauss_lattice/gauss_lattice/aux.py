@@ -92,21 +92,20 @@ def print_2D_state(state, L):
         print(line)
 
 
-def winding_tag(ws, labels=['x', 'y', 'z']):
+def winding_tag(ws, labels=['x', 'y', 'z'], shift=None):
     """ Returns the naming convention of the winding datasets.
+
+        The shift is a lattice configuration L = [Lx,Ly,Lz], such
+        that the HDF5 datasets may be resolved.
     """
+    if shift is not None:
+        ws = _winding_shift(shift, ws)
     wtag = ''
     for k in range(len(ws)):
         wtag += 'w{:s}_{:d}-'.format(labels[k], ws[k])
     return wtag[:-1]
 
-
-def read_winding_sector(L, ws, debug=True, basedir='./output/'):
-    """ Takes in a parameter dictionary and reads in the appropriate states
-        for the specified winding sector.
-    """
-    # The winding sectors are labelled differently in the HDF5 file (for
-    # convenience reasons) so we have to relabel them here.
+def _winding_shift(L, ws):
     if len(L) == 2:
         shift = np.array(L[::-1]) // 2
     elif len(L) == 3:
@@ -117,8 +116,15 @@ def read_winding_sector(L, ws, debug=True, basedir='./output/'):
         ])
     else:
         raise NotImplementedError('Dimension not implemented!')
-    ws_shifted = ws + shift
+    return ws + shift
 
+def read_winding_sector(L, ws, debug=True, basedir='./output/'):
+    """ Takes in a parameter dictionary and reads in the appropriate states
+        for the specified winding sector.
+    """
+    # The winding sectors are labelled differently in the HDF5 file (for
+    # convenience reasons) so we have to relabel them here.
+    ws_shifted = _winding_shift(L, ws)
     if debug:
         print(f'Supplied winding numbers {ws} are mapped to {tuple(ws_shifted)}')
 
@@ -126,7 +132,7 @@ def read_winding_sector(L, ws, debug=True, basedir='./output/'):
     filename=basedir+file_tag(L, filetype='hdf5')
     with hdf.File(filename, 'r') as f:
         winding_states = f[winding_tag(ws_shifted)][...]
-    return winding_states
+    return winding_states, winding_tag(ws_shifted)
 
 
 

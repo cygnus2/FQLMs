@@ -196,7 +196,7 @@ class LatticeObject(object):
 
         return all_links
 
-    def _draw_particle(self, pos, links, a=2.0, colors=['#FCC148', '#F9D792']):
+    def _draw_particle(self, pos, links, a=2.0, colors=['#416780', '#A5D2F0']):
         coord = list(map(lambda x: [x[0]], links[pos]))
         coord[pos%len(links[0])][0] += a/2
         self.ax.plot(xs=coord[0], ys=coord[1], zs=coord[2],
@@ -209,7 +209,7 @@ class LatticeObject(object):
         )
 
 
-    def _draw_state(self, links, colors=['#FCC148', '#F9D792']):
+    def _draw_state(self, links, colors=['#416780', '#A5D2F0']):
         state = self.to_int()
         for k in range(self.nb):
             if (state>>k)&1:
@@ -241,13 +241,16 @@ class LatticeObject(object):
                 pflips.append(p)
         return pflips
 
-    def draw(self, a=2):
+    def draw(self, a=2, axis=None, label=None):
         """ 3D plot for the current lattice.
         """
         with plt.style.context('seaborn-notebook'):
-            self.fig = plt.figure()
-            self.fig.set_size_inches(8,6)
-            self.ax = self.fig.add_subplot(111, projection='3d')
+            if axis is None:
+                self.fig = plt.figure()
+                self.fig.set_size_inches(8,6)
+                self.ax = self.fig.add_subplot(111, projection='3d')
+            else: 
+                self.ax = axis
 
             self.ax.view_init(elev=20, azim=-75)
             self.ax.set_axis_off()
@@ -267,8 +270,10 @@ class LatticeObject(object):
                 else:
                     pass
                     self._highlight_plaquette(p[:-1], color='red', alpha=0.1)
-
-                    
+                        
+        if label is not None:
+            self.ax.text(-0.5, 0, self.ax.get_zlim()[1]+0.5, label, fontsize=24)
+            
                     
     # -----
     # Operators.

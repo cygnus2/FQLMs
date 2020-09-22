@@ -20,7 +20,7 @@ def _send(msg, device):
 def _timestamp():
     return datetime.now().strftime("%b %d %Y %H:%M:%S")
 
-def push_finished_run(run, device='oneplus_t3_luki'):
+def push_finished_run(run, device='Pixel3a'):
     msg = {
         'title' : 'Run completed!',
         'text' : f"The script with {run['n_tasks']} tasks @{run['host']} finished at {_timestamp()}"
@@ -28,7 +28,7 @@ def push_finished_run(run, device='oneplus_t3_luki'):
     _send(msg, device=device)
 
 
-def push_message(text, device='oneplus_t3_luki'):
+def push_message(text, device='Pixel3a'):
     msg = {
         'title' : 'Run completed!',
         'text' : text

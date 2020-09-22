@@ -52,6 +52,7 @@ args = parser.parse_args()
 # This sets the parameters fof the calculation (everything else is fixed).
 param = load_config(args.i)
 spectrum_file = param['working_directory'] + '/SEQUENTIAL_spectrum_' + param_tag(param) + '.hdf5'
+states_file = param['working_directory'] + '/SEQUENTIAL_eigenstates_' + param_tag(param) + '.hdf5'
 hamiltonian_file = param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 # Set up a logger with a handler for the terminal output.
@@ -81,6 +82,8 @@ total_progress = 0
 total_states = sum(list(map(lambda x: len(x[1]), all_winding_sectors)))
 for i, winding_sector in enumerate(all_winding_sectors):
     ws, states = winding_sector
+    print(ws)
+    sys.exit()
 
     total_progress += len(states)
     logger.info('Diagonalizing sector {:d} of {:d} [{:d} of {:d} states]'.format(i+1, len(all_winding_sectors), total_progress, total_states))
@@ -108,18 +111,26 @@ for i, winding_sector in enumerate(all_winding_sectors):
 
 
     # Diagonalization.
-    spectrum = hamiltonian_diagonalization(ham,
+    results = hamiltonian_diagonalization(ham,
         full_diag=False,
         J = param['J'],
         lam = param['lambda'],
         gauge_particles = param['gauge_particles'],
         n_eigenvalues = max(1, min(param['n_eigenvalues'], ham.n_fock//2)),
-        which = param['ev_type']
+        which = param['ev_type'],
+        compute_eigenstates=bool(param.get('compute_eigenstates'))
     )
+    if param['compute_eigenstates']:
+        eigenvalues, eigenstates = results
+    else:
+        eigenvalues = results
 
     # Save into a dataset in the HDF5 file.
     with hdf.File(spectrum_file, 'a' if i else 'w') as f:
-        f.create_dataset(ws, data=np.array(spectrum))
+        f.create_dataset(ws, data=np.array(eigenvalues))
+    if param['compute_eigenstates']:
+        with hdf.File(states_file, 'a' if i else 'w') as f:
+            f.create_dataset(ws, data=np.array(eigenstates))
 
     logger.info('---')
 
