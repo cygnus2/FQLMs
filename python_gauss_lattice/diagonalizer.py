@@ -28,6 +28,7 @@ def hamiltonian_diagonalization(ham, **kwargs):
 # Input handling.
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (single lambda).")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
+parser.add_argument('-scratch', action='store_true', help='Nothing is read (except the states), everything is computed.')
 args = parser.parse_args()
 
 # Get parameters.
@@ -53,6 +54,10 @@ else:
 # read from file. This is OK, since the real benefit only exists at large systems
 # (2x2x4 mainly), whereas small systems can easily be constructed with little effort.
 try:
+    # Lazy hack to avoid coding more - mostly a debugging measure.
+    if args.scratch:
+        raise OSError
+
     with hdf.File(hamiltonian_file, 'r') as f:
         mat = f[ws][...]
     if mat.shape[-1]:

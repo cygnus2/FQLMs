@@ -55,38 +55,51 @@ def timeit(logger=None):
     return wrap
 
 
-def print_2D_state(state, L):
+def bin_str(state, L):
+     return ("{:0"+str(L)+"b}").format(state)
+
+def print_2D_state(state, L, spins=False):
     """ Dumps a 2D lattice.
     """
     sx, sy = 2, 1
     blx = 2*(sx+1)
 
-    bstr = bin_str(state, L=L**2*2)[::-1]
-    bstr = bstr.replace('0', '○')
-    bstr = bstr.replace('1', '●')
+    Lx, Ly = L
+
+    bstr = bin_str(state, Lx*Ly*2)[::-1]
+
+    if spins:
+        left, right = "<", ">"
+        up, down = "v", "^"
+    else:
+        left, right = '●', '○'
+        up, down = '○', '●'
+
+    bstr = bstr.replace('0', right)
+    bstr = bstr.replace('1', left)
 
     # Loop through rows.
     lines = []
-    for r in range(L):
+    for r in range(Ly):
         lx = ''
-        for c in range(L):
-            i = 2*r*L+c*2
+        for c in range(Lx):
+            i = 2*r*Lx+c*2
             lx += "-"+"-"*sx + bstr[i] + "-"*sx
         lines.append(lx)
 
         # ---
 
         for k in range(sy):
-            lines.append(("|"+(" "*blx)[:-1])*L)
+            lines.append(("|"+(" "*blx)[:-1])*Lx)
 
         ly = ''
-        for c in range(L):
-            j = 2*r*L+c*2 + 1
+        for c in range(Lx):
+            j = 2*r*Lx+c*2 + 1
             ly += bstr[j]+(" "*blx)[:-1]
-        lines.append(ly)
+        lines.append(ly.replace(right, up).replace(left, down))
 
         for k in range(sy):
-            lines.append(("|"+(" "*blx)[:-1])*L)
+            lines.append(("|"+(" "*blx)[:-1])*Lx)
 
     for line in lines[::-1]:
         print(line)

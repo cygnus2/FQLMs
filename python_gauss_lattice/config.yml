@@ -7,21 +7,21 @@
 # ----------------------------------
 # General parameters:
 working_directory: output/ # Directory where everything is stored/loaded.
-L : [2,2,2] # Spatial extent of the lattice.
+L : [2,2] # Spatial extent of the lattice.
 logfile : 'logfile.log' # Logfile to store the output.
 
 # ----------------------------------
 # Important for diagonalization.
 gauge_particles : 'bosons' # Either bosons or fermions.
 full_diag : False # If True, the full matrix is diagonalized - extremely costly.
-ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values.
-n_eigenvalues : 30 # Number of eigenvalues to compute.
-lambda: -5 # lambda Coupling.
+ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
+n_eigenvalues : 10 # Number of eigenvalues to compute.
+lambda: -3 # lambda Coupling.
 J : -1 # J Coupling.
 winding_sector : [0,0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
 compute_eigenstates: True # If true, the eigenstates will be exported.
-store_hamiltonian: True # If true, the Hamiltonian will be stored.
+store_hamiltonian: False # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3, 1, 201] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3, 1, 101] # Range that specifies the lambda values to scan (min, max, n_steps)

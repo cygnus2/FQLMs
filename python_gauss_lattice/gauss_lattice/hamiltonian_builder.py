@@ -240,7 +240,8 @@ class HamiltonianBuilder(object):
         for k in range(4):
             m = 1 << p[k]
             if bool(new_state & m) == mask[k]:
-                n += sum_occupancies(a, p[k], new_state)
+                # n += sum_occupancies(a, p[k], new_state)
+                n = 1
                 new_state = copy(new_state^m)
             else:
                 return 0, 0

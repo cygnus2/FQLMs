@@ -82,8 +82,6 @@ total_progress = 0
 total_states = sum(list(map(lambda x: len(x[1]), all_winding_sectors)))
 for i, winding_sector in enumerate(all_winding_sectors):
     ws, states = winding_sector
-    print(ws)
-    sys.exit()
 
     total_progress += len(states)
     logger.info('Diagonalizing sector {:d} of {:d} [{:d} of {:d} states]'.format(i+1, len(all_winding_sectors), total_progress, total_states))
