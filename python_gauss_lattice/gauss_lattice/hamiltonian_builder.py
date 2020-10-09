@@ -26,6 +26,10 @@ class HamiltonianBuilder(object):
         for l in self.L:
             self.S.append(l*self.S[-1])
 
+        # Flag for big int storage.
+        self.nb = self.S[-1]*self.d
+        self.big_int = self.nb > 60
+
         # Some I/O business.
         self.silent = silent
         self.logger = logger

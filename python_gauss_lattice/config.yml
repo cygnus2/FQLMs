@@ -7,7 +7,7 @@
 # ----------------------------------
 # General parameters:
 working_directory: le_output/ # Directory where everything is stored/loaded.
-L : [2,2,2] # Spatial extent of the lattice.
+L : [2,2,6] # Spatial extent of the lattice.
 logfile : 'le_logfile.log' # Logfile to store the output.
 
 # ----------------------------------
@@ -24,8 +24,8 @@ store_hamiltonian: False # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3, 1, 101] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3, 0, 2] # Range that specifies the lambda values to scan (min, max, n_steps)
 
 
-excitation_levels: 6
-n_threads: 4
+n_threads: 6
+maximum_excitation_level: 1

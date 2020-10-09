@@ -48,7 +48,7 @@ base_lattices = {
     (2,2,4) : [64030919769180, 64963162609002, 90962379586260, 95261054903217,
                 126550380058830, 129916812535965, 151558164174690, 154924596651825,
                 186213921807438, 190512597124395, 216511814101653, 217444056941475]
- }
+}
 builder.find_le_states(base_lattices[tuple(param['L'])], param['excitation_levels'])
 ham = hamiltonian_construction(builder)
 
