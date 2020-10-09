@@ -144,14 +144,21 @@ def combine_lattices(lattices_a, lattices_b, La, Lb):
 
     found_lattices = []
     clist = list(product(range(len(lattices_a)), range(len(lattices_b))))
-    for i, j in tbar(clist):
-        for fa in flips:
-            for fb in flips:
+    print(len(clist))
+    c = 0
+    # for i, j in tbar(clist):
+    for i in range(len(lattices_a)):
+        for j in range(len(lattices_b)):
+            c += 1
+            for fa in flips:
                 latta = lattices_a[i]^fa
-                lattb = lattices_b[j]^fb
-                lattc = latta + (lattb << shift)
-                if check_lattice(lattc, check_indicies, mpos, mneg):
-                    found_lattices.append((lattc))
+                for fb in flips:
+                    lattb = lattices_b[j]^fb
+                    lattc = latta + (lattb << shift)
+                    if check_lattice(lattc, check_indicies, mpos, mneg):
+                        found_lattices.append((lattc))
+            if c%10 == 0:
+                print("hey", c)
 
     found_lattices = set(found_lattices)
     return set(found_lattices), Lc

@@ -12,6 +12,7 @@ from .bit_magic import set_bits, sum_occupancies
 from copy import copy
 from tqdm import tqdm as tbar
 
+
 class HamiltonianBuilder(object):
     """ Constructs the Hamiltonian in a general single-particle basis.
     """
@@ -203,12 +204,9 @@ class HamiltonianBuilder(object):
                 new_state, sign = self.apply_u(state, p)
 
             if new_state:
-                # n_flippable += 1
-                states.append([
-                    n_state,
-                    self.state_to_index(new_state),
-                    sign
-                ])
+                i = self.state_to_index(new_state)
+                if i < self.n_fock:
+                    states.append([n_state, self.state_to_index(new_state), sign])
 
         # states.append([n_state, n_state, n_flippable*self.lam])
         return states

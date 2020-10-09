@@ -5,3 +5,4 @@ output/
 *pytest_cache*
 *.png
 *dev_checks*
+le_output/
