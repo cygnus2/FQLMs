@@ -29,9 +29,9 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
             self.host = subprocess.check_output(['hostname']).strip().decode('UTF-8'),
 
 
-    def level_alert(self, level):
+    def level_alert(self, level, number):
         from gauss_lattice.lr_notify import push_message
-        push_message(f'Recursion level {level}  @{self.host[0]} is exported!')
+        push_message(f'Recursion level {level}  with {number} states is completed @{self.host[0]}')
 
     def _split(self, data, bit_shift=63):
         """ Converts to two integer lists to be able to store it in HDF5 (which
@@ -71,7 +71,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
         # Notify for testing purposes.
         if self.notify_level and (level>=self.notify_level):
-            self.level_alert(level)
+            self.level_alert(level, len(seed_states))
 
         if not len(seed_states) or level>=max_level:
             print(f"Terminated at {level} layers.")
