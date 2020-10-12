@@ -96,9 +96,10 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
 
     def _combine(self, data, bit_shift=63):
-        combined_data = []
-        for x, y in data:
-            combined_data.append(int(x)<<bit_shift + int(y))
+        print(len(data))
+        combined_data = [2**70]*len(data)
+        for i, (x, y) in enumerate(data):
+            combined_data[i] = (int(x)<<bit_shift) + int(y)
         return sorted(combined_data)
 
     def read_le_states(self, states):

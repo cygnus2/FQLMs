@@ -24,8 +24,8 @@ store_hamiltonian: False # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3, 0, 2] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
 
 
 n_threads: 6
-maximum_excitation_level: 1
+maximum_excitation_level: 3
