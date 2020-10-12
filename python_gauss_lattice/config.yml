@@ -28,4 +28,5 @@ lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, m
 
 
 n_threads: 6
-maximum_excitation_level: 3
+maximum_excitation_level: 5
+notification_level: 0

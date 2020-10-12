@@ -7,6 +7,7 @@
 ---------------------------------------------------------------------------- """
 from .hamiltonian_builder import HamiltonianBuilder
 from multiprocessing import Pool
+import os, subprocess
 import h5py as hdf
 import time
 import numpy as np
@@ -15,13 +16,22 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     """ Builds a Hamiltonian with low energy states only.
     """
 
-    def __init__(self, param, logger=None, silent=False):
+    def __init__(self, param, logger=None, silent=False, notify_level=0):
         """ Here we really do nothing, just set up the object.
         """
         # Call the constructor of the parent but without any states yet - they
         # need to be constructed.
         super().__init__(param, [], logger=logger, silent=True)
         self.silent = silent
+
+        self.notify_level = notify_level
+        if notify_level:
+            self.host = subprocess.check_output(['hostname']).strip().decode('UTF-8'),
+
+
+    def level_alert(self, level):
+        from gauss_lattice.lr_notify import push_message
+        push_message(f'Recursion level {level}  @{self.host[0]} is exported!')
 
     def _split(self, data, bit_shift=63):
         """ Converts to two integer lists to be able to store it in HDF5 (which
@@ -48,9 +58,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     def _exhaust(self, seed_states, rest, level, pool, output_file=None,max_level=10000):
         """ One step in the iteration.
         """
-        if not len(seed_states) or level>max_level:
-            print(f"Terminated at {level} layers.")
-            return rest
+        self._log(str(level) + " " + str(len(seed_states)))
 
         # Write states.
         if output_file:
@@ -61,7 +69,14 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
                     data = list(seed_states)
                 f.create_dataset('states_lv_{:d}'.format(level), data=data)
 
-        print(level, len(seed_states))
+        # Notify for testing purposes.
+        if self.notify_level and (level>=self.notify_level):
+            self.level_alert(level)
+
+        if not len(seed_states) or level>=max_level:
+            print(f"Terminated at {level} layers.")
+            return rest
+
         states = set().union(*pool.map(self._cycle_plaquettes, seed_states))
 
         new_rest = seed_states.union(rest)

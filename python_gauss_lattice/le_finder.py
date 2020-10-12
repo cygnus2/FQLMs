@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
-builder = LowEnergyHamiltonianBuilder(param, logger=logger)
+builder = LowEnergyHamiltonianBuilder(param, logger=logger, notify_level=param.get('notification_level'))
 
 # These are lattices that are maximally flippable for each lattice size. It does not
 # matter where we start, as long as we're in the correct winding sector (and we
