@@ -62,7 +62,9 @@ def hamiltonian_construction(builder):
 le_builder = LowEnergyHamiltonianBuilder(param, logger=logger)
 
 # Check if states exist, if not, construct them.
-state_file = param['working_directory']+file_tag(param['L'], filetype='hdf5').replace("winding_", "le_")
+state_file = param.get("state_file")
+if not state_file:
+    state_file = param['working_directory']+file_tag(param['L'], filetype='hdf5').replace("winding_", "le_")
 if not os.path.isfile(state_file):
     logger.info('Could not find stored states, constructing low-energy Fock state list from scratch.')
     states = builder.find_le_states(base_lattices[tuple(param['L'])], param['maximum_excitation_level'])
