@@ -88,9 +88,11 @@ except (KeyError, OSError):
 
     # If specified, store the Hamiltonian for later use.
     if param['store_hamiltonian']:
-        with hdf.File(hamiltonian_file, 'a' if i else 'w') as f:
+        with hdf.File(hamiltonian_file, 'a') as f:
+            if ham_name in f:
+                del f[ham_name]
             ds = f.create_dataset(ham_name, data= np.array([ham.col, ham.row, ham.data]))
-            ds.attrs['n_fock'] = len(states)
+            ds.attrs['n_fock'] = ham.n_fock
 
 # ----
 # Loop through spectra.

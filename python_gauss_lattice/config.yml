@@ -20,7 +20,7 @@ lambda: -3.0 # lambda Coupling.
 J : -1 # J Coupling.
 #winding_sector : [0,0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
 compute_eigenstates: True # If true, the eigenstates will be exported.
-store_hamiltonian: False # If true, the Hamiltonian will be stored.
+store_hamiltonian: True # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
@@ -28,5 +28,5 @@ lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, m
 
 
 n_threads: 4
-maximum_excitation_level: 100
+maximum_excitation_level: 1
 notification_level: 0
