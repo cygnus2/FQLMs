@@ -7,7 +7,6 @@
 # ----------------------------------
 # General parameters:
 working_directory: le_output/ # Directory where everything is stored/loaded.
-state_file: "/home/lukas/dummy_states.hdf5"
 L : [2,2,4] # Spatial extent of the lattice.
 logfile : 'le_logfile.log' # Logfile to store the output.
 
@@ -28,6 +27,6 @@ store_hamiltonian: False # If true, the Hamiltonian will be stored.
 lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
 
 
-n_threads: 6
-maximum_excitation_level: 2
+n_threads: 4
+maximum_excitation_level: 6
 notification_level: 0

@@ -215,17 +215,17 @@ class HamiltonianBuilder(object):
         # states.append([n_state, n_state, n_flippable*self.lam])
         return states
 
-    def apply_u(self, state, p):
+    def apply_u(self, state, p, sign=True):
         """ Wrapper to apply U
         """
-        return self._apply_plaquette_operator(state, p, mask=[False, False, True, True])
+        return self._apply_plaquette_operator(state, p, mask=[False, False, True, True], sign=sign)
 
-    def apply_u_dagger(self, state, p):
+    def apply_u_dagger(self, state, p, sign=True):
         """ Wrapper to apply U+
         """
-        return self._apply_plaquette_operator(state, p, mask=[True, True, False, False])
+        return self._apply_plaquette_operator(state, p, mask=[True, True, False, False], sign=sign)
 
-    def _apply_plaquette_operator(self, state, p, mask):
+    def _apply_plaquette_operator(self, state, p, mask, sign):
         """ Applies the U operator
 
                 c1+ c2+ c3 c4
@@ -237,13 +237,15 @@ class HamiltonianBuilder(object):
             to a given plaquette in a given state (link configuration starting
             with x-mu link and going counter-clockwise).
         """
-        a, b, n = max(p[:-1]), min(p[:-1]), 0
+        n = 0
+        if sign:
+            a, b = max(p[:-1]), min(p[:-1])
         new_state = copy(state)
         for k in range(4):
             m = 1 << p[k]
             if bool(new_state & m) == mask[k]:
-                # n += sum_occupancies(a, p[k], new_state)
-                n = 1
+                if sign:
+                    n += sum_occupancies(a, p[k], new_state)
                 new_state = copy(new_state^m)
             else:
                 return 0, 0

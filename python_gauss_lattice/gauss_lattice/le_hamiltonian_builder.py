@@ -10,6 +10,7 @@ from multiprocessing import Pool
 import os, subprocess
 import h5py as hdf
 import time
+import datetime as dt
 import numpy as np
 
 class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
@@ -47,18 +48,18 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     def _cycle_plaquettes(self, state):
         states = set()
         for p in self.plaquettes:
-            new_state, _ = self.apply_u_dagger(state, p)
+            new_state, _ = self.apply_u_dagger(state, p, sign=False)
             if not new_state:
-                new_state, _ = self.apply_u(state, p)
+                new_state, _ = self.apply_u(state, p, sign=False)
             if new_state:
                 states.add(new_state)
         return states
 
 
-    def _exhaust(self, seed_states, rest, level, pool, output_file=None,max_level=10000):
+    def _exhaust(self, seed_states, rest, level, pool=None, output_file=None, max_level=10000):
         """ One step in the iteration.
         """
-        self._log(str(level) + " " + str(len(seed_states)))
+        self._log(dt.datetime.now().strftime("[%H:%M:%S]")+ "  " + str(level) + " " + str(len(seed_states)))
 
         # Write states.
         if output_file:
@@ -77,10 +78,16 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
             print(f"Terminated at {level} layers.")
             return rest
 
-        states = set().union(*pool.map(self._cycle_plaquettes, seed_states))
+        if pool:
+            states = set().union(*pool.map(self._cycle_plaquettes, seed_states))
+        else:
+            states = set()
+            for s in seed_states:
+                states = states | self._cycle_plaquettes(s)
 
         new_rest = seed_states.union(rest)
-        return self._exhaust(states-new_rest, new_rest, level+1, pool, output_file,max_level)
+        states.difference_update(new_rest)
+        return self._exhaust(states, new_rest, level+1, pool, output_file, max_level)
 
 
     def find_all_states(self, seed_states, n_threads=1, output_file=None, max_level=10000):
@@ -97,8 +104,12 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
         # Execute on multiple processes.
         ts = time.time()
-        with Pool(n_threads) as p:
-            states = self._exhaust(set(seed_states), set(), 0, p, output_file,max_level=max_level)
+        if n_threads > 1:
+            with Pool(n_threads) as p:
+                states = self._exhaust(set(seed_states), set(), 0, pool=p, output_file=output_file, max_level=max_level)
+        else:
+            states = self._exhaust(set(seed_states), set(), 0, pool=None, output_file=output_file, max_level=max_level)
+
         te = time.time()
         if not self.silent:
             self._log('Recursion took  %2.2f ms' % ((te - ts) * 1000))
