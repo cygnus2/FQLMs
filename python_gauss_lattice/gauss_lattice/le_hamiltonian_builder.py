@@ -46,7 +46,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
 
     def _cycle_plaquettes(self, state):
-        self._log(state)
+        self._log(str(self.level) + " // " + state)
         states = set()
         for p in self.plaquettes:
             new_state, _ = self.apply_u_dagger(state, p, sign=False)
@@ -60,6 +60,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     def _exhaust(self, seed_states, rest, level, pool=None, output_file=None, max_level=10000):
         """ One step in the iteration.
         """
+        self.level = level
         self._log(dt.datetime.now().strftime("[%H:%M:%S]")+ "  " + str(level) + " " + str(len(seed_states)))
 
         # Write states.
