@@ -12,6 +12,52 @@ import h5py as hdf
 import time
 import datetime as dt
 import numpy as np
+from itertools import product
+from copy import copy
+
+def apply_u_bare( state, p, sign=True):
+    """ Wrapper to apply U
+    """
+    return _apply_plaquette_operator_bare(state, p, mask=[False, False, True, True], sign=sign)
+
+def apply_u_dagger_bare(state, p, sign=True):
+    """ Wrapper to apply U+
+    """
+    return _apply_plaquette_operator_bare(state, p, mask=[True, True, False, False], sign=sign)
+
+def _apply_plaquette_operator_bare(state, p, mask, sign):
+    """ Applies the U operator
+
+            c1+ c2+ c3 c4
+
+        or the U+ term
+
+            c1 c2 c3+ c4+
+
+        to a given plaquette in a given state (link configuration starting
+        with x-mu link and going counter-clockwise).
+    """
+    new_state = copy(state)
+    for k in range(4):
+        m = 1 << p[k]
+        if bool(new_state & m) == mask[k]:
+            new_state = copy(new_state^m)
+        else:
+            return 0, 0
+    return new_state, 1
+
+def _cycle_plaquettes_bare(args):
+    # self._log(str(self.level) + " // " + str(state))
+    state, plaquettes = args
+
+    states = set()
+    for p in plaquettes:
+        new_state, _ = apply_u_dagger_bare(state, p, sign=False)
+        if not new_state:
+            new_state, _ = apply_u_bare(state, p, sign=False)
+        if new_state:
+            states.add(new_state)
+    return states
 
 class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     """ Builds a Hamiltonian with low energy states only.
@@ -46,7 +92,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
 
     def _cycle_plaquettes(self, state):
-        self._log(str(self.level) + " // " + str(state))
+        # self._log(str(self.level) + " // " + str(state))
         states = set()
         for p in self.plaquettes:
             new_state, _ = self.apply_u_dagger(state, p, sign=False)
@@ -76,12 +122,15 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         if self.notify_level and (level>=self.notify_level):
             self.level_alert(level, len(seed_states))
 
-        if not len(seed_states) or level>=max_level:
+        L = len(seed_states)
+        if not L or level>=max_level:
             print(f"Terminated at {level} layers.")
             return rest
 
         if pool:
-            states = set().union(*pool.map(self._cycle_plaquettes, seed_states))
+            # states = set().union(*pool.map_async(self._cycle_plaquettes, seed_states, chunksize=L//self.n_threads).get())
+            # states = set().union(*pool.imap_unordered(self._cycle_plaquettes, seed_states))
+            states = set().union(*pool.map(_cycle_plaquettes_bare, product(seed_states, [self.plaquettes])))
         else:
             states = set()
             for s in seed_states:
@@ -106,6 +155,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
         # Execute on multiple processes.
         ts = time.time()
+        self.n_threads = n_threads
         if n_threads > 1:
             with Pool(n_threads) as p:
                 states = self._exhaust(set(seed_states), set(), 0, pool=p, output_file=output_file, max_level=max_level)
