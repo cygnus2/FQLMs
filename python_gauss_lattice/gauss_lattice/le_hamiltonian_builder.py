@@ -46,6 +46,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
 
     def _cycle_plaquettes(self, state):
+        self._log(state)
         states = set()
         for p in self.plaquettes:
             new_state, _ = self.apply_u_dagger(state, p, sign=False)
