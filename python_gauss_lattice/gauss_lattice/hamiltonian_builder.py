@@ -10,8 +10,11 @@ from bisect import bisect_left
 from .hamiltonian import GaussLatticeHamiltonian
 from .hamiltonian_builder_methods import do_single_state
 from .bit_magic import set_bits, sum_occupancies
+from .aux import timestamp
 from copy import copy
 from tqdm import tqdm as tbar
+from multiprocessing import Pool
+from itertools import product
 
 
 class HamiltonianBuilder(object):
@@ -51,9 +54,9 @@ class HamiltonianBuilder(object):
         """ To produce a logfile (mainly debugging purposes).
         """
         if self.logger:
-            self.logger.info(msg)
+            self.logger.info(timestamp() + ' ' + msg)
         else:
-            print(msg)
+            print(timestamp() + ' ' + msg)
 
 
     def shift_index(self, i, d):
@@ -157,37 +160,47 @@ class HamiltonianBuilder(object):
         return ind
 
 
-    def construct(self, n_threads=1):
+    def construct(self, n_threads=1, progress_bar=False):
         """ Actually builds the Hamiltonian and returns a Hamiltonian object
             ready to be diagonalized.
         """
         # Loop through all Fock states and create the overlap matrix. First step:
         # do it naively (with some doubled work). Then try to improve on that (by
         # using, e.g., Hermiticity).
+
+        self._log(f'Working with {n_threads} threads.')
         all_entries = []
-
         if n_threads == 1:
-            for s in tbar(self.lookup_table):
-                all_entries += do_single_state(s, self.plaquettes)
-        else:
-            map
+            if progress_bar:
+                for s in tbar(self.lookup_table):
+                    all_entries += [do_single_state((s, self.plaquettes))]
+            else:
+                for s in self.lookup_table:
+                    all_entries += [do_single_state((s, self.plaquettes))]
 
-        if not self.silent:
-            self._log("# of nonzero entries: " + str(len(all_entries)))
+        else:
+            with Pool(n_threads) as pool:
+                all_entries = pool.map(do_single_state, product(self.lookup_table, [self.plaquettes]))
+
         # Make a sparse matrix out ot this -although pretty plain, this can handle
         # reasonably sized lists of indices (will do fo now).
-
+        icol, irow, idata = [], [], []
         if len(all_entries):
-            row, col, data = zip(*all_entries)
-            # Convert the columns to the proper format.
-            icol, irow = [], []
-            for k in range(len(row)):
-                if col[k] < self.n_fock:
-                    irow.append(self.state_to_index(row[k]))
-                    icol.append(self.state_to_index(col[k]))
-            return GaussLatticeHamiltonian(data, irow, icol, n_fock=self.n_fock)
-        else:
-            return GaussLatticeHamiltonian([], [], [], n_fock=self.n_fock)
+            for line in all_entries:
+                if len(line):
+                    row, col, data = zip(*line)
+
+                    # Convert the columns to the proper format.
+                    for k in range(len(row)):
+                        c = self.state_to_index(col[k])
+                        if c < self.n_fock:
+                            icol.append(c)
+                            irow.append(self.state_to_index(row[k]))
+                            idata.append(data[k])
+
+        if not self.silent:
+            self._log("# of nonzero entries: " + str(len(idata)))
+        return GaussLatticeHamiltonian(idata, irow, icol, n_fock=self.n_fock)
 
 
     def index_to_state(self, n):

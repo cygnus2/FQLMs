@@ -6,10 +6,10 @@
 
 # ----------------------------------
 # General parameters:
-working_directory: le_output/ # Directory where everything is stored/loaded.
-L : [2,2,4] # Spatial extent of the lattice.
+working_directory: output/ # Directory where everything is stored/loaded.
+L : [2,2,2] # Spatial extent of the lattice.
 logfile : 'le_logfile.log' # Logfile to store the output.
-winding_sector: [0,0,0]
+# winding_sector: [0,0,0]
 
 # ----------------------------------
 # Important for diagonalization.

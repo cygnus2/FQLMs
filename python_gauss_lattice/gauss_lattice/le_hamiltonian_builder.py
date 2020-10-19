@@ -1,5 +1,6 @@
 from .hamiltonian_builder import HamiltonianBuilder
 from .hamiltonian_builder_methods import cycle_plaquettes
+from .aux import timestamp
 from multiprocessing import Pool
 import os, subprocess
 import h5py as hdf
@@ -46,7 +47,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         """ One step in the iteration.
         """
         self.level = level
-        self._log(dt.datetime.now().strftime("[%H:%M:%S]")+ "  " + str(level) + " " + str(len(seed_states)))
+        self._log(timestamp() + "  " + str(level) + " " + str(len(seed_states)))
 
         # Write states.
         if output_file:

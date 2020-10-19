@@ -10,7 +10,10 @@ import numpy as np
 import h5py as hdf
 import numpy as np
 from itertools import product
+import datetime as dt
 
+def timestamp():
+    return dt.datetime.now().strftime("[%H:%M:%S]")
 
 def size_tag(L):
     stag = ''
