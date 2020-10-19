@@ -36,7 +36,7 @@ def read_le_states(data_file, max_level, combine=True):
             new_max = max_level
 
     if combine:
-        return list(map(int, np.concatenate([states[k] for k in sorted(states.keys()) if len(states[k])]))), new_max
+        return np.concatenate([states[k] for k in sorted(states.keys()) if len(states[k])]), new_max
     return states, new_max
 
 
@@ -93,7 +93,7 @@ if not os.path.isfile(state_file):
 else:
     logger.info(f'Reading Fock states from {state_file}')
     states, new_max = read_le_states(state_file, param["maximum_excitation_level"])
-    le_builder.read_le_states(states)
+    le_builder.read_le_states(states, from_file=True)
 
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.

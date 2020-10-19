@@ -8,8 +8,8 @@
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 working_directory: /home/lukas/_temp/
-state_file: 'le_output/le_states_2x2x2.hdf5'
-L : [2,2,2] # Spatial extent of the lattice.
+state_file: 'le_output/le_states_2x2x6.hdf5'
+L : [2,2,6] # Spatial extent of the lattice.
 winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'le_logfile.log' # Logfile to store the output.
 n_threads: 4
@@ -28,9 +28,9 @@ store_hamiltonian: False # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3.0, 1.0, 1] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3.0, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
 
 #-----------------------------------
 # LE stuff.
-maximum_excitation_level: 4
+maximum_excitation_level: 2
 notification_level: 0

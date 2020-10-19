@@ -119,14 +119,14 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         return sorted(combined_data)
 
 
-    def read_le_states(self, states):
+    def read_le_states(self, states, from_file=False):
         """ Takes a list of states and translates them. If the integer size is
             exceeded, the states will be reconstructed from two integers.
         """
-        if self.big_int:
+        if self.big_int and from_file:
             self.lookup_table = self._combine(states)
         else:
-            self.lookup_table = sorted(states)
+            self.lookup_table = sorted(map(int, states))
 
         self.n_fock = len(self.lookup_table)
         if not self.silent:
