@@ -1,10 +1,3 @@
-""" ----------------------------------------------------------------------------
-
-    le_hamiltonian_builder.py - LR, October 2020
-
-    Constructs the Hamiltonian only for low-energy gauss-lattice states.
-
----------------------------------------------------------------------------- """
 from .hamiltonian_builder import HamiltonianBuilder
 from multiprocessing import Pool
 import os, subprocess
@@ -15,36 +8,6 @@ import numpy as np
 from itertools import product
 from copy import copy
 
-def apply_u_bare( state, p, sign=True):
-    """ Wrapper to apply U
-    """
-    return _apply_plaquette_operator_bare(state, p, mask=[False, False, True, True], sign=sign)
-
-def apply_u_dagger_bare(state, p, sign=True):
-    """ Wrapper to apply U+
-    """
-    return _apply_plaquette_operator_bare(state, p, mask=[True, True, False, False], sign=sign)
-
-def _apply_plaquette_operator_bare(state, p, mask, sign):
-    """ Applies the U operator
-
-            c1+ c2+ c3 c4
-
-        or the U+ term
-
-            c1 c2 c3+ c4+
-
-        to a given plaquette in a given state (link configuration starting
-        with x-mu link and going counter-clockwise).
-    """
-    new_state = copy(state)
-    for k in range(4):
-        m = 1 << p[k]
-        if bool(new_state & m) == mask[k]:
-            new_state = copy(new_state^m)
-        else:
-            return 0, 0
-    return new_state, 1
 
 def _cycle_plaquettes_bare(args):
     # self._log(str(self.level) + " // " + str(state))

@@ -8,6 +8,7 @@
 import numpy as np
 from bisect import bisect_left
 from .hamiltonian import GaussLatticeHamiltonian
+from .hamiltonian_builder_methods import do_single_state
 from .bit_magic import set_bits, sum_occupancies
 from copy import copy
 from tqdm import tqdm as tbar
@@ -164,8 +165,8 @@ class HamiltonianBuilder(object):
         # do it naively (with some doubled work). Then try to improve on that (by
         # using, e.g., Hermiticity).
         all_entries = []
-        for n in tbar(range(self.n_fock)):
-            all_entries += self.do_single_state(n)
+        for s in tbar(self.lookup_table):
+            all_entries += do_single_state(s, self.plaquettes)
 
         if not self.silent:
             self._log("# of nonzero entries: " + str(len(all_entries)))
@@ -174,86 +175,22 @@ class HamiltonianBuilder(object):
 
         if len(all_entries):
             row, col, data = zip(*all_entries)
-            return GaussLatticeHamiltonian(data, row, col, n_fock=self.n_fock)
+            # Convert the columns to the proper format.
+            icol, irow = [], []
+            for k in range(len(row)):
+                if col[k] < self.n_fock:
+                    irow.append(self.state_to_index(row[k]))
+                    icol.append(self.state_to_index(col[k]))
+            return GaussLatticeHamiltonian(data, irow, icol, n_fock=self.n_fock)
         else:
             return GaussLatticeHamiltonian([], [], [], n_fock=self.n_fock)
 
 
-    def do_single_state(self, n_state):
-        """ Constructs matrix-elements for a single Fock state.
-        """
-        # First get bit representation.
-        state = self.index_to_state(n_state)
-
-        # This loop applies all the plaquette terms of the Hamiltonian. The
-        # strategy is as follows:
-        #   1 - loop through all the plaquettes
-        #   2 - for every plaquette, apply both operators (U and U^dagger) only
-        #       if the plaquette is "flipable" - this condition will be checked
-        #       on the fly.
-        #   3 - inverse lookup (based on bisection) to determine the index of
-        #       the newly generated states.
-        #   4 - return the list to append to the sparse matrix representation.
-        states = []
-        # n_flippable = 0
-        for p in self.plaquettes:
-
-            # First apply the U term.
-            new_state, sign = self.apply_u_dagger(state, p)
-
-            # If U term was not successful, try the U^dagger term.
-            # (the order could have been switched - there's always only one
-            # possibility for overlap to be generated)
-            if not new_state:
-                new_state, sign = self.apply_u(state, p)
-
-            if new_state:
-                i = self.state_to_index(new_state)
-                if i < self.n_fock:
-                    states.append([n_state, self.state_to_index(new_state), sign])
-
-        # states.append([n_state, n_state, n_flippable*self.lam])
-        return states
-
-    def apply_u(self, state, p, sign=True):
-        """ Wrapper to apply U
-        """
-        return self._apply_plaquette_operator(state, p, mask=[False, False, True, True], sign=sign)
-
-    def apply_u_dagger(self, state, p, sign=True):
-        """ Wrapper to apply U+
-        """
-        return self._apply_plaquette_operator(state, p, mask=[True, True, False, False], sign=sign)
-
-    def _apply_plaquette_operator(self, state, p, mask, sign):
-        """ Applies the U operator
-
-                c1+ c2+ c3 c4
-
-            or the U+ term
-
-                c1 c2 c3+ c4+
-
-            to a given plaquette in a given state (link configuration starting
-            with x-mu link and going counter-clockwise).
-        """
-        n = 0
-        if sign:
-            a, b = max(p[:-1]), min(p[:-1])
-        new_state = copy(state)
-        for k in range(4):
-            m = 1 << p[k]
-            if bool(new_state & m) == mask[k]:
-                if sign:
-                    n += sum_occupancies(a, p[k], new_state)
-                new_state = copy(new_state^m)
-            else:
-                return 0, 0
-        return new_state, (-1)**n
-
-
     def index_to_state(self, n):
         """ Maps the n-th state in the Fock basis to it's bit string.
+
+            Note:
+                - likely deprecated, here for historic purposes.
         """
         return self.lookup_table[n]
 
