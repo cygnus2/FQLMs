@@ -7,9 +7,10 @@
 # ----------------------------------
 # General parameters:
 working_directory: output/ # Directory where everything is stored/loaded.
-L : [2,2,2] # Spatial extent of the lattice.
+L : [2,2,4] # Spatial extent of the lattice.
+winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'le_logfile.log' # Logfile to store the output.
-# winding_sector: [0,0,0]
+n_threads: 4
 
 # ----------------------------------
 # Important for diagonalization.
@@ -27,7 +28,7 @@ store_hamiltonian: True # If true, the Hamiltonian will be stored.
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
 lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
 
-
-n_threads: 4
+#-----------------------------------
+# LE stuff.
 maximum_excitation_level: 15
 notification_level: 0

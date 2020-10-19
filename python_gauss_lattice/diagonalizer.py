@@ -12,18 +12,6 @@ import argparse, logging
 import h5py as hdf
 
 
-@timeit(logger=None)
-def hamiltonian_construction(builder):
-    """ This method just exists to be able to time the routine efficiently.
-    """
-    return builder.construct()
-
-@timeit(logger=None)
-def hamiltonian_diagonalization(ham, **kwargs):
-    """ This method just exists to be able to time the routine efficiently.
-    """
-    return ham.diagonalize(**kwargs)
-
 # ------------------------------------------------------------------------------
 # Input handling.
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (single lambda).")
@@ -40,6 +28,19 @@ logger = logging.getLogger('diagonalization logger')
 logger.addHandler(logging.StreamHandler())
 logger.addHandler(logging.FileHandler(param['working_directory'] + "/" + param['logfile'], mode='w'))
 logger.setLevel(logging.DEBUG)
+
+
+@timeit(logger=logger)
+def hamiltonian_construction(builder, *args, **kwargs):
+    """ This method just exists to be able to time the routine efficiently.
+    """
+    return builder.construct(*args, **kwargs)
+
+@timeit(logger=logger)
+def hamiltonian_diagonalization(ham, **kwargs):
+    """ This method just exists to be able to time the routine efficiently.
+    """
+    return ham.diagonalize(**kwargs)
 
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
@@ -70,7 +71,7 @@ try:
 except (KeyError, OSError):
     # Set up the builder object & construct the Hamiltonian.
     builder = HamiltonianBuilder(param, states=states, logger=logger)
-    ham = hamiltonian_construction(builder)
+    ham = hamiltonian_construction(builder, param.get('n_threads', 1))
 
     # If specified, store the Hamiltonian for later use.
     if param['store_hamiltonian']:

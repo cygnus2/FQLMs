@@ -51,11 +51,11 @@ def hamiltonian_diagonalization(ham, **kwargs):
     """
     return ham.diagonalize(**kwargs)
 
-@timeit(logger=None)
-def hamiltonian_construction(builder):
+@timeit(logger=logger)
+def hamiltonian_construction(builder, *args, **kwargs):
     """ This method just exists to be able to time the routine efficiently.
     """
-    return builder.construct()
+    return builder.construct(*args, **kwargs)
 
 
 # Start by constructing the builder.
@@ -84,7 +84,7 @@ try:
 
 except (KeyError, OSError):
     # Set up the builder object & construct the Hamiltonian.
-    ham = hamiltonian_construction(le_builder)
+    ham = hamiltonian_construction(le_builder, param.get('n_threads', 1))
 
     # If specified, store the Hamiltonian for later use.
     if param['store_hamiltonian']:

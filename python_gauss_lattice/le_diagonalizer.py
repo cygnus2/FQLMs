@@ -11,19 +11,6 @@ import numpy as np
 import argparse, logging
 import h5py as hdf
 
-
-@timeit(logger=None)
-def hamiltonian_construction(builder):
-    """ This method just exists to be able to time the routine efficiently.
-    """
-    return builder.construct()
-
-@timeit(logger=None)
-def hamiltonian_diagonalization(ham, **kwargs):
-    """ This method just exists to be able to time the routine efficiently.
-    """
-    return ham.diagonalize(**kwargs)
-
 # ------------------------------------------------------------------------------
 # Input handling.
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (single lambda).")
@@ -39,6 +26,19 @@ logger.addHandler(logging.StreamHandler())
 logger.addHandler(logging.FileHandler(param['working_directory'] + "/" + param['logfile'], mode='w'))
 logger.setLevel(logging.DEBUG)
 
+
+@timeit(logger=logger)
+def hamiltonian_construction(builder, *args, **kwargs):
+    """ This method just exists to be able to time the routine efficiently.
+    """
+    return builder.construct(*args, **kwargs)
+
+@timeit(logger=logger)
+def hamiltonian_diagonalization(ham, **kwargs):
+    """ This method just exists to be able to time the routine efficiently.
+    """
+    return ham.diagonalize(**kwargs)
+
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
 builder = LowEnergyHamiltonianBuilder(param, logger=logger)
@@ -50,7 +50,7 @@ base_lattices = {
                 186213921807438, 190512597124395, 216511814101653, 217444056941475]
 }
 builder.find_le_states(base_lattices[tuple(param['L'])], param['excitation_levels'])
-ham = hamiltonian_construction(builder)
+ham = hamiltonian_construction(builder, param.get('n_threads', 1))
 
 # ------------------------------------------------------------------------------
 # Diagonalization.
