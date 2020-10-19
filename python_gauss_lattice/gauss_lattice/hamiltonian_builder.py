@@ -157,7 +157,7 @@ class HamiltonianBuilder(object):
         return ind
 
 
-    def construct(self):
+    def construct(self, n_threads=1):
         """ Actually builds the Hamiltonian and returns a Hamiltonian object
             ready to be diagonalized.
         """
@@ -165,8 +165,12 @@ class HamiltonianBuilder(object):
         # do it naively (with some doubled work). Then try to improve on that (by
         # using, e.g., Hermiticity).
         all_entries = []
-        for s in tbar(self.lookup_table):
-            all_entries += do_single_state(s, self.plaquettes)
+
+        if n_threads == 1:
+            for s in tbar(self.lookup_table):
+                all_entries += do_single_state(s, self.plaquettes)
+        else:
+            map
 
         if not self.silent:
             self._log("# of nonzero entries: " + str(len(all_entries)))

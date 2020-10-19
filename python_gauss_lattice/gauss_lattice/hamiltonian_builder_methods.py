@@ -11,25 +11,34 @@
 from copy import copy
 
 
-def do_single_state(state, plaquettes):
+def do_single_state(args, sign=True, set_collection=False):
     """ Constructs matrix-elements for a single Fock state, suitable for parallel
         computing.
     """
-    states = []
+    state, plaquettes = args
+
+    states = set() if set_collection else []
     for p in plaquettes:
         # First apply the U term.
-        new_state, sign = apply_u_dagger(state, p)
+        new_state, sign = apply_u_dagger(state, p, sign=sign)
 
         # If U term was not successful, try the U^dagger term.
         # (the order could have been switched - there's always only one
         # possibility for overlap to be generated)
         if not new_state:
-            new_state, sign = apply_u(state, p)
+            new_state, sign = apply_u(state, p, sign=sign)
 
         if new_state:
-            states.append([state, new_state, sign])
+            if set_collection:
+                states.add(new_state)
+            else:
+                states.append([state, new_state, sign])
 
     return states
+
+
+def cycle_plaquettes(args):
+    return do_single_state(args, sign=False, set_collection=True)
 
 
 def apply_u(state, p, sign=True):

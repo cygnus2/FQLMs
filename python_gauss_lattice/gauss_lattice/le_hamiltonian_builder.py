@@ -1,4 +1,5 @@
 from .hamiltonian_builder import HamiltonianBuilder
+from .hamiltonian_builder_methods import cycle_plaquettes
 from multiprocessing import Pool
 import os, subprocess
 import h5py as hdf
@@ -7,20 +8,6 @@ import datetime as dt
 import numpy as np
 from itertools import product
 from copy import copy
-
-
-def _cycle_plaquettes_bare(args):
-    # self._log(str(self.level) + " // " + str(state))
-    state, plaquettes = args
-
-    states = set()
-    for p in plaquettes:
-        new_state, _ = apply_u_dagger_bare(state, p, sign=False)
-        if not new_state:
-            new_state, _ = apply_u_bare(state, p, sign=False)
-        if new_state:
-            states.add(new_state)
-    return states
 
 class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     """ Builds a Hamiltonian with low energy states only.
@@ -43,6 +30,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         from gauss_lattice.lr_notify import push_message
         push_message(f'Recursion level {level}  with {number} states is completed @{self.host[0]}')
 
+
     def _split(self, data, bit_shift=63):
         """ Converts to two integer lists to be able to store it in HDF5 (which
             can maximally do 64 bit numbers).
@@ -52,18 +40,6 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         for i, x in enumerate(data):
             split_data[i,:] = x >> bit_shift, x%div
         return split_data
-
-
-    def _cycle_plaquettes(self, state):
-        # self._log(str(self.level) + " // " + str(state))
-        states = set()
-        for p in self.plaquettes:
-            new_state, _ = self.apply_u_dagger(state, p, sign=False)
-            if not new_state:
-                new_state, _ = self.apply_u(state, p, sign=False)
-            if new_state:
-                states.add(new_state)
-        return states
 
 
     def _exhaust(self, seed_states, rest, level, pool=None, output_file=None, max_level=10000):
@@ -91,13 +67,11 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
             return rest
 
         if pool:
-            # states = set().union(*pool.map_async(self._cycle_plaquettes, seed_states, chunksize=L//self.n_threads).get())
-            # states = set().union(*pool.imap_unordered(self._cycle_plaquettes, seed_states))
-            states = set().union(*pool.map(_cycle_plaquettes_bare, product(seed_states, [self.plaquettes])))
+            states = set().union(*pool.map(cycle_plaquettes, product(seed_states, [self.plaquettes])))
         else:
             states = set()
             for s in seed_states:
-                states = states | self._cycle_plaquettes(s)
+                states = states | _cycle_plaquettes((s,self.plaquettes))
 
         new_rest = seed_states.union(rest)
         states.difference_update(new_rest)

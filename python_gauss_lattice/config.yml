@@ -6,7 +6,7 @@
 
 # ----------------------------------
 # General parameters:
-working_directory: output/ # Directory where everything is stored/loaded.
+working_directory: le_output/ # Directory where everything is stored/loaded.
 L : [2,2,4] # Spatial extent of the lattice.
 logfile : 'le_logfile.log' # Logfile to store the output.
 winding_sector: [0,0,0]
@@ -28,6 +28,6 @@ store_hamiltonian: True # If true, the Hamiltonian will be stored.
 lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
 
 
-n_threads: 14
-maximum_excitation_level: 1
+n_threads: 4
+maximum_excitation_level: 15
 notification_level: 0
