@@ -6,7 +6,8 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import HamiltonianBuilder
-from gauss_lattice.bit_magic import set_bits, sum_occupancies
+from gauss_lattice.bit_magic import set_bits
+from gauss_lattice.hamiltonian_builder_methods import apply_u, apply_u_dagger
 import numpy as np
 
 
@@ -187,13 +188,13 @@ def test_u_operator():
     builder = HamiltonianBuilder(param, states=[])
     state = int('0000000100100000', 2)
     expected_state = int('0000000010010000', 2)
-    constructed_state, _ = builder.apply_u(state, builder.plaquettes[2])
+    constructed_state, _ = apply_u(state, builder.plaquettes[2])
     assert expected_state == constructed_state
 
     # Testcase 2: should anihilate
     # |0010 0000 0010 0000> ---> 0
     state = int('0010 0000 0000 0000'.replace(' ', ''), 2)
-    constructed_state, _ = builder.apply_u(state, builder.plaquettes[2])
+    constructed_state, _ = apply_u(state, builder.plaquettes[2])
     assert constructed_state == 0
 
     # ---
@@ -205,10 +206,10 @@ def test_u_operator():
     expected = set_bits([19,14])
 
     p_ind = [19, 14, 7, 20]
-    constructed, _ = builder.apply_u(state, p_ind + [set_bits(p_ind)])
+    constructed, _ = apply_u(state, p_ind + [set_bits(p_ind)])
     assert expected == constructed
 
-    constructed, _ = builder.apply_u(state, builder.plaquettes[19])
+    constructed, _ = apply_u(state, builder.plaquettes[19])
     assert expected == constructed
 
 
@@ -227,10 +228,10 @@ def test_u_dagger_operator():
     expected = set_bits([19,14])
 
     p_ind = [19, 14, 7, 20]
-    constructed, _ = builder.apply_u_dagger(state, p_ind + [set_bits(p_ind)])
+    constructed, _ = apply_u_dagger(state, p_ind + [set_bits(p_ind)])
     assert 0 == constructed
 
-    constructed, _ = builder.apply_u_dagger(state, builder.plaquettes[19])
+    constructed, _ = apply_u_dagger(state, builder.plaquettes[19])
     assert 0 == constructed
 
     # ---
@@ -239,5 +240,5 @@ def test_u_dagger_operator():
     expected = set_bits([20,7])
 
     p_ind = [19, 14, 7, 20]
-    constructed, _ = builder.apply_u_dagger(state, p_ind + [set_bits(p_ind)])
+    constructed, _ = apply_u_dagger(state, p_ind + [set_bits(p_ind)])
     assert expected == constructed

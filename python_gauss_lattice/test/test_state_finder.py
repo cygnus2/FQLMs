@@ -6,7 +6,6 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import GaussLattice
-from gauss_lattice.bit_magic import set_bits, sum_occupancies
 import numpy as np
 
 

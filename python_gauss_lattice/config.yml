@@ -6,8 +6,10 @@
 
 # ----------------------------------
 # General parameters:
-working_directory: output/ # Directory where everything is stored/loaded.
-L : [2,2,4] # Spatial extent of the lattice.
+# working_directory: 'le_output/' # Directory where everything is stored/loaded.
+working_directory: /home/lukas/_temp/
+state_file: 'le_output/le_states_2x2x2.hdf5'
+L : [2,2,2] # Spatial extent of the lattice.
 winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'le_logfile.log' # Logfile to store the output.
 n_threads: 4
@@ -17,18 +19,18 @@ n_threads: 4
 gauge_particles : 'bosons' # Either bosons or fermions.
 full_diag : False # If True, the full matrix is diagonalized - extremely costly.
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
-n_eigenvalues : 20 # Number of eigenvalues to compute.
-lambda: -3.0 # lambda Coupling.
+n_eigenvalues : 21 # Number of eigenvalues to compute.
+# lambda: -0.95 # lambda Coupling.
 J : -1 # J Coupling.
 #winding_sector : [0,0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
 compute_eigenstates: True # If true, the eigenstates will be exported.
-store_hamiltonian: True # If true, the Hamiltonian will be stored.
+store_hamiltonian: False # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3.0, 1.0, 1] # Range that specifies the lambda values to scan (min, max, n_steps)
 
 #-----------------------------------
 # LE stuff.
-maximum_excitation_level: 15
+maximum_excitation_level: 4
 notification_level: 0

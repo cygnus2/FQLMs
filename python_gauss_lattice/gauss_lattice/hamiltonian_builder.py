@@ -9,7 +9,7 @@ import numpy as np
 from bisect import bisect_left
 from .hamiltonian import GaussLatticeHamiltonian
 from .hamiltonian_builder_methods import do_single_state
-from .bit_magic import set_bits, sum_occupancies
+from .bit_magic import set_bits
 from .aux import timestamp
 from copy import copy
 from tqdm import tqdm as tbar

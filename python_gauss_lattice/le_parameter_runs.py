@@ -22,16 +22,22 @@ def read_le_states(data_file, max_level, combine=True):
     """
     states = {}
     with hdf.File(data_file, 'r') as f:
+        levels = []
         for g in f:
             l = int(g.split("_")[-1])
+            levels.append(l)
             if l <= max_level:
                 states[l] = f[g][...]
-        if l < max_level:
-            print("Warning: maximal level not reachable from list!")
+
+        if sorted(levels)[-1] < max_level:
+            print(f"Warning: maximal level not reachable from list! Taking maximum of {l}.")
+            new_max = l
+        else:
+            new_max = max_level
 
     if combine:
-        return np.concatenate([states[k] for k in states])
-    return states
+        return list(map(int, np.concatenate([states[k] for k in sorted(states.keys()) if len(states[k])]))), new_max
+    return states, new_max
 
 
 # This sets the parameters fof the calculation (everything else is fixed).
@@ -57,6 +63,17 @@ def hamiltonian_construction(builder, *args, **kwargs):
     """
     return builder.construct(*args, **kwargs)
 
+base_lattices = {
+    (2,2,2) : [3816540, 3872106, 5421780, 5678001, 7542990, 7743645,
+                9033570, 9234225, 11099214, 11355435, 12905109, 12960675],
+    (2,2,4) : [64030919769180, 64963162609002, 90962379586260, 95261054903217, 126550380058830, 129916812535965,
+                151558164174690, 154924596651825, 186213921807438, 190512597124395, 216511814101653, 217444056941475],
+    (2,2,6) : [1074260571646206819420, 1089901011134353970538,  1526095490192680073940, 1598215294499136381873,
+                2123163061129091160270, 2179642425947400317085, 2542724056922244896610, 2599203421740554053425,
+                3124151188370508831822, 3196270992676965139755, 3632465471735291243157, 3648105911223438394275],
+}
+
+
 
 # Start by constructing the builder.
 le_builder = LowEnergyHamiltonianBuilder(param, logger=logger)
@@ -67,11 +84,16 @@ if not state_file:
     state_file = param['working_directory']+file_tag(param['L'], filetype='hdf5').replace("winding_", "le_")
 if not os.path.isfile(state_file):
     logger.info('Could not find stored states, constructing low-energy Fock state list from scratch.')
-    states = builder.find_le_states(base_lattices[tuple(param['L'])], param['maximum_excitation_level'])
+    states = le_builder.find_all_states(
+        base_lattices[tuple(param['L'])],
+        n_threads=param.get('n_threads', 1),
+        max_level=param.get('maximum_excitation_level', 10000)
+    )
     logger.info('Constructed states.')
 else:
     logger.info(f'Reading Fock states from {state_file}')
-    le_builder.read_le_states(read_le_states(state_file, param["maximum_excitation_level"]))
+    states, new_max = read_le_states(state_file, param["maximum_excitation_level"])
+    le_builder.read_le_states(states)
 
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.

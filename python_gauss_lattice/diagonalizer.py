@@ -17,8 +17,8 @@ import h5py as hdf
 parser = argparse.ArgumentParser(description="Python gauss lattice diagonalizer (single lambda).")
 parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
 parser.add_argument('-scratch', action='store_true', help='Nothing is read (except the states), everything is computed.')
-args = parser.parse_args()
 
+args = parser.parse_args()
 # Get parameters.
 param = load_config(args.i)
 hamiltonian_file = param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'

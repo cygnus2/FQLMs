@@ -16,8 +16,14 @@ def count_particles(state, nb=64):
     """
     return sum([(state>>k)&1 for k in range(nb)])
 
-def sum_occupancies(a, b, state):
-    """ Sums all occupancies between index a and b, both inclusive. Order of a
-        and be does not matter, will be from min to max.
+# def sum_occupancies(a, b, state):
+#     """ Sums all occupancies between index a and b, both inclusive. Order of a
+#         and b does not matter, will be from min to max.
+#     """
+#     return sum([(state>>k)&1 for k in range(min(a,b),max(a,b))])
+
+def sum_occupancies_ordered(a, b, state):
+    """ Sums all occupancies between index a and b, both inclusive.
+        Assumes a > b.
     """
-    return sum([(state>>k)&1 for k in range(min(a,b),max(a,b))])
+    return sum([(state>>k)&1 for k in range(b,a)])

@@ -10,6 +10,7 @@ import numpy as np
 from itertools import product
 from copy import copy
 
+
 class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
     """ Builds a Hamiltonian with low energy states only.
     """
@@ -47,7 +48,7 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         """ One step in the iteration.
         """
         self.level = level
-        self._log(timestamp() + "  " + str(level) + " " + str(len(seed_states)))
+        self._log(str(level) + " " + str(len(seed_states)))
 
         # Write states.
         if output_file:
@@ -64,15 +65,15 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
         L = len(seed_states)
         if not L or level>=max_level:
-            print(f"Terminated at {level} layers.")
-            return rest
+            self._log(f"Terminated at {level} layers.")
+            return seed_states.union(rest)
 
         if pool:
             states = set().union(*pool.map(cycle_plaquettes, product(seed_states, [self.plaquettes])))
         else:
             states = set()
             for s in seed_states:
-                states = states | _cycle_plaquettes((s,self.plaquettes))
+                states = states | cycle_plaquettes((s,self.plaquettes))
 
         new_rest = seed_states.union(rest)
         states.difference_update(new_rest)
@@ -112,11 +113,11 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
 
 
     def _combine(self, data, bit_shift=63):
-        print(len(data))
         combined_data = [2**70]*len(data)
         for i, (x, y) in enumerate(data):
             combined_data[i] = (int(x)<<bit_shift) + int(y)
         return sorted(combined_data)
+
 
     def read_le_states(self, states):
         """ Takes a list of states and translates them. If the integer size is
