@@ -6,3 +6,4 @@ output/
 *.png
 *dev_checks*
 le_output/
+python_data/
