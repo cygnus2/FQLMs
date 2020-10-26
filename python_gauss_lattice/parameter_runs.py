@@ -30,9 +30,9 @@ logger.setLevel(logging.DEBUG)
 
 @timeit(logger=logger)
 def hamiltonian_construction(builder, *args, **kwargs):
-""" This method just exists to be able to time the routine efficiently.
-"""
-return builder.construct(*args, **kwargs)
+    """ This method just exists to be able to time the routine efficiently.
+    """
+    return builder.construct(*args, **kwargs)
 
 @timeit(logger=logger)
 def hamiltonian_diagonalization(ham, **kwargs):

@@ -8,7 +8,7 @@
 import numpy as np
 from bisect import bisect_left
 from .hamiltonian import GaussLatticeHamiltonian
-from .hamiltonian_builder_methods import do_single_state
+from .hamiltonian_builder_methods import do_single_state, apply_u, apply_u_dagger
 from .bit_magic import set_bits
 from .aux import timestamp
 from copy import copy
@@ -185,23 +185,27 @@ class HamiltonianBuilder(object):
         # Make a sparse matrix out ot this -although pretty plain, this can handle
         # reasonably sized lists of indices (will do fo now).
         icol, irow, idata = [], [], []
-        if len(all_entries):
-            for line in all_entries:
-                if len(line):
-                    row, col, data = zip(*line)
+        for line in all_entries:
+            if len(line):
+                row, col, data = zip(*line)
 
-                    # Convert the columns to the proper format.
-                    for k in range(len(row)):
-                        c = self.state_to_index(col[k])
-                        if c < self.n_fock:
-                            icol.append(c)
-                            irow.append(self.state_to_index(row[k]))
-                            idata.append(data[k])
+                # Convert the columns to the proper format.
+                for k in range(len(row)):
+                    c = self.state_to_index(col[k])
+                    if (c<self.n_fock):
+                        icol.append(c)
+                        irow.append(self.state_to_index(row[k]))
+                        idata.append(data[k])
 
         if not self.silent:
             self._log("# of nonzero entries: " + str(len(idata)))
         return GaussLatticeHamiltonian(idata, irow, icol, n_fock=self.n_fock)
 
+    def apply_u(self, *args, **kwargs):
+        return apply_u(*args, **kwargs)
+
+    def apply_u_dagger(self, *args, **kwargs):
+        return apply_u_dagger(*args, **kwargs)
 
     def index_to_state(self, n):
         """ Maps the n-th state in the Fock basis to it's bit string.

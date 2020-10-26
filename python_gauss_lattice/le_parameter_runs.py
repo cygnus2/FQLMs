@@ -74,7 +74,6 @@ base_lattices = {
 }
 
 
-
 # Start by constructing the builder.
 le_builder = LowEnergyHamiltonianBuilder(param, logger=logger)
 

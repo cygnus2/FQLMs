@@ -39,6 +39,7 @@ def do_single_state(args, sign=True, set_collection=False):
     return states
 
 
+
 def cycle_plaquettes(args):
     return do_single_state(args, sign=False, set_collection=True)
 
