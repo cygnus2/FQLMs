@@ -3,7 +3,7 @@
     h_constructor.py - LR, October 2020
 
 ---------------------------------------------------------------------------- """
-from gauss_lattice import LowEnergyHamiltonianBuilder, GaussLatticeHamiltonian
+from gauss_lattice import LowEnergyHamiltonianBuilder, ParallelHamiltonianBuilder, HamiltonianBuilder
 from gauss_lattice.aux import size_tag, timeit, read_winding_sector, read_all_states, load_config
 import numpy as np
 import argparse, logging
@@ -40,8 +40,8 @@ else:
     states = read_all_states(param['L'], basedir=param['working_directory'])
     ws = None
 
-builder = LowEnergyHamiltonianBuilder(param, logger=logger)
-builder.read_le_states(states)
+builder = HamiltonianBuilder(param, states, logger=logger)
+# builder.read_le_states(states)
 ham = hamiltonian_construction(builder, n_threads=param['n_threads'])
 
 # hamiltonian_file = param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'

@@ -5,7 +5,7 @@
     Scans through parameter space starting from a constructed Hamiltonian.
 
 ---------------------------------------------------------------------------- """
-from gauss_lattice import GaussLatticeHamiltonian, LowEnergyHamiltonianBuilder
+from gauss_lattice import GaussLatticeHamiltonian, LowEnergyHamiltonianBuilder, ParallelHamiltonianBuilder
 from gauss_lattice.aux import size_tag, timeit, read_all_states, file_tag, load_config, read_winding_sector
 import numpy as np
 import h5py as hdf
@@ -94,6 +94,9 @@ else:
     states, new_max = read_le_states(state_file, param["maximum_excitation_level"])
     le_builder.read_le_states(states, from_file=True)
 
+# Translate to faster parallel version.
+builder = ParallelHamiltonianBuilder(param, le_builder.lookup_table, logger=logger, silent=True)
+
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.
 ham_name = "le_hamiltonian_ex{:d}".format(param["maximum_excitation_level"])
@@ -105,7 +108,7 @@ try:
 
 except (KeyError, OSError):
     # Set up the builder object & construct the Hamiltonian.
-    ham = hamiltonian_construction(le_builder, param.get('n_threads', 1))
+    ham = hamiltonian_construction(builder, param.get('n_threads', 1))
 
     # If specified, store the Hamiltonian for later use.
     if param['store_hamiltonian']:

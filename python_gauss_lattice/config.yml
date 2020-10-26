@@ -7,12 +7,12 @@
 # ----------------------------------
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
-working_directory: output/
-#state_file: 'le_output/le_states_2x2x2.hdf5'
-L : [2,2,4] # Spatial extent of the lattice.
+working_directory: le_output/
+state_file: '../python_data/local_state_storage/le_states_2x2x2.hdf5'
+L : [2,2,2] # Spatial extent of the lattice.
 winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'logfile.log' # Logfile to store the output.
-n_threads: 1
+n_threads: 4
 
 # ----------------------------------
 # Important for diagonalization.
@@ -32,5 +32,5 @@ lambdas : [-3.0, 0.0, 2] # Range that specifies the lambda values to scan (min, 
 
 #-----------------------------------
 # LE stuff.
-maximum_excitation_level: 2
+maximum_excitation_level: 25
 notification_level: 0
