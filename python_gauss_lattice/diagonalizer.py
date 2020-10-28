@@ -44,10 +44,15 @@ def hamiltonian_diagonalization(ham, **kwargs):
 
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
+
+state_file = param.get("state_file")
+if not state_file:
+    state_file = param['working_directory']+file_tag(param['L'], filetype='hdf5').replace("winding_", "le_")
+
 if param.get('winding_sector'):
-    states, ws = read_winding_sector(param['L'], param['winding_sector'], basedir=param['working_directory'])
+    states, ws = read_winding_sector(param['L'], param['winding_sector'], filename=state_file)
 else:
-    states = read_all_states(param['L'], basedir=param['working_directory'])
+    states = read_all_states(param['L'], filename=state_file)
     ws = None
 
 # Either get an existing Hamiltonian matrix or produce it from scratch.
@@ -75,7 +80,7 @@ except (KeyError, OSError):
 
     # If specified, store the Hamiltonian for later use.
     if param['store_hamiltonian']:
-        with hdf.File(hamiltonian_file, 'a' if i else 'w') as f:
+        with hdf.File(hamiltonian_file, 'a') as f:
             ds = f.create_dataset(ws, data= np.array([ham.col, ham.row, ham.data]))
             ds.attrs['n_fock'] = len(states)
 
@@ -109,4 +114,4 @@ filename = (
 )
 if param.get('full_diag'):
     filename = 'FULL_' + filename
-ham.store_results(filename=param['working_directory']+filename, store_eigenvalues=True)
+ham.store_results(filename=param['working_directory']+filename, store_eigenvalues=False)

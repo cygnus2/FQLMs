@@ -134,7 +134,7 @@ def _winding_shift(L, ws):
         raise NotImplementedError('Dimension not implemented!')
     return ws + shift
 
-def read_winding_sector(L, ws, debug=True, basedir='./output/'):
+def read_winding_sector(L, ws, debug=True, basedir='./output/', filename=None):
     """ Takes in a parameter dictionary and reads in the appropriate states
         for the specified winding sector.
     """
@@ -145,19 +145,21 @@ def read_winding_sector(L, ws, debug=True, basedir='./output/'):
         print(f'Supplied winding numbers {ws} are mapped to {tuple(ws_shifted)}')
 
     # Read and return the appropriate list.
-    filename=basedir+file_tag(L, filetype='hdf5')
+    if not filename:
+        filename=basedir+file_tag(L, filetype='hdf5')
     with hdf.File(filename, 'r') as f:
         winding_states = f[winding_tag(ws_shifted)][...]
     return winding_states, winding_tag(ws_shifted)
 
 
 
-def read_all_states(L, merged=True, basedir='./output/'):
+def read_all_states(L, merged=True, basedir='./output/', filename=None):
     """ Takes in a parameter dictionary and reads in the appropriate states
         for the specified winding sector.
     """
     # Read and return the appropriate list.
-    filename =  basedir+file_tag(L, filetype='hdf5')
+    if not filename:
+        filename =  basedir+file_tag(L, filetype='hdf5')
     states = []
     with hdf.File(filename, 'r') as f:
         for ws in f:

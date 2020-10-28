@@ -8,19 +8,18 @@
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 working_directory: output/
-state_file: '../python_data/local_state_storage/winding_states_2x2x4.hdf5'
-L : [2,2,2] # Spatial extent of the lattice.
-winding_sector: [0,0,1] # Winding sector to be considered.
+state_file: '../python_data/local_state_storage/winding_states_4x4.hdf5'
+L : [4,4] # Spatial extent of the lattice.
+# winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'logfile.log' # Logfile to store the output.
 n_threads: 4
 
 # ----------------------------------
 # Important for diagonalization.
 gauge_particles : 'bosons' # Either bosons or fermions.
-full_diag : False # If True, the full matrix is diagonalized - extremely costly.
+full_diag : True # If True, the full matrix is diagonalized - extremely costly.
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
-n_eigenvalues : 20 # Number of eigenvalues to compute.
-# lambda: -0.95 # lambda Coupling.
+n_eigenvalues : 50 # Number of eigenvalues to compute.
 J : -1 # J Coupling.
 #winding_sector : [0,0,0] # If this is specified, only the appropriate winding sector will be diagonalized.
 compute_eigenstates: False # If true, the eigenstates will be exported.
@@ -29,6 +28,7 @@ store_hamiltonian: True # If true, the Hamiltonian will be stored.
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
 lambdas : [-3.0, 1.0, 2] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambda: 0.0
 
 #-----------------------------------
 # LE stuff.
