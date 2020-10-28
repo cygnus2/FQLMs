@@ -5,6 +5,9 @@
     Some useful bit routines.
 
 ---------------------------------------------------------------------------- """
+from numba import jit
+import numpy as np
+
 def set_bits(bits):
     if len(bits) != len(set(bits)):
         raise ValueError('Index was provided multiple times.')
@@ -22,8 +25,13 @@ def count_particles(state, nb=64):
 #     """
 #     return sum([(state>>k)&1 for k in range(min(a,b),max(a,b))])
 
+@jit(nopython=True)
 def sum_occupancies_ordered(a, b, state):
     """ Sums all occupancies between index a and b, both inclusive.
         Assumes a > b.
     """
-    return sum([(state>>k)&1 for k in range(b,a)])
+    o = 0
+    for k in np.arange(b,a):
+        o += (state>>k)&1
+    return o
+    # return sum([(state>>k)&1 for k in range(b,a)])

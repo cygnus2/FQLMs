@@ -42,7 +42,6 @@ def read_le_states(data_file, max_level, combine=True):
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = load_config(args.i)
-hamiltonian_file = param['working_directory'] + '/LE_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 # Set up a logger with a handler for the terminal output.
 logger = logging.getLogger('parameter run logger')
@@ -81,16 +80,17 @@ le_builder = LowEnergyHamiltonianBuilder(param, logger=logger)
 state_file = param.get("state_file")
 if not state_file:
     state_file = param['working_directory']+file_tag(param['L'], filetype='hdf5').replace("winding_", "le_")
+
 if not os.path.isfile(state_file):
-    logger.info('Could not find stored states, constructing low-energy Fock state list from scratch.')
+    le_builder._log('Could not find stored states, constructing low-energy Fock state list from scratch.')
     states = le_builder.find_all_states(
         base_lattices[tuple(param['L'])],
         n_threads=param.get('n_threads', 1),
         max_level=param.get('maximum_excitation_level', 10000)
     )
-    logger.info('Constructed states.')
+    le_builder._log('Constructed states.')
 else:
-    logger.info(f'Reading Fock states from {state_file}')
+    le_builder._log(f'Reading Fock states from {state_file}')
     states, new_max = read_le_states(state_file, param["maximum_excitation_level"])
     le_builder.read_le_states(states, from_file=True)
 
@@ -99,12 +99,16 @@ builder = ParallelHamiltonianBuilder(param, le_builder.lookup_table, logger=logg
 
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.
+hamiltonian_file = param.get(
+    'hamiltonian_file',
+    param['working_directory'] + '/LE_hamiltonian_' + size_tag(param['L']) + '.hdf5'
+)
 ham_name = "le_hamiltonian_ex{:d}".format(param["maximum_excitation_level"])
 try:
     with hdf.File(hamiltonian_file, 'r') as f:
         mat = f[ham_name][...]
         ham = GaussLatticeHamiltonian(mat[2,:], mat[1,:], mat[0,:], len(states))
-    logger.info('Read Hamiltonian from provided file.')
+    builder._log(f'Read Hamiltonian from {hamiltonian_file}')
 
 except (KeyError, OSError):
     # Set up the builder object & construct the Hamiltonian.
@@ -117,6 +121,8 @@ except (KeyError, OSError):
                 del f[ham_name]
             ds = f.create_dataset(ham_name, data= np.array([ham.col, ham.row, ham.data]))
             ds.attrs['n_fock'] = ham.n_fock
+            ds.attrs['L'] = param['L']
+            ds.attrs['maximum_excitation_level'] = param['maximum_excitation_level']
 
 # ----
 # Loop through spectra.
@@ -130,7 +136,7 @@ spectrum_file = (
 
 lambdas = np.linspace(*param['lambdas'])
 for i, l in enumerate(lambdas):
-    logger.info('[{:d} / {:d}] diagonalizing Hamiltonian for lambda={:.4f}'.format(i+1, len(lambdas), l))
+    builder._log('[{:d} / {:d}] diagonalizing Hamiltonian for lambda={:.4f}'.format(i+1, len(lambdas), l))
 
     # Diagonalization.
     spectrum = hamiltonian_diagonalization(ham,

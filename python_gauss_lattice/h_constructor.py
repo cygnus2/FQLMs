@@ -40,7 +40,7 @@ else:
     states = read_all_states(param['L'], basedir=param['working_directory'])
     ws = None
 
-builder = HamiltonianBuilder(param, states, logger=logger)
+builder = ParallelHamiltonianBuilder(param, states, logger=logger)
 # builder.read_le_states(states)
 ham = hamiltonian_construction(builder, n_threads=param['n_threads'])
 

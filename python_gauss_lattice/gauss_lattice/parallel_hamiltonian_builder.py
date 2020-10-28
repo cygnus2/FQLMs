@@ -9,6 +9,30 @@ from gauss_lattice.hamiltonian_builder_methods import apply_u, apply_u_dagger
 from gauss_lattice.hamiltonian_builder import HamiltonianBuilder
 from gauss_lattice import GaussLatticeHamiltonian
 from multiprocessing import Pool
+from numba import jit
+
+
+def _do_single_state(state, sign=True):
+    """ Tries to flip all plaquettes in a single state.
+    """
+    states = []
+    for k in range(1, len(ParallelHamiltonianBuilder.plaquettes)):
+        p = ParallelHamiltonianBuilder.plaquettes[k]
+        # First apply the U term.
+        new_state, s = apply_u_dagger(state, p, sign=sign)
+
+        # If U term was not successful, try the U^dagger term.
+        # (the order could have been switched - there's always only one
+        # possibility for overlap to be generated)
+        if not new_state:
+            new_state, s = apply_u(state, p, sign=sign)
+
+        if new_state:
+            c = ParallelHamiltonianBuilder.inv_lookuptable.get(new_state)
+            if c:
+                states.append([state, c, s])
+
+    return states
 
 class ParallelHamiltonianBuilder(HamiltonianBuilder):
     """ Constructs the Hamiltonian in a general single-particle basis.
@@ -30,26 +54,8 @@ class ParallelHamiltonianBuilder(HamiltonianBuilder):
         ParallelHamiltonianBuilder.inv_lookuptable = {v:k for k,v in enumerate(lookup_table)}
 
     @staticmethod
-    def do_single_state(state, sign=True):
-        """ Tries to flip all plaquettes in a single state.
-        """
-        states = []
-        for p in ParallelHamiltonianBuilder.plaquettes:
-            # First apply the U term.
-            new_state, s = apply_u_dagger(state, p, sign=sign)
-
-            # If U term was not successful, try the U^dagger term.
-            # (the order could have been switched - there's always only one
-            # possibility for overlap to be generated)
-            if not new_state:
-                new_state, s = apply_u(state, p, sign=sign)
-
-            if new_state:
-                c = ParallelHamiltonianBuilder.inv_lookuptable.get(new_state)
-                if c:
-                    states.append([state, c, s])
-
-        return states
+    def do_single_state(state):
+        return _do_single_state(state)
 
 
     def construct(self, n_threads=1):
@@ -60,7 +66,7 @@ class ParallelHamiltonianBuilder(HamiltonianBuilder):
         # do it naively (with some doubled work). Then try to improve on that (by
         # using, e.g., Hermiticity).
 
-        self._log(f'Working with {n_threads} threads.')
+        self._log(f'Constructing Hamiltonian, working with {n_threads} threads.')
         all_entries = []
         if n_threads == 1:
             for s in self.lookup_table:
