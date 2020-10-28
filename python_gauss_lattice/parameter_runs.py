@@ -5,8 +5,8 @@
     Scans through parameter space starting from a constructed Hamiltonian.
 
 ---------------------------------------------------------------------------- """
-from gauss_lattice import GaussLatticeHamiltonian, HamiltonianBuilder, GaussLattice
-from gauss_lattice.aux import size_tag, timeit, read_all_states, file_tag, load_config, read_winding_sector
+from gauss_lattice import GaussLatticeHamiltonian, ParallelHamiltonianBuilder, GaussLattice
+from gauss_lattice.aux import size_tag, timeit, read_all_states, file_tag, load_config, read_winding_sector, timestamp
 import numpy as np
 import h5py as hdf
 import argparse, logging, os
@@ -19,7 +19,6 @@ args = parser.parse_args()
 
 # This sets the parameters fof the calculation (everything else is fixed).
 param = load_config(args.i)
-hamiltonian_file = param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
 
 # Set up a logger with a handler for the terminal output.
 logger = logging.getLogger('parameter run logger')
@@ -40,16 +39,19 @@ def hamiltonian_diagonalization(ham, **kwargs):
     """
     return ham.diagonalize(**kwargs)
 
+def _log(msg):
+    logger.info(timestamp() + ' ' + msg)
+
 
 # Check if states exist, if not, construct them.
 state_file = param['working_directory']+'/'+file_tag(param['L'], filetype='hdf5')
 if not os.path.isfile(state_file):
-    logger.info('Could not find stored states, constructing Fock state list from scratch.')
+    _log('Could not find stored states, constructing Fock state list from scratch.')
     glatt = GaussLattice(param['L'], state_file=file_tag(param['L'], filetype='hdf5'), basedir=param['working_directory'])
     glatt.find_states()
-    logger.info('Constructed states.')
+    _log('Constructed states.')
 else:
-    logger.info('Reading Fock states from file.')
+    _log('Reading Fock states from file.')
 
 # Read the states.
 if param.get('winding_sector'):
@@ -57,8 +59,14 @@ if param.get('winding_sector'):
 else:
     states = read_all_states(param['L'], basedir=param['working_directory'])
     ws = None
+
+
 # ---
 # Retrieves the Hamiltonian and if necessary, constructs it.
+hamiltonian_file = param.get(
+    'hamiltonian_file',
+    param['working_directory'] + '/SEQUENTIAL_hamiltonian_' + size_tag(param['L']) + '.hdf5'
+)
 try:
     with hdf.File(hamiltonian_file, 'r') as f:
         mat = f[ws][...]
@@ -66,11 +74,11 @@ try:
         ham = GaussLatticeHamiltonian(mat[2,:], mat[1,:], mat[0,:], len(states))
     else:
         ham = GaussLatticeHamiltonian([], [], [], 1)
-    logger.info('Read Hamiltonian from provided file.')
+    _log('Read Hamiltonian from provided file.')
 
 except (KeyError, OSError):
     # Set up the builder object & construct the Hamiltonian.
-    builder = HamiltonianBuilder(param, states=states, logger=logger)
+    builder = ParallelHamiltonianBuilder(param, states=states, logger=logger)
     ham = hamiltonian_construction(builder, param.get('n_threads', 1))
 
     # If specified, store the Hamiltonian for later use.
@@ -93,7 +101,7 @@ spectrum_file = (
 spectra = {}
 lambdas = np.linspace(*param['lambdas'])
 for i, l in enumerate(lambdas):
-    logger.info('[{:d} / {:d}] diagonalizing Hamiltonian for lambda={:.4f}'.format(i+1, len(lambdas), l))
+    _log('[{:d} / {:d}] diagonalizing Hamiltonian for lambda={:.4f}'.format(i+1, len(lambdas), l))
 
     # Diagonalization.
     spectra[l] = hamiltonian_diagonalization(ham,
