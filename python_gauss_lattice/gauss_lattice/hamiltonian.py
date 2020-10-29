@@ -169,7 +169,7 @@ class GaussLatticeHamiltonian(Hamiltonian):
         if abs(lam):
             diag = np.zeros(self.n_fock)
             for k in self.row:
-                diag[k] += lam
+                diag[int(k)] += lam
             self.sparse_rep.setdiag(diag)
 
 

@@ -91,7 +91,7 @@ if not os.path.isfile(state_file):
     le_builder._log('Constructed states.')
 else:
     le_builder._log(f'Reading Fock states from {state_file}')
-    states, new_max = read_le_states(state_file, param["maximum_excitation_level"])
+    states, new_max = read_le_states(state_file, param["maximum_excitation_level"])ham_file
     le_builder.read_le_states(states, from_file=True)
 
 # Translate to faster parallel version.
@@ -137,6 +137,7 @@ spectrum_file = (
 lambdas = np.linspace(*param['lambdas'])
 for i, l in enumerate(lambdas):
     builder._log('[{:d} / {:d}] diagonalizing Hamiltonian for lambda={:.4f}'.format(i+1, len(lambdas), l))
+
 
     # Diagonalization.
     spectrum = hamiltonian_diagonalization(ham,
