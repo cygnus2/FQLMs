@@ -221,9 +221,9 @@ class GLSimulation(object):
                 with hdf.File(state_file, 'r') as f:
                     for ws in f:
                         if merged:
-                            states += list(f[self.ws][...])
+                            states += list(f[ws][...])
                         else:
-                            states.append([ws, list(f[self.ws][...])])
+                            states.append([ws, list(f[ws][...])])
             self.log(f'Read Fock states from {state_file}')
             return states
 

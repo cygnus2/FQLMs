@@ -8,11 +8,11 @@
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 working_directory: /home/lukas/test_dir/
-working_directory: ../../../../test_dir/
+# working_directory: ../../../../test_dir/
 # state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
 # state_file: '../python_data/local_state_storage/le_states_2x2x6.hdf5'
 L : [4,4] # Spatial extent of the lattice.
-winding_sector: [0,1] # Winding sector to be considered.
+# winding_sector: [0,1] # Winding sector to be considered.
 logfile : 'logfile.log' # Logfile to store the output.
 n_threads: 4
 
