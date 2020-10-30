@@ -124,7 +124,7 @@ class GLSimulation(object):
             ham,
             full_diag = self.param.get('full_diag'),
             J = self.param['J'],
-            lam = lam if lam else self.param['lambda'],
+            lam = lam if lam is not None else self.param['lambda'],
             gauge_particles = self.param['gauge_particles'],
             n_eigenvalues = max(1, self.param['n_eigenvalues']),
             which = self.param.get('ev_type', 'SA'),
