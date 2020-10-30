@@ -6,7 +6,7 @@
     slightly different run scripts.
 
 ---------------------------------------------------------------------------- """
-import argparse, logging, os, yaml, sys
+import argparse, logging, os, yaml, sys, git
 import subprocess
 import h5py as hdf
 import numpy as np
@@ -60,6 +60,10 @@ class GLSimulation(object):
         self.host = subprocess.check_output(['hostname']).strip().decode('UTF-8')
         self.log(f'Working in directory {self.working_directory} at host {self.host}')
 
+        # Get code version.
+        repo = git.Repo(search_parent_directories=True)
+        self.version = str(repo.head.object.hexsha)
+        self.log(f'Working with commit \'{self.version}\'')
 
         # Set the winding sector (mainly for output and correct state generation).
         if 'winding_sector' in self.param:
@@ -268,13 +272,16 @@ class GLSimulation(object):
 
 
     def store_data(self, data, ds_name, grp_name=None, attrs={}, file=None):
-        """ Stores the results in standardized fashion.
+        """ Stores the results in standardized fashion. This should be the only
+            place where any output is generated - it allows for a coherent
+            tagging of the results/output produced.
         """
         filename = file if file else self._get_result_file(default=file)
 
         all_attrs = copy(attrs)
         all_attrs['time'] = full_timestamp()
         all_attrs['host'] = self.host
+        all_attrs['version'] = self.version
 
         with hdf.File(filename, 'a') as f:
             ds = None
