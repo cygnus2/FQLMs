@@ -40,6 +40,7 @@ class GLSimulation(object):
         # Translate the arguments.
         parser = argparse.ArgumentParser(description="ED Simulation for gauss lattice.")
         parser.add_argument('-i', metavar='', type=str, default=None, help='YAML style input file.')
+        parser.add_argument('-source', metavar='', type=str, default='./', help='Dirty hack for providing the source directory to get the git information.')
         parser.add_argument('-notify', action='store_true', help='Toggles whether a notification should be sent when done. Should only be used by Lukas (sorry).')
         args = parser.parse_args()
 
@@ -61,8 +62,11 @@ class GLSimulation(object):
         self.log(f'Working in directory {self.working_directory} at host {self.host}')
 
         # Get code version.
-        repo = git.Repo(search_parent_directories=True)
-        self.version = str(repo.head.object.hexsha)
+        try:
+            repo = git.Repo(args.source, search_parent_directories=True)
+            self.version = str(repo.head.object.hexsha)
+        except git.InvalidGitRepositoryError:
+            self.version = 'unknown'
         self.log(f'Working with commit \'{self.version}\'')
 
         # Set the winding sector (mainly for output and correct state generation).
