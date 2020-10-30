@@ -8,8 +8,8 @@
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 working_directory: /home/lukas/test_dir/
-state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
-L : [2,2] # Spatial extent of the lattice.
+# state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
+L : [2,2,2] # Spatial extent of the lattice.
 # winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'logfile.log' # Logfile to store the output.
 n_threads: 4
@@ -28,7 +28,7 @@ store_hamiltonian: True # If true, the Hamiltonian will be stored.
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
 lambdas : [-3.0, 1.0, 2] # Range that specifies the lambda values to scan (min, max, n_steps)
-lambda: 0.0
+# lambda: 2.0
 
 #-----------------------------------
 # LE stuff.

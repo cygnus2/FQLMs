@@ -11,7 +11,7 @@ from itertools import product
 from copy import copy
 
 
-class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
+class LowEnergyStateFinder(HamiltonianBuilder):
     """ Builds a Hamiltonian with low energy states only.
     """
 
@@ -110,24 +110,3 @@ class LowEnergyHamiltonianBuilder(HamiltonianBuilder):
         if not self.silent:
             self._log(f"Found {len(self.lookup_table)} states in the low-energy sector.")
         return set(self.lookup_table)
-
-
-    def _combine(self, data, bit_shift=63):
-        combined_data = [2**70]*len(data)
-        for i, (x, y) in enumerate(data):
-            combined_data[i] = (int(x)<<bit_shift) + int(y)
-        return sorted(combined_data)
-
-
-    def read_le_states(self, states, from_file=False):
-        """ Takes a list of states and translates them. If the integer size is
-            exceeded, the states will be reconstructed from two integers.
-        """
-        if self.big_int and from_file:
-            self.lookup_table = self._combine(states)
-        else:
-            self.lookup_table = sorted(map(int, states))
-
-        self.n_fock = len(self.lookup_table)
-        if not self.silent:
-            self._log(f"Read {self.n_fock} states.")

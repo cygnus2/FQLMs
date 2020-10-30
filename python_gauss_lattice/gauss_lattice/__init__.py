@@ -1,5 +1,5 @@
 from .gauss_lattice import GaussLattice
 from .hamiltonian_builder import HamiltonianBuilder
 from .hamiltonian import Hamiltonian, GaussLatticeHamiltonian
-from .le_hamiltonian_builder import LowEnergyHamiltonianBuilder
+from .le_state_finder import LowEnergyStateFinder
 from .parallel_hamiltonian_builder import ParallelHamiltonianBuilder

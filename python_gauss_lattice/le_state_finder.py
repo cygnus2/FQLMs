@@ -1,13 +1,14 @@
 """ ----------------------------------------------------------------------------
 
-    diagonalizer.py - LR, May 2020
+    le_finder.py - LR, September 2020
 
-    Run script for diagonalizing the Hamiltonian for the gauss lattice.
+    Finds low-energy states.
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import LowEnergyHamiltonianBuilder
 from gauss_lattice.aux import load_config, timeit, read_winding_sector, size_tag
 import argparse, logging
+
 
 # ------------------------------------------------------------------------------
 # Input handling.
