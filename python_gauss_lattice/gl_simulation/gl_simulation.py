@@ -205,7 +205,7 @@ class GLSimulation(object):
 
         except (OSError):
             self.log(f'Could not find file {state_file}')
-            return None
+            return []
 
 
     def read_hamiltonian(self, ham_name, file=None):

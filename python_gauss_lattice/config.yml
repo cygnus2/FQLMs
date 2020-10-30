@@ -9,7 +9,8 @@
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 working_directory: /home/lukas/test_dir/
 # state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
-L : [2,2,2] # Spatial extent of the lattice.
+state_file: '../python_data/local_state_storage/le_states_2x2x6.hdf5'
+L : [2,2,6] # Spatial extent of the lattice.
 # winding_sector: [0,0,0] # Winding sector to be considered.
 logfile : 'logfile.log' # Logfile to store the output.
 n_threads: 4
@@ -17,7 +18,7 @@ n_threads: 4
 # ----------------------------------
 # Important for diagonalization.
 gauge_particles : 'bosons' # Either bosons or fermions.
-full_diag : True # If True, the full matrix is diagonalized - extremely costly.
+full_diag : False # If True, the full matrix is diagonalized - extremely costly.
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
 n_eigenvalues : 50 # Number of eigenvalues to compute.
 J : -1 # J Coupling.

@@ -6,6 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 import sys
+import numpy as np
 import h5py as hdf
 from .gl_simulation import GLSimulation
 
@@ -56,7 +57,7 @@ class LowEnergyGLSimulation(GLSimulation):
                     levels.append(l)
                     if l <= max_level:
                         s = f[g][...]
-                        if len(np.shape(s)) == 2:
+                        if len(s.shape) == 2:
                             states[l] = LowEnergyGLSimulation._combine(s)
                         else:
                             states[l] = sorted(map(int, states))
@@ -67,13 +68,15 @@ class LowEnergyGLSimulation(GLSimulation):
                 else:
                     new_max = max_level
 
+
+            self.log(f'Read Fock states from {state_file}')
             if combine:
                 return np.concatenate([states[k] for k in sorted(states.keys()) if len(states[k])]), new_max
             return states, new_max
 
         except OSError:
             self.log(f'Could not find file {state_file}')
-            return None
+            return []
 
 
     def find_le_states(self, base_lattices):
@@ -92,8 +95,3 @@ class LowEnergyGLSimulation(GLSimulation):
 
     def store_le_states(self):
         raise NotImplementedError('On-the-fly state storage is not implemented yet!')
-
-    # def read_hamiltonian(self, ham_name, file=None):
-    #     ham_name = "le_hamiltonian_ex{:d}".format(param["maximum_excitation_level"])
-    #     ham_file = self._get_state_file(default=file, prefactor='le_hamiltonian')
-    #     return GLSimulation.re

@@ -12,13 +12,13 @@ import numpy as np
 
 sim = GLSimulation()
 
-# Produce states.
-states = sim.read_states()
-if not states:
-    raise ValueError('Fatal: no states found.')
-
 ham = sim.read_hamiltonian(ham_name=sim.ws)
 if not ham:
+    # Produce states.
+    states = sim.read_states()
+    if not states:
+        raise ValueError('Fatal: no states found.')
+
     ham = sim.construct_hamiltonian(states, builder_type=ParallelHamiltonianBuilder)
     if sim.store_ham:
         sim.store_hamiltonian(ham, label=sim.ws, attrs={'n_fock':len(states)})
