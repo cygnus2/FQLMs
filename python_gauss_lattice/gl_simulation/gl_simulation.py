@@ -14,7 +14,7 @@ from copy import copy
 
 sys.path.append('../')
 from gauss_lattice.aux import timeit, timestamp, full_timestamp
-from gauss_lattice import GaussLatticeHamiltonian, HamiltonianBuilder
+from gauss_lattice import GaussLatticeHamiltonian, HamiltonianBuilder, GaussLattice
 
 
 @timeit(logger=None)
@@ -60,12 +60,41 @@ class GLSimulation(object):
         self.host = subprocess.check_output(['hostname']).strip().decode('UTF-8')
         self.log(f'Working in directory {self.working_directory} at host {self.host}')
 
+
+        # Set the winding sector (mainly for output and correct state generation).
+        if 'winding_sector' in self.param:
+            # The winding sectors are labelled differently in the HDF5 file (for
+            # convenience reasons) so we have to relabel them here.
+            ws_shifted = GLSimulation._winding_shift(self.param['L'], self.param['winding_sector'])
+            self.ws = GLSimulation._winding_tag(ws_shifted)
+        else:
+            self.ws = 'all-ws'
+
         # Set some further flags.
         self.compute_eigenstates = self.param.get('compute_eigenstates', False)
 
 
     # --------------------------------------------------------------------------
     # Actual calculation routines.
+
+    def find_states(self, *args, file=None, **kwargs):
+        """ Find the GL states with recursive algorithm (slower than with LE),
+            only recommended for smaller runs (maximally 2x2x4).
+
+            The other use-case is to provide a file with the states.
+        """
+        self.log('Could not find stored states, constructing Fock state list from scratch.')
+        state_file = self._get_state_file(default=file)
+        glatt = GaussLattice(
+            self.param['L'],
+            state_file=state_file,
+            filetype='hdf5',
+            basedir='/' if self.working_directory[0]=='/' else './'
+        )
+        glatt.find_states()
+
+        # Read from file again, cumbersome but this is the legacy structure.
+        return self.read_states(*args, file=file, **kwargs)
 
     def construct_hamiltonian(self, states, builder_type=HamiltonianBuilder, **kwargs):
         """ Takes a list of states and constructs the Hamiltonian.
@@ -185,23 +214,16 @@ class GLSimulation(object):
         try:
             states = []
             if self.param.get('winding_sector'):
-                # The winding sectors are labelled differently in the HDF5 file (for
-                # convenience reasons) so we have to relabel them here.
-                ws_shifted = GLSimulation._winding_shift(self.param['L'], self.param['winding_sector'])
-                self.ws = GLSimulation._winding_tag(ws_shifted)
-                self.log(f'Supplied winding numbers {ws} are mapped to {tuple(ws_shifted)}')
-
-                with hdf.File(filename, 'r') as f:
+                with hdf.File(state_file, 'r') as f:
                     states = f[self.ws][...]
 
             else:
-                self.ws = 'all-ws'
                 with hdf.File(state_file, 'r') as f:
                     for ws in f:
                         if merged:
-                            states += list(f[ws][...])
+                            states += list(f[self.ws][...])
                         else:
-                            states.append([ws, list(f[ws][...])])
+                            states.append([ws, list(f[self.ws][...])])
             self.log(f'Read Fock states from {state_file}')
             return states
 

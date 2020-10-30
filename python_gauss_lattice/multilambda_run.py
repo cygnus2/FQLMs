@@ -16,8 +16,8 @@ ham = sim.read_hamiltonian(ham_name=sim.ws)
 if not ham:
     # Produce states.
     states = sim.read_states()
-    if not states:
-        raise ValueError('Fatal: no states found.')
+    if not len(states):
+        states = sim.find_states()
 
     ham = sim.construct_hamiltonian(states, builder_type=ParallelHamiltonianBuilder)
     if sim.store_ham:
