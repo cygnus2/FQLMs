@@ -7,12 +7,13 @@
 
 ---------------------------------------------------------------------------- """
 import argparse, logging, os, yaml, sys
+import subprocess
 import h5py as hdf
 import numpy as np
 from copy import copy
 
 sys.path.append('../')
-from gauss_lattice.aux import timeit, timestamp
+from gauss_lattice.aux import timeit, timestamp, full_timestamp
 from gauss_lattice import GaussLatticeHamiltonian, HamiltonianBuilder
 
 
@@ -56,7 +57,8 @@ class GLSimulation(object):
         self.logger.addHandler(logging.FileHandler(self.working_directory + '/' + self.param['logfile'], mode='w'))
         self.logger.setLevel(logging.DEBUG)
 
-        self.log(f'Working in directory {self.working_directory}')
+        self.host = subprocess.check_output(['hostname']).strip().decode('UTF-8')
+        self.log(f'Working in directory {self.working_directory} at host {self.host}')
 
         # Set some further flags.
         self.compute_eigenstates = self.param.get('compute_eigenstates', False)
@@ -249,7 +251,8 @@ class GLSimulation(object):
         filename = file if file else self._get_result_file(default=file)
 
         all_attrs = copy(attrs)
-        all_attrs['time'] = timestamp()
+        all_attrs['time'] = full_timestamp()
+        all_attrs['host'] = self.host
 
         with hdf.File(filename, 'a') as f:
             ds = None
@@ -266,7 +269,7 @@ class GLSimulation(object):
                 ds = f.create_dataset(ds_name, data=data)
 
             # Finally, store attributes.
-            for k, v in attrs.items():
+            for k, v in all_attrs.items():
                 ds.attrs[k] = v
 
     # --------------------------------------------------------------------------
@@ -277,9 +280,7 @@ class GLSimulation(object):
         """
         if self.notify:
             from gauss_lattice.lr_notify import push_message
-            import os, subprocess
-            host = subprocess.check_output(['hostname']).strip().decode('UTF-8'),
-            push_message(f'[{host[0]}] ' + msg)
+            push_message(f'[{self.host}] ' + msg)
 
 
     @staticmethod

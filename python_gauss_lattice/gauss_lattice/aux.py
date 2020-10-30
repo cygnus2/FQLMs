@@ -13,6 +13,32 @@ from itertools import product
 import datetime as dt
 
 
+def timestamp():
+    return dt.datetime.now().strftime("[%H:%M:%S]")
+
+def full_timestamp():
+    return dt.datetime.now().strftime("%d|%m|%Y %H:%M:%S")
+
+def timeit(logger=None):
+    def wrap(method):
+        def timed(*args, **kw):
+            ts = time.time()
+            result = method(*args, **kw)
+            te = time.time()
+            text = '%r  %2.2f ms' % (method.__name__, (te - ts) * 1000)
+            if logger:
+                logger.info(text)
+            else:
+                print(text)
+            return result
+        return timed
+    return wrap
+
+
+# ------------------------------------------------------------------------------
+# Deprecated stuff.
+
+
 def size_tag(L):
     stag = ''
     for k in range(len(L)):
@@ -38,25 +64,6 @@ def param_tag(param, precision=2):
         tag += ('_lam{:.'+str(precision)+'f}').format(lam)
 
     return tag
-
-
-def timestamp():
-    return dt.datetime.now().strftime("[%H:%M:%S]")
-
-def timeit(logger=None):
-    def wrap(method):
-        def timed(*args, **kw):
-            ts = time.time()
-            result = method(*args, **kw)
-            te = time.time()
-            text = '%r  %2.2f ms' % (method.__name__, (te - ts) * 1000)
-            if logger:
-                logger.info(text)
-            else:
-                print(text)
-            return result
-        return timed
-    return wrap
 
 
 def bin_str(state, L):

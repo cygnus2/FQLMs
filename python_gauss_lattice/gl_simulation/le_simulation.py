@@ -76,7 +76,7 @@ class LowEnergyGLSimulation(GLSimulation):
 
         except OSError:
             self.log(f'Could not find file {state_file}')
-            return []
+            return [], 0
 
 
     def find_le_states(self, base_lattices):
