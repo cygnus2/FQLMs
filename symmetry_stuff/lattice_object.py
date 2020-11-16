@@ -18,6 +18,10 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as a3
 import matplotlib.colors as colors
+import matplotlib.patches as mpatches
+import mpl_toolkits.mplot3d.art3d as art3d
+import matplotlib.patheffects as patheffects
+
 
 # We need a builder object so that we can perform some operations more easily.
 import sys
@@ -188,28 +192,49 @@ class LatticeObject(object):
                         if (len(all_links)-1) == 100:
                             self.ax.plot(*all_links[-1], color='red')
                         else:
-                            self.ax.plot(*all_links[-1],
-                                    color='#838282',
-                                    lw=2.5,
-                                    zorder=10-a*y
-                            )
+                            # self.ax.plot(*all_links[-1],
+                            #         color='black',
+                            #         # color='#a3a2a2',
+                            #         lw=1.5,
+                            #         zorder=10-a*y
+                            # )
+
+                            xx, yy = zip(*all_links[-1])
+                            xx = np.array(xx)
+                            yy = np.array(yy)
+
+                            ind = {'x':0, 'y':1, 'z':2}
+                            for c, d in [[[0,1],'z'], [[0,2],'y'], [[1,2],'x']]:
+                                con = mpatches.ConnectionPatch(
+                                    xyA=xx[c],
+                                    coordsA=self.ax.transData,
+                                    xyB=yy[c],
+                                    color='#555555'
+                                )
+                                con.set_linewidth(2.5)
+                                shadow = mpatches.Shadow(con, 1, -1, props=dict(fc="black", ec="0.7", lw=1, capstyle='round'))
+                                self.ax.add_patch(con)
+                                self.ax.add_patch(shadow)
+                                art3d.pathpatch_2d_to_3d(shadow, z=xx[ind[d]], zdir=d)
+                                art3d.pathpatch_2d_to_3d(con, z=xx[ind[d]], zdir=d)
+
 
         return all_links
 
-    def _draw_particle(self, pos, a=2.0, colors=['#416780', '#A5D2F0']):
+    def _draw_particle(self, pos, a=2.0, colors=['#416780', '#5C60C0']):
         coord = list(map(lambda x: [x[0]], self.dlinks[pos]))
         coord[pos%len(self.dlinks[0])][0] += a/2
         self.ax.plot(xs=coord[0], ys=coord[1], zs=coord[2],
                 marker='o',
                 markeredgecolor=colors[0],
                 markerfacecolor=colors[1],
-                markersize=10,
-                markeredgewidth=2,
-                zorder=10-a*(coord[1][0]//a)+1
+                markersize=8,
+                markeredgewidth=1,
+                zorder=200-a*(coord[1][0]//a)+1
         )
 
 
-    def _draw_state(self, colors=['#416780', '#A5D2F0']):
+    def _draw_state(self, colors=['black', '#5C60C0']):
         state = self.to_int()
         for k in range(self.nb):
 
@@ -248,13 +273,11 @@ class LatticeObject(object):
         with plt.style.context('seaborn-notebook'):
             if axis is None:
                 self.fig = plt.figure()
-                self.fig.set_size_inches(8,6)
+                self.fig.set_size_inches(2.6,2.2)
                 self.ax = self.fig.add_subplot(111, projection='3d')
             else:
                 self.ax = axis
 
-            self.ax.view_init(elev=20, azim=-75)
-            self.ax.set_axis_off()
 
             # Draw the actual system.
             self.dlinks = self._draw_3D_lattice()
@@ -268,10 +291,19 @@ class LatticeObject(object):
                 for p in builder.plaquettes:
                     if p in pflip:
                         pass
-    #                     self._highlight_plaquette(p[:-1], color='green', alpha=0.1)
+                        self._highlight_plaquette(p[:-1], color='green', alpha=0.1)
                     else:
                         pass
-                        self._highlight_plaquette(p[:-1], color='red', alpha=0.1)
+                        # self._highlight_plaquette(p[:-1], color='red', alpha=0.1)
+
+            # Set viewpoint correctly.
+            self.ax.view_init(elev=20, azim=-75)
+            self.ax.set_axis_off()
+            self.ax.set_xlim(0, a*self.L[0])
+            self.ax.set_ylim(0, a*self.L[1])
+            self.ax.set_zlim(0, a*self.L[2])
+            if not axis:
+                self.fig.subplots_adjust(left=0.001, right=1.1, top=1.1, bottom=0.001)
 
         if label is not None:
             self.ax.text(-0.5, 0, self.ax.get_zlim()[1]+0.5, label, fontsize=24)

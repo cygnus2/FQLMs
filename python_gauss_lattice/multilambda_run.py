@@ -6,11 +6,16 @@
 
 ---------------------------------------------------------------------------- """
 from gl_simulation import GLSimulation
-from gauss_lattice import ParallelHamiltonianBuilder
+from gauss_lattice import ParallelHamiltonianBuilder, HamiltonianBuilder
 import numpy as np
 
 
+
 sim = GLSimulation()
+if sim.working_directory == '/home/lukas/test_dir/':
+    import shutil, os
+    shutil.rmtree(sim.working_directory)
+    os.makedirs(sim.working_directory, exist_ok=True)
 
 ham = sim.read_hamiltonian(ham_name=sim.ws)
 if not ham:

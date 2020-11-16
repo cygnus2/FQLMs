@@ -132,7 +132,7 @@ class GLSimulation(object):
         )
 
 
-    def run_lambda_loop(self, lambdas, ham):
+    def run_lambda_loop(self, lambdas, ham, grp_name=None):
         """ Wrapper to run multiple values of lambdas back-to-back.
         """
         for i, l in enumerate(lambdas):
@@ -144,10 +144,10 @@ class GLSimulation(object):
                 'lambda' : l
             }
             if not self.compute_eigenstates:
-                self.store_data(results, ds_name='spectrum_lam_{:6f}'.format(l), attrs=attrs)
+                self.store_data(results, ds_name='spectrum_lam_{:6f}'.format(l), attrs=attrs, grp_name=grp_name)
             else:
-                self.store_data(results[0], ds_name='spectrum_lam_{:6f}'.format(l), attrs=attrs)
-                self.store_data(results[1], ds_name='eigenstates_lam_{:6f}'.format(l), attrs=attrs)
+                self.store_data(results[0], ds_name='spectrum_lam_{:6f}'.format(l), attrs=attrs, grp_name=grp_name)
+                self.store_data(results[1], ds_name='eigenstates_lam_{:6f}'.format(l), attrs=attrs, grp_name=grp_name)
 
 
     # --------------------------------------------------------------------------
@@ -245,6 +245,8 @@ class GLSimulation(object):
         """
         ham_file = self._get_hamiltonian_file(default=file)
         try:
+            print(ham_file)
+            print(ham_name)
             with hdf.File(ham_file, 'r') as f:
                 mat = f[ham_name][...]
                 ham = GaussLatticeHamiltonian(mat[2,:], mat[1,:], mat[0,:], f[ham_name].attrs['n_fock'])

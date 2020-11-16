@@ -9,15 +9,14 @@ from gauss_lattice.hamiltonian_builder_methods import apply_u, apply_u_dagger
 from gauss_lattice.hamiltonian_builder import HamiltonianBuilder
 from gauss_lattice import GaussLatticeHamiltonian
 from multiprocessing import Pool
-from numba import jit
+from bisect import bisect_left
 
 
 def _do_single_state(state, sign=True):
     """ Tries to flip all plaquettes in a single state.
     """
     states = []
-    for k in range(1, len(ParallelHamiltonianBuilder.plaquettes)):
-        p = ParallelHamiltonianBuilder.plaquettes[k]
+    for p in ParallelHamiltonianBuilder.plaquettes:
         # First apply the U term.
         new_state, s = apply_u_dagger(state, p, sign=sign)
 
@@ -29,16 +28,18 @@ def _do_single_state(state, sign=True):
 
         if new_state:
             c = ParallelHamiltonianBuilder.inv_lookuptable.get(new_state)
-            if c:
+            if c is not None:
                 states.append([state, c, s])
 
     return states
+
 
 class ParallelHamiltonianBuilder(HamiltonianBuilder):
     """ Constructs the Hamiltonian in a general single-particle basis.
     """
     plaquettes = None
     inv_lookuptable = None
+    lookuptable = None
 
     def __init__(self, *args, **kwargs):
         HamiltonianBuilder.__init__(self, *args, **kwargs)
@@ -85,8 +86,8 @@ class ParallelHamiltonianBuilder(HamiltonianBuilder):
 
                 # Convert the columns to the proper format.
                 for k in range(len(row)):
-                    icol.append(col[k])
                     irow.append(self.state_to_index(row[k]))
+                    icol.append(col[k])
                     idata.append(data[k])
 
         if not self.silent:

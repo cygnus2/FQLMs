@@ -15,8 +15,10 @@ sim = LowEnergyGLSimulation()
 
 
 # Produce the Hamiltonian.
-ham_name = "le_hamiltonian_ex{:d}".format(sim.param["maximum_excitation_level"])
+grp_name = "ex{:d}".format(sim.param["maximum_excitation_level"])
+ham_name = "le_hamiltonian_"+grp_name
 ham = sim.read_hamiltonian(ham_name=ham_name)
+
 if not ham:
 
     # Produce states.
@@ -40,5 +42,5 @@ if not ham:
 
 # Perform the actual diagonalization.
 lambdas = np.linspace(*sim.param['lambdas']) if 'lambdas' in sim.param else [sim.param['lambda']]
-sim.run_lambda_loop(lambdas, ham)
+sim.run_lambda_loop(lambdas, ham, grp_name=grp_name)
 sim.push_notification('Done with multiparameter run.')

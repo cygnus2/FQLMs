@@ -193,8 +193,8 @@ class HamiltonianBuilder(object):
                 for k in range(len(row)):
                     c = self.state_to_index(col[k])
                     if (c<self.n_fock):
-                        icol.append(c)
                         irow.append(self.state_to_index(row[k]))
+                        icol.append(c)
                         idata.append(data[k])
 
         if not self.silent:
