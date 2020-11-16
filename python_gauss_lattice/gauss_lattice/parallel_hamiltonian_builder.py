@@ -52,7 +52,7 @@ class ParallelHamiltonianBuilder(HamiltonianBuilder):
 
     @staticmethod
     def set_inv_lookuptable(lookup_table):
-        ParallelHamiltonianBuilder.inv_lookuptable = {v:k for k,v in enumerate(lookup_table)}
+        ParallelHamiltonianBuilder.inv_lookuptable = HamiltonianBuilder._make_inv_lookuptable(lookup_table)
 
     @staticmethod
     def do_single_state(state):

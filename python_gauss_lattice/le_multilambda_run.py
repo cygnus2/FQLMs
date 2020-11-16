@@ -7,7 +7,7 @@
 
 ---------------------------------------------------------------------------- """
 from gl_simulation import LowEnergyGLSimulation
-from gauss_lattice import ParallelHamiltonianBuilder
+from gauss_lattice import ParallelHamiltonianBuilder, HamiltonianBuilder
 import numpy as np
 
 
@@ -33,7 +33,8 @@ if not ham:
                             2123163061129091160270, 2179642425947400317085, 2542724056922244896610, 2599203421740554053425,
                             3124151188370508831822, 3196270992676965139755, 3632465471735291243157, 3648105911223438394275],
         }
-        states = sim.find_le_states(base_lattices[tuple(sim.param['L'])])
+        print("GAGA")
+        states = sim.find_le_states(base_lattices[tuple(sim.param['L'])], store_states=True)
 
     ham = sim.construct_hamiltonian(states, builder_type=ParallelHamiltonianBuilder)
     if sim.store_ham:

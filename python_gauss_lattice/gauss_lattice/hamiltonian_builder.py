@@ -41,13 +41,14 @@ class HamiltonianBuilder(object):
         # Set up the lookup table, which is merely ordering the states such that
         # the inverse lookup can be done efficiently with bisection.
         self.lookup_table = sorted(states)
+        self.inv_lookup_table = HamiltonianBuilder._make_inv_lookuptable(self.lookup_table)
+
         self.n_fock = len(self.lookup_table)
         if not self.silent:
             self._log(f'Setting up the Hamiltonian with {self.n_fock} Fock states.')
 
         # Pre-compute all plaquette indicies to save some time.
         self.plaquettes = self.get_plaquette_list()
-
 
 
     def _log(self, msg):
@@ -57,6 +58,13 @@ class HamiltonianBuilder(object):
             self.logger.info(timestamp() + ' ' + msg)
         else:
             print(timestamp() + ' ' + msg)
+
+
+    @staticmethod
+    def _make_inv_lookuptable(lookup_table):
+        """ Produces an inverse lookup table.
+        """
+        return {int(v):k for k,v in enumerate(lookup_table)}
 
 
     def shift_index(self, i, d):
@@ -192,7 +200,7 @@ class HamiltonianBuilder(object):
                 # Convert the columns to the proper format.
                 for k in range(len(row)):
                     c = self.state_to_index(col[k])
-                    if (c<self.n_fock):
+                    if c is not None:
                         irow.append(self.state_to_index(row[k]))
                         icol.append(c)
                         idata.append(data[k])
@@ -207,6 +215,7 @@ class HamiltonianBuilder(object):
     def apply_u_dagger(self, *args, **kwargs):
         return apply_u_dagger(*args, **kwargs)
 
+
     def index_to_state(self, n):
         """ Maps the n-th state in the Fock basis to it's bit string.
 
@@ -217,7 +226,15 @@ class HamiltonianBuilder(object):
 
 
     def state_to_index(self, state):
-        """ Maps the bit string to the basis index. Lookup is based on bisection
-            which requires an ordered list (ascending, I think, is mandatory).
+        """ Maps the bit string to the basis index via an inverse lookup table.
+            This does require some more memory than a bisection search (which
+            could easily be done and has log lookup) but shouldn't be an issue
+            for most of the problems of interest here.
+
+            If, however, one wishes to use a bisection, note the following:
+            the algorithm implemented in the bisect package yields either the
+            position where it is found or the positin where it should be inserted,
+            not, however, the maximum index (= length of list). Therefore, it is
+            not well suited for checking whether a key exists or not.
         """
-        return bisect_left(self.lookup_table, state)
+        return self.inv_lookup_table.get(state)

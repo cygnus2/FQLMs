@@ -245,8 +245,6 @@ class GLSimulation(object):
         """
         ham_file = self._get_hamiltonian_file(default=file)
         try:
-            print(ham_file)
-            print(ham_name)
             with hdf.File(ham_file, 'r') as f:
                 mat = f[ham_name][...]
                 ham = GaussLatticeHamiltonian(mat[2,:], mat[1,:], mat[0,:], f[ham_name].attrs['n_fock'])

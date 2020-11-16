@@ -1,9 +1,6 @@
 """ ----------------------------------------------------------------------------
-
     le_simulation.py - LR, October 2020
-
     Low-energy version of the simulation object.
-
 ---------------------------------------------------------------------------- """
 import sys
 import numpy as np
@@ -60,7 +57,7 @@ class LowEnergyGLSimulation(GLSimulation):
                         if len(s.shape) == 2:
                             states[l] = LowEnergyGLSimulation._combine(s)
                         else:
-                            states[l] = sorted(map(int, states))
+                            states[l] = sorted(map(int, s))
 
                 if sorted(levels)[-1] < max_level:
                     self.log(f"Warning: maximal level not reachable from list! Taking maximum of {l}.")
@@ -79,16 +76,21 @@ class LowEnergyGLSimulation(GLSimulation):
             return [], 0
 
 
-    def find_le_states(self, base_lattices):
+    def find_le_states(self, base_lattices, store_states=False):
         """ Finds the low energy states starting from the base states provided.
         """
         self.log('Could not find stored states, constructing low-energy Fock state list from scratch.')
+
+        state_file = self._get_state_file() if store_states else None
+        if state_file:
+            self.log(f"Saving low-energy states in {state_file}")
 
         lesf = LowEnergyStateFinder(self.param, self.logger)
         states = lesf.find_all_states(
             base_lattices,
             n_threads=self.param.get('n_threads', 1),
-            max_level=self.param.get('maximum_excitation_level', 10000)
+            max_level=self.param.get('maximum_excitation_level', 10000),
+            output_file=state_file
         )
         return states
 

@@ -3,7 +3,7 @@
     data_io.py - LR, October 2020
 
     Holds some useful routines to efficiently read data.
-    
+
 ---------------------------------------------------------------------------- """
 import numpy as np
 import pandas as pd
@@ -25,8 +25,8 @@ def retrieve_spectrum_pandas(filename):
                 'spectrum' : [f[ds][:]]
             }
             df = df.append(pd.DataFrame(data), ignore_index=True)
-    
-    df = df.sort_values(by='lambda')   
+
+    df = df.sort_values(by='lambda')
     return df
 
 
@@ -41,7 +41,7 @@ def retrieve_spectrum_numpy(filename, cutoff=20):
             data[lam] = f[ds][:]
             lambdas.append(float(lam))
     lambdas = sorted(lambdas)
-    
+
     spectrum = np.zeros(shape=(len(lambdas),cutoff))
     for k, key in enumerate(lambdas):
         spectrum[k,:] = data['{:.6f}'.format(key)][:cutoff]
@@ -50,6 +50,26 @@ def retrieve_spectrum_numpy(filename, cutoff=20):
 
 # --------------------------------
 # Low energy stuff.
+
+def retrieve_le_spectrum_numpy(filename, grp=None, cutoff=20):
+    """ Returns a 2D numpy array with all the information.
+    """
+    data = {}
+    lambdas = []
+    with hdf.File(filename, 'r') as f:
+        grp = f[grp if grp is not None else '']
+        for ds in grp:
+            lam = ds.split('_')[-1]
+            data[lam] = grp[ds][...]
+
+            lambdas.append(float(lam))
+    lambdas = sorted(lambdas)
+
+    spectrum = np.zeros(shape=(len(lambdas),cutoff))
+    for k, key in enumerate(lambdas):
+        spectrum[k,:] = data['{:.6f}'.format(key)][:cutoff]
+    return np.array(lambdas), spectrum
+
 
 def retrieve_le_spectrum_numpy(filename, max_level, cutoff=20):
     """ Returns a 2D numpy array with all the information.
@@ -64,11 +84,13 @@ def retrieve_le_spectrum_numpy(filename, max_level, cutoff=20):
 
             lambdas.append(float(lam))
     lambdas = sorted(lambdas)
-    
+
     spectrum = np.zeros(shape=(len(lambdas),cutoff))
     for k, key in enumerate(lambdas):
         spectrum[k,:] = data['{:.6f}'.format(key)][:cutoff]
     return np.array(lambdas), spectrum
+
+
 
 
 def retrieve_le_spectrum_pandas(filename):
@@ -85,6 +107,6 @@ def retrieve_le_spectrum_pandas(filename):
                     'spectrum' : [grp[ds][:]]
                 }
                 df = df.append(pd.DataFrame(data), ignore_index=True)
-    
-    df = df.sort_values(by='lambda')   
+
+    df = df.sort_values(by='lambda')
     return df
