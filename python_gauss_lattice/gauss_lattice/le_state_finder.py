@@ -1,6 +1,6 @@
 from .hamiltonian_builder import HamiltonianBuilder
 from .hamiltonian_builder_methods import cycle_plaquettes
-from .aux import timestamp
+from .aux_stuff import timestamp
 from multiprocessing import Pool
 import os, subprocess
 import h5py as hdf

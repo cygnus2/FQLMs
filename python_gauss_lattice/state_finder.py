@@ -7,7 +7,7 @@
 ---------------------------------------------------------------------------- """
 import argparse
 from gauss_lattice import GaussLattice
-from gauss_lattice.aux import timeit, file_tag, size_tag, winding_sectors, load_config
+from gauss_lattice.aux_stuff import timeit, file_tag, size_tag, winding_sectors, load_config
 
 
 def write_winding_sectors(L, wn, basedir):

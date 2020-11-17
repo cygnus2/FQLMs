@@ -12,7 +12,7 @@ import h5py as hdf
 from itertools import product
 from queue import Empty, Queue
 from multiprocessing import Pool
-from .aux import winding_tag
+from .aux_stuff import winding_tag
 
 
 class GaussLattice(object):

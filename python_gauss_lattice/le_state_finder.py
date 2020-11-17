@@ -6,7 +6,7 @@
 
 ---------------------------------------------------------------------------- """
 from gauss_lattice import LowEnergyHamiltonianBuilder
-from gauss_lattice.aux import load_config, timeit, read_winding_sector, size_tag
+from gauss_lattice.aux_stuff import load_config, timeit, read_winding_sector, size_tag
 import argparse, logging
 
 

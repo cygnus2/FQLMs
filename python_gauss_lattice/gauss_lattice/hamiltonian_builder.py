@@ -10,7 +10,7 @@ from bisect import bisect_left
 from .hamiltonian import GaussLatticeHamiltonian
 from .hamiltonian_builder_methods import do_single_state, apply_u, apply_u_dagger
 from .bit_magic import set_bits
-from .aux import timestamp
+from .aux_stuff import timestamp
 from copy import copy
 from tqdm import tqdm as tbar
 from multiprocessing import Pool

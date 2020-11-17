@@ -9,7 +9,7 @@ import numpy as np
 from scipy.sparse import coo_matrix, save_npz, load_npz
 from scipy.sparse.linalg import eigsh
 from scipy.linalg import eigvals, eig
-from .aux import write_simple_spectrum
+from .aux_stuff import write_simple_spectrum
 from copy import copy
 
 
