@@ -81,7 +81,7 @@ class HamiltonianBuilder(object):
         return n
 
 
-    def get_plaquette_list(self):
+    def get_plaquette_list(self, separate_lists=False):
         """ Produces a list of plaquettes that represent the lattice. This is a
             list of plaquettes represented as
 
@@ -106,7 +106,7 @@ class HamiltonianBuilder(object):
         S = self.S
 
         # Find plaquettes by looping over all grid points.
-        plaquettes = []
+        p_xy, p_yz, p_xz = [], [], []
         for n in range(S[-1]):
 
             # Contents of a vertex:
@@ -118,7 +118,7 @@ class HamiltonianBuilder(object):
             j = self.shift_index(self.shift_index(n, 0), 1) # shifted by Sx and Sy
             vn_xy = self.get_vertex_links(j)
             ind = [vn[0], vn_xy[3], vn_xy[1], vn[2]]
-            plaquettes.append(ind + [set_bits(ind)])
+            p_xy.append(ind + [set_bits(ind)])
 
             # In 3D, we have two additional plaquettes.
             if self.d == 3:
@@ -126,17 +126,21 @@ class HamiltonianBuilder(object):
                 j = self.shift_index(self.shift_index(n, 2), 1) # shifted by Sy and Sz
                 vn_yz = self.get_vertex_links(j)
                 ind=[vn[2], vn_yz[5], vn_yz[3], vn[4]]
-                plaquettes.append(ind + [set_bits(ind)])
+                p_yz.append(ind + [set_bits(ind)])
 
                 # xz plane.
                 j = self.shift_index(self.shift_index(n, 0), 2) # shifted by Sx and Sz
                 vn_xz = self.get_vertex_links(j)
                 ind = [vn[0], vn_xz[5], vn_xz[1], vn[4]]
-                plaquettes.append(ind + [set_bits(ind)])
+                p_xz.append(ind + [set_bits(ind)])
 
         # Check if the right amount of plaquettes was found and if so, return
         # the list.
+        plaquettes = p_xy + p_yz + p_xz
         assert len(plaquettes) == (2**(self.d-1) -1) * S[-1]
+
+        if separate_lists:
+            return p_xy, p_yz, p_xz
         return plaquettes
 
 

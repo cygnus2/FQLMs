@@ -108,6 +108,8 @@ class Hamiltonian(object):
         # Warning: the diagonal of the Hamiltonian is set to 0 - this is not the
         # most general case.
         if self.n_fock == 1:
+            print("HERE")
+            print(self.sparse_rep)
             self.eigenvalues, self.eigenstates = np.array([0]), np.array([[0,0]])
         else:
             self.eigenvalues, self.eigenstates = eigsh(self.sparse_rep, n_eigenvalues, which=which)

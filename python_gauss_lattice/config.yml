@@ -12,7 +12,7 @@ working_directory: /home/lukas/_temp_FQLM/
 # state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
 # state_file: '../python_data/local_state_storage/le_states_2x2x6.hdf5'
 L : [2,2,2] # Spatial extent of the lattice.
-# winding_sector: [0,0,0] # Winding sector to be considered.
+# winding_sector: [2,2,2] # Winding sector to be considered.
 # L: [4,4]
 # winding_sector: [0,0]
 logfile : 'logfile.log' # Logfile to store the output.
@@ -21,19 +21,19 @@ n_threads: 2
 # ----------------------------------
 # Important for diagonalization.
 gauge_particles : 'bosons' # Either bosons or fermions.
-full_diag : False # If True, the full matrix is diagonalized - extremely costly.
+full_diag : True # If True, the full matrix is diagonalized - extremely costly.
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
-n_eigenvalues : 20 # Number of eigenvalues to compute.
+n_eigenvalues : 5 # Number of eigenvalues to compute.
 J : -1 # J Coupling.
 compute_eigenstates: False # If true, the eigenstates will be exported.
-store_hamiltonian: False # If true, the Hamiltonian will be stored.
+store_hamiltonian: True # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3.0, 1.0, 51] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3.0, 1.0, 61] # Range that specifies the lambda values to scan (min, max, n_steps)
 # lambda: 0.0
 
 #-----------------------------------
 # LE stuff.
-maximum_excitation_level: 3
-notification_level: 0
+# maximum_excitation_level: 3
+# notification_level: 0

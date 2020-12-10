@@ -11,9 +11,10 @@ import subprocess
 import h5py as hdf
 import numpy as np
 from copy import copy
+from itertools import product
 
 sys.path.append('../')
-from gauss_lattice.aux import timeit, timestamp, full_timestamp
+from gauss_lattice.aux_stuff import timeit, timestamp, full_timestamp
 from gauss_lattice import GaussLatticeHamiltonian, HamiltonianBuilder, GaussLattice
 
 
@@ -69,17 +70,27 @@ class GLSimulation(object):
             self.version = 'unknown'
         self.log(f'Working with commit \'{self.version}\'')
 
-        # Set the winding sector (mainly for output and correct state generation).
-        if 'winding_sector' in self.param:
-            # The winding sectors are labelled differently in the HDF5 file (for
-            # convenience reasons) so we have to relabel them here.
-            ws_shifted = GLSimulation._winding_shift(self.param['L'], self.param['winding_sector'])
-            self.ws = GLSimulation._winding_tag(ws_shifted)
-        else:
-            self.ws = 'all-ws'
+        # Set winding sector.
+        self.set_winding_sector(self.param.get('winding_sector'))
 
         # Set some further flags.
         self.compute_eigenstates = self.param.get('compute_eigenstates', False)
+
+
+    def set_winding_sector(self, ws, shift=False):
+        """ Sets the winding sector.
+        """
+        # Set the winding sector (mainly for output and correct state generation).
+        if ws is not None:
+            # The winding sectors are labelled differently in the HDF5 file (for
+            # convenience reasons) so we have to relabel them here.
+            if not shift:
+                ws_shifted = GLSimulation._winding_shift(self.param['L'], ws)
+            else:
+                ws_shifted = ws
+            self.ws = GLSimulation._winding_tag(ws_shifted)
+        else:
+            self.ws = 'all-ws'
 
 
     # --------------------------------------------------------------------------
@@ -126,7 +137,7 @@ class GLSimulation(object):
             J = self.param['J'],
             lam = lam if lam is not None else self.param['lambda'],
             gauge_particles = self.param['gauge_particles'],
-            n_eigenvalues = max(1, self.param['n_eigenvalues']),
+            n_eigenvalues = max(1, min(self.param['n_eigenvalues'], ham.n_fock-1)),
             which = self.param.get('ev_type', 'SA'),
             compute_eigenstates = self.compute_eigenstates
         )
@@ -221,17 +232,17 @@ class GLSimulation(object):
         state_file = self._get_state_file(default=file)
         try:
             states = []
-            if self.param.get('winding_sector'):
-                with hdf.File(state_file, 'r') as f:
-                    states = f[self.ws][...]
-
-            else:
+            if self.ws == 'all-ws':
                 with hdf.File(state_file, 'r') as f:
                     for ws in f:
                         if merged:
                             states += list(f[ws][...])
                         else:
                             states.append([ws, list(f[ws][...])])
+            else:
+                with hdf.File(state_file, 'r') as f:
+                    states = f[self.ws][...]
+
             self.log(f'Read Fock states from {state_file}')
             return states
 
@@ -353,3 +364,27 @@ class GLSimulation(object):
         for k in range(len(L)):
             stag += '{:d}x'.format(L[k])
         return stag[:-1]
+
+
+    @staticmethod
+    def winding_sectors(L, tag=False):
+        """ A generator for all winding number sectors.
+        """
+        if len(L) == 2:
+            winding_numbers = tuple(np.array(L[::-1])+1)
+            print(winding_numbers)
+        elif len(L) == 3:
+            winding_numbers = (
+                L[1]*L[2] + 1,
+                L[0]*L[2] + 1,
+                L[0]*L[1] + 1
+            )
+        else:
+            raise NotimplementedError('Only 2D and 3D lattices are allowed.')
+
+        sectors = product(*map(lambda n: range(n), winding_numbers))
+        for sector in sectors:
+            if tag:
+                yield GLSimulation._winding_tag(sector)
+            else:
+                yield sector

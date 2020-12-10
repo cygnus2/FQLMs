@@ -9,7 +9,7 @@
 ---------------------------------------------------------------------------- """
 import numpy as np
 from scipy.sparse import load_npz
-from gauss_lattice.aux import size_tag, read_all_states
+from gauss_lattice.aux_stuff import size_tag, read_all_states
 from gauss_lattice import HamiltonianBuilder
 from gauss_lattice.bit_magic import count_particles
 

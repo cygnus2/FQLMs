@@ -192,31 +192,31 @@ class LatticeObject(object):
                         if (len(all_links)-1) == 100:
                             self.ax.plot(*all_links[-1], color='red')
                         else:
-                            # self.ax.plot(*all_links[-1],
-                            #         color='black',
-                            #         # color='#a3a2a2',
-                            #         lw=1.5,
-                            #         zorder=10-a*y
-                            # )
+                            self.ax.plot(*all_links[-1],
+                                    color='green',
+                                    # color='#a3a2a2',
+                                    lw=1.5,
+                                    zorder=10-a*y
+                            )
 
-                            xx, yy = zip(*all_links[-1])
-                            xx = np.array(xx)
-                            yy = np.array(yy)
-
-                            ind = {'x':0, 'y':1, 'z':2}
-                            for c, d in [[[0,1],'z'], [[0,2],'y'], [[1,2],'x']]:
-                                con = mpatches.ConnectionPatch(
-                                    xyA=xx[c],
-                                    coordsA=self.ax.transData,
-                                    xyB=yy[c],
-                                    color='#555555'
-                                )
-                                con.set_linewidth(2.5)
-                                shadow = mpatches.Shadow(con, 1, -1, props=dict(fc="black", ec="0.7", lw=1, capstyle='round'))
-                                self.ax.add_patch(con)
-                                self.ax.add_patch(shadow)
-                                art3d.pathpatch_2d_to_3d(shadow, z=xx[ind[d]], zdir=d)
-                                art3d.pathpatch_2d_to_3d(con, z=xx[ind[d]], zdir=d)
+                            # xx, yy = zip(*all_links[-1])
+                            # xx = np.array(xx)
+                            # yy = np.array(yy)
+                            #
+                            # ind = {'x':0, 'y':1, 'z':2}
+                            # for c, d in [[[0,1],'z'], [[0,2],'y'], [[1,2],'x']]:
+                            #     con = mpatches.ConnectionPatch(
+                            #         xyA=xx[c],
+                            #         coordsA=self.ax.transData,
+                            #         xyB=yy[c],
+                            #         color='#555555'
+                            #     )
+                            #     con.set_linewidth(2.5)
+                            #     shadow = mpatches.Shadow(con, 1, -1, props=dict(fc="black", ec="0.7", lw=1, capstyle='round'))
+                            #     self.ax.add_patch(con)
+                            #     self.ax.add_patch(shadow)
+                            #     art3d.pathpatch_2d_to_3d(shadow, z=xx[ind[d]], zdir=d)
+                            #     art3d.pathpatch_2d_to_3d(con, z=xx[ind[d]], zdir=d)
 
 
         return all_links
@@ -267,6 +267,13 @@ class LatticeObject(object):
                 pflips.append(p)
         return pflips
 
+    def flippables(self, extensive=False):
+        builder = HamiltonianBuilder({'L':self.L}, [], silent=True)
+        self.pflips = self._find_flippable_plaquettes(builder)
+        if extensive:
+            return builder, self.pflips
+        return len(self.pflips)
+
     def draw(self, a=2, axis=None, label=None, plaquettes=True):
         """ 3D plot for the current lattice.
         """
@@ -285,8 +292,9 @@ class LatticeObject(object):
 
             # Get flippable plaquettes & color them.
             if plaquettes:
-                builder = HamiltonianBuilder({'L':self.L}, [], silent=True)
-                pflip = self._find_flippable_plaquettes(builder)
+                builder, pflip = self.flippables(extensive=True)
+#                 builder = HamiltonianBuilder({'L':self.L}, [], silent=True)
+#                 pflip = self._find_flippable_plaquettes(builder)
                 print(f'# of flippable plaquettes: {len(pflip)}')
                 for p in builder.plaquettes:
                     if p in pflip:

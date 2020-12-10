@@ -30,21 +30,23 @@ def retrieve_spectrum_pandas(filename):
     return df
 
 
-def retrieve_spectrum_numpy(filename, cutoff=20):
+def retrieve_spectrum_numpy(filename, cutoff=20, skip=[]):
     """ Returns a 2D numpy array with all the information.
     """
     data = {}
     lambdas = []
     with hdf.File(filename, 'r') as f:
         for ds in f:
-            lam = ds.split('_')[-1]
-            data[lam] = f[ds][:]
-            lambdas.append(float(lam))
+            if not any([tag in ds for tag in skip]):
+                lam = ds.split('_')[-1]
+                data[lam] = f[ds][:]
+                lambdas.append(float(lam))
     lambdas = sorted(lambdas)
 
-    spectrum = np.zeros(shape=(len(lambdas),cutoff))
+    spectrum = np.zeros(shape=(len(lambdas),cutoff), dtype=np.complex) * np.nan
     for k, key in enumerate(lambdas):
-        spectrum[k,:] = data['{:.6f}'.format(key)][:cutoff]
+        d = data['{:.6f}'.format(key)][:cutoff]
+        spectrum[k,:len(d)] = d 
     return np.array(lambdas), spectrum
 
 
