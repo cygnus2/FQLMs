@@ -7,8 +7,7 @@
 
 ===============================================================================#
 using Logging, LoggingExtras
-include("../io/io.jl")
-
+include("../src/io/python_import.jl")
 # Read the config file (first argument after the program name).
 param = read_config(ARGS[1])
 
@@ -19,10 +18,11 @@ logger = TeeLogger(
 )
 global_logger(logger)
 
-# First, make the lookup tables (+ inverse lookup table).
-
+# First, read the lookup tables (+ inverse lookup table).
+(ws, lookup_table, ilookup_table) = read_lookup_tables(param)
 
 # Then, construct the Hamiltonian.
-
+# TODO.
 
 # Finally, diagonalize.
+# TODO.
