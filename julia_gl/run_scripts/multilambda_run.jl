@@ -6,8 +6,10 @@
     this is to be replaced with a multilambda run later.
 
 ===============================================================================#
+using Printf
 include("../src/typedefs.jl")
 include("../src/io/io.jl")
+include("../src/io/data_storage.jl")
 include("../src/io/logging.jl")
 include("../src/io/python_import.jl")
 include("../src/hamiltonian_construction.jl")
@@ -25,6 +27,9 @@ latt = LinkLattice(param["L"])
 
 # First, read the lookup tables (+ inverse lookup table).
 (ws, lookup_table, ilookup_table) = read_lookup_tables(param)
+
+# Make file for results.
+results_file = _get_result_file(param, ws)
 
 # Then, construct the Hamiltonian.
 @info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
@@ -45,7 +50,14 @@ for lambda in list_from_param("lambda", param)
     )
     @info "Done computing the lower spectrum." time=time spectrum=ev
 
-    #TODO: export the values!
+    # Output the data.
+    store_data(
+        results_file,
+        "spectrum_lam_"*(@sprintf "%.6f" lambda),
+        ev;
+        attrs=Dict("lambda"=>lambda),
+        overwrite=get(param, "overwrite", false)
+    )
 end
 
 @info "============================== fin =============================="

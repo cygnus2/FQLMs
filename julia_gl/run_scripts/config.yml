@@ -9,7 +9,7 @@
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 # working_directory: /home/lukas/_temp_FQLM/
 # working_directory: ../../../../test_dir/
-working_directory: '/home/lukas/_temp_FQLM/'
+working_directory: '/home/lukas/_TEMP_fqlm/'
 # state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
 # state_file: '../python_data/local_state_storage/le_states_2x2x6.hdf5'
 L: [2,2,2] # Spatial extent of the lattice.
@@ -17,6 +17,7 @@ winding_sector: [0,0,0] # Winding sector to be considered.
 # L: [4,4]
 # winding_sector: [0,0]
 logfile : 'logfile.log' # Logfile to store the output.
+overwrite: true
 n_threads: 1
 
 # ----------------------------------

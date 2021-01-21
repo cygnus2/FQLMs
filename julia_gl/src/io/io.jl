@@ -17,12 +17,16 @@ function read_config(filename::String)
     return nothing
 end
 
+
 function _sanity_checks!(conf)::Bool
+    """ Checks if crucial parameters are present and sets default values.
+    """
     if !haskey(conf, "working_directory")
         conf["working_directory"] = "./"
     end
     return true
 end
+
 
 function list_from_param(att::String, param::Dict{Any,Any})::Array{Number,1}
     """ Retrieves the list of parameters from the param dictionary.
@@ -78,4 +82,17 @@ function _winding_tag(ws::Array{Int,1}; labels=['x', 'y', 'z'], latt::Union{Link
         wtag *= "w$(labels[k])_$(ws[k])-"
     end
     return wtag[begin:end-1]
+end
+
+
+function _get_result_file(param, ws, prefactor="results")::String
+    result_file = (
+        param["working_directory"] *
+        '/'*prefactor*'_'*
+        param["gauge_particles"] * "_" *
+        (isnothing(ws) ? "" : ws*"_") *
+        _size_tag(param["L"]) *
+        ".hdf5"
+    )
+    return result_file
 end
