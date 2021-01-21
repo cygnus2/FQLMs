@@ -29,8 +29,8 @@ latt = LinkLattice(param["L"])
 # Then, construct the Hamiltonian.
 @info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
 time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
-@info "Done constructing the Hamiltonian." time=time
 
+@info " **** Done constructing the Hamiltonian. **** " time=time
 
 # Finally, diagonalize for all lambda values specified.
 for lambda in list_from_param("lambda", param)
