@@ -81,8 +81,8 @@ function construct_hamiltonian(
     # Loop through all Fock states and create the overlap matrix. First step:
     # do it naively (with some doubled work). Then try to improve on that (by
     # using, e.g., Hermiticity).
-    row = Vector{UInt32}()
-    col = Vector{UInt32}()
+    row = Vector{HilbertIndex}()
+    col = Vector{HilbertIndex}()
     data = Vector{DType}()
 
     for (k,state) in lookup_table

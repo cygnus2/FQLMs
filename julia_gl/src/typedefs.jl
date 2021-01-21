@@ -9,6 +9,8 @@
 const DType = Float64
 const IType = Int64
 const LinkIndex = UInt8
+const SiteIndex = UInt8
+const PlaquetteIndex = UInt8
 const HilbertIndex = UInt32
 
 # ---

@@ -21,7 +21,7 @@ struct LinkLattice <: Lattice
 end
 
 
-function _shift_index(i::LinkIndex, dir::Integer, l::LinkLattice)::LinkIndex
+function _shift_index(i::SiteIndex, dir::Integer, l::LinkLattice)::SiteIndex
     """ Shifts an grid index into direction d under consideration of  PBC.
         Works only for positive shifts (in positive coordinate axes) but
         this is also the only use case.
@@ -39,7 +39,7 @@ function _shift_index(i::LinkIndex, dir::Integer, l::LinkLattice)::LinkIndex
 end
 
 
-function _get_single_vertex(latt::LinkLattice, i::LinkIndex)::Vertex
+function _get_single_vertex(latt::LinkLattice, i::SiteIndex)::Vertex
     """ Returns the indices [+x, -x, +y, -y, ...] of the links for the i-th
         vertex *on the full lattice* (not the sublattice) under consideration
         of periodic boundary conditions.
@@ -48,17 +48,17 @@ function _get_single_vertex(latt::LinkLattice, i::LinkIndex)::Vertex
     """
     # Shorthand to avoid self all the time.
     # Index in bit string.
-    j = latt.d*i
+    j = latt.d*(i-1) + 1
 
     # Loop through the dimensions and add the indicies of + and - directions.
     vert = Vertex()
     for k = 1:latt.d
         # Step forward is always 'on site'.
-        push!(vert, j+k)
+        push!(vert, j+k-1)
 
         # Sep backward in k direction.
-        l = j + k - latt.d*latt.S[k]
-        if mod(i,latt.S[k]) < latt.S[k]
+        l = j + k - 1 - latt.d*latt.S[k]
+        if mod(i-1,latt.S[k+1]) < latt.S[k]
             l = l + latt.d*latt.S[k+1]
         end
         push!(vert, l)
@@ -66,10 +66,36 @@ function _get_single_vertex(latt::LinkLattice, i::LinkIndex)::Vertex
     return vert
 end
 
+# def get_vertex_links(self, i):
+#     """ Returns the indices [+x, -x, +y, -y, ...] of the links for the i-th
+#         vertex *on the full lattice* (not the sublattice) under consideration
+#         of periodic boundary conditions.
+#
+#         Note: works only for L^d lattices for now.
+#     """
+#     # Shorthand to avoid self all the time.
+#     L, d, S = self.L, self.d, self.S
+#
+#     # Site index in bit string.
+#     j = d*(i-1)+1
+#
+#     # Loop through the dimensions and add the indicies of + and - directions.
+#     ind = []
+#     for k in range(1,d+1):
+#         # Step forward is always 'on site'.
+#         ind.append(j+k-1)
+#
+#         # Sep backward in k direction.
+#         l = j + k -1 - d*S[k-1]
+#         if i%S[k] < S[k-1]:
+#             l = l + d*S[k]
+#         ind.append(l)
+#     return ind
+
 function get_vertices(latt::LinkLattice)::Array{Vertex,1}
     """ Returns a list of vertices.
     """
-    return [_get_single_vertex(latt,k) for k=LinkIndex.(1:latt.S[end])]
+    return [_get_single_vertex(latt,k) for k=SiteIndex.(1:latt.S[end])]
 end
 
 function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
@@ -80,10 +106,9 @@ function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
 
     # Find plaquettes by looping over all grid points.
     (p_xy, p_yz, p_xz) = Array{Plaquette,1}(), Array{Plaquette,1}(), Array{Plaquette,1}()
-    for n=LinkIndex.(1:latt.S[end])
+    for n = SiteIndex.(1:latt.S[end])
         # xy plane.
         j = _shift_index(_shift_index(n, 1, latt), 2, latt) # shifted by Sx and Sy
-        println([v[n][1], v[j][4], v[j][2], v[n][3]])
         push!(p_xy, Plaquette([v[n][1], v[j][4], v[j][2], v[n][3]]))
 
         # In 3D, we have two additional plaquettes.
@@ -101,7 +126,7 @@ function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
     # Check if the right amount of plaquettes was found and if so, return
     # the list.
     plaquettes = hcat(p_xy, p_yz, p_xz)
-    @assert len(plaquettes) == (2^(latt.d-1) -1) * latt.S[end]
+    @assert length(plaquettes) == (2^(latt.d-1) -1) * latt.S[end]
 
     if separate_lists
         return p_xy, p_yz, p_xz
