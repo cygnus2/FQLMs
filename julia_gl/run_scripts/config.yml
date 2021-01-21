@@ -32,7 +32,7 @@ store_hamiltonian: True # If true, the Hamiltonian will be stored.
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
 lambdas : [0.0, 0.1, 1] # Range that specifies the lambda values to scan (min, max, n_steps)
-lambda: 0.0
+lambda: 0.00
 
 #-----------------------------------
 # LE stuff.

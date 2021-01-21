@@ -5,7 +5,7 @@
     Holds stuff for the definition of the Hamiltonian.
 
 ===============================================================================#
-using SparseArrays, Arpack
+using SparseArrays, LinearAlgebra, Arpack
 
 
 struct GaussLatticeHamiltonian <: Hamiltonian
@@ -34,17 +34,18 @@ function diagonalize(
     sparse_ham = sparse(ham.row, ham.col, scaled_data, ham.n_fock, ham.n_fock)
 
     # If an interaction term exists, we must construct it.
-    # if abs(lam):
-    #     diag = np.zeros(self.n_fock)
-    #     for k in self.row:
-    #         diag[int(k)] += lam
-    #     self.sparse_rep.setdiag(diag)
+    if abs(lambda) > 0
+        diag = fill(DType(0.0), ham.n_fock)
+        for k in ham.row
+            diag[HilbertIndex(k)] += lambda
+        end
+        sparse_ham[diagind(sparse_ham)] = diag
+    end
 
     # Perform the usual diagonalization.
     which_map = Dict([
         ("SA", :SR)
     ])
-
     return eigs(sparse_ham, nev=n_eigenvalues, which=which_map[ev_type])
     # ev, est =  eigs(sparse_ham, nev=n_eigenvalues, which=:SR)
 end

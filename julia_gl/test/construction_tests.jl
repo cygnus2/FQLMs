@@ -10,7 +10,7 @@ include("../src/hamiltonian_construction.jl")
 using Test
 
 @testset "hamiltonian construction tests" begin
-
+    
     @testset "plaquette U operator" begin
         """ Check if the plaquette operator U does what it should do.
         """
