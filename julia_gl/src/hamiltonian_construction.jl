@@ -33,9 +33,9 @@ function _apply_plaquette_operator(state::LinkState, plaquette::Plaquette, mask:
     """
     n = 0
     max_link = maximum(plaquette)
-    new_state = 0
+    new_state = state
     for (k,site) in enumerate(plaquette)
-        new_state = mask[k] ? annihilate(state, site) : create(state, site)
+        new_state = mask[k] ? annihilate(new_state, site) : create(new_state, site)
         if !isnothing(new_state)
             n += count_occupancies(state, plaquette[k], max_link)
         else
@@ -57,7 +57,7 @@ function do_single_state(state::LinkState, plaquettes::Array{Plaquette,1})::Arra
         # If U term was not successful, try the U^dagger term.
         # (the order could have been switched - there's always only one
         # possibility for overlap to be generated)
-        if !isnothing(new_state)
+        if isnothing(new_state)
             (new_state, s) = apply_u_dagger(state, p)
         end
 
@@ -89,17 +89,13 @@ function construct_hamiltonian(
     # Get plaquettes we need to cycle.
     plaquettes = get_plaquettes(latt)
 
-    for (k,state) in lookup_table
-        do_single_state(LinkState(state), plaquettes)
+    for (k, state) in lookup_table
+        result = do_single_state(LinkState(state), plaquettes)
+        for (state, new_state, s) in result
+            push!(row, k)
+            push!(col, ilookup_table[new_state])
+            push!(data, s)
+        end
     end
-
-    #
-    # with Pool(n_threads) as pool:
-    #     all_entries = pool.map(do_single_state, product(self.lookup_table, [self.plaquettes]))
-    # for n in
-    #
-    # if !silent
-    #     @debug "# of nonzero entries:  $(length(data)))"
-    # end
-    # return GaussLatticeHamiltonian(data, row, col, n_fock)
+    return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
 end

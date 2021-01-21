@@ -8,17 +8,23 @@
 using HDF5
 include("../typedefs.jl")
 
-function _read_states(param, ws)
+function _read_states(param, ws):: Array{LinkState,1}
     filename = param["working_directory"] * "/winding_states_" * _size_tag(param["L"]) * ".hdf5"
-
     if ws == "all-ws"
-        return nothing
+        latt =  LinkLattice(param["L"])
+        states = Array{LinkState,1}()
+        for wsect in winding_sectors(latt)
+            ws_states = h5open(filename, "r") do file
+                read(file, _winding_tag(collect(wsect)))
+            end
+            states = vcat(states, ws_states)
+        end
     else
         states = h5open(filename, "r") do file
             read(file, ws)
         end
     end
-    return states
+    return  Array{LinkState,1}(states)
 end
 
 function read_lookup_tables(param)

@@ -35,5 +35,16 @@ latt = LinkLattice(param["L"])
 time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
 @info "Done constructing the Hamiltonian." time=time
 
+
 # Finally, diagonalize.
-# TODO.
+@info "Starting to diagonalize the Hamiltonian."
+time = @elapsed (ev, est) = diagonalize(
+    hamiltonian,
+    param["n_eigenvalues"],
+    param["ev_type"],
+    param["J"],
+    param["lambda"],
+    param["gauge_particles"]
+)
+@info "Done computing the lower spectrum." time=time spectrum=ev
+println(ev)

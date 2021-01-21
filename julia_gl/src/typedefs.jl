@@ -37,6 +37,8 @@ include("latt_structure/lattice.jl")
 
 # ---
 # Diagonalization / construction purposes.
+abstract type Hamiltonian end
+include("gl_hamiltonian.jl")
 
 # Lookup dictionaries.
 const LookupDict = Dict{HilbertIndex,LinkState}

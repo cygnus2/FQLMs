@@ -52,7 +52,7 @@ function _winding_shift(latt::LinkLattice, ws::Array{Int,1})::Array{Int,1}
 end
 
 
-function _winding_tag(ws::Array{Int,1}; labels=['x', 'y', 'z'], latt::Union{LinkLattice,Nothing})
+function _winding_tag(ws::Array{Int,1}; labels=['x', 'y', 'z'], latt::Union{LinkLattice,Nothing}=nothing)
     """ Returns the naming convention of the winding datasets.
 
         The shift is a lattice configuration L = [Lx,Ly,Lz], such

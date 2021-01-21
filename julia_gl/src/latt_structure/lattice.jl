@@ -109,3 +109,25 @@ function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
     end
     return plaquettes
 end
+
+
+function winding_sectors(latt::LinkLattice)
+    """ A generator for all winding number sectors.
+    """
+    winding_numbers = nothing
+    if latt.d == 2
+        winding_numbers = reverse(latt.L).+1
+    elseif latt.d == 3
+        winding_numbers = (
+            latt.L[2]*latt.L[3] + 1,
+            latt.L[1]*latt.L[3] + 1,
+            latt.L[1]*latt.L[2] + 1
+        )
+        println(winding_numbers)
+    else
+        error("Only 2D and 3D lattices are allowed.")
+    end
+
+    tups = product(map(n->(0:(n-1)), winding_numbers)...)
+    return reshape(collect(tups), (length(tups),1))
+end
