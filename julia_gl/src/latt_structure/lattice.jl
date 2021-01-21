@@ -6,6 +6,9 @@
     structure to operate on.
 
 ===============================================================================#
+using IterTools
+
+
 struct LinkLattice <: Lattice
     L::Vector{IType} # Lattice dimensions [Lx, Ly, (Lz)].
     S::Vector{IType} # Shift operators to get the link indices.
@@ -123,11 +126,10 @@ function winding_sectors(latt::LinkLattice)
             latt.L[1]*latt.L[3] + 1,
             latt.L[1]*latt.L[2] + 1
         )
-        println(winding_numbers)
     else
         error("Only 2D and 3D lattices are allowed.")
     end
 
     tups = product(map(n->(0:(n-1)), winding_numbers)...)
-    return reshape(collect(tups), (length(tups),1))
+    return collect.(reshape(collect(tups), (length(tups),1)))
 end

@@ -15,7 +15,7 @@ function _read_states(param, ws):: Array{LinkState,1}
         states = Array{LinkState,1}()
         for wsect in winding_sectors(latt)
             ws_states = h5open(filename, "r") do file
-                read(file, _winding_tag(collect(wsect)))
+                read(file, _winding_tag(wsect))
             end
             states = vcat(states, ws_states)
         end

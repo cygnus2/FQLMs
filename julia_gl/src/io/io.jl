@@ -24,6 +24,18 @@ function _sanity_checks!(conf)::Bool
     return true
 end
 
+function list_from_param(att::String, param::Dict{Any,Any})::Array{Number,1}
+    """ Retrieves the list of parameters from the param dictionary.
+    """
+    if haskey(param, att*"_range")
+        (b, e, len) = param[att*"_range"]
+        return range(b, e; length=len)
+    elseif haskey(param, att*"_list")
+        return param[att*"_list"]
+    else
+        return [param[att]]
+    end
+end
 
 function _size_tag(L)
     stag = ""

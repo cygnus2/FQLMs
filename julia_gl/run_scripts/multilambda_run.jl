@@ -6,23 +6,19 @@
     this is to be replaced with a multilambda run later.
 
 ===============================================================================#
-using Logging, LoggingExtras
 include("../src/typedefs.jl")
 include("../src/io/io.jl")
+include("../src/io/logging.jl")
 include("../src/io/python_import.jl")
 include("../src/hamiltonian_construction.jl")
-
+include("../src/gl_hamiltonian.jl")
 
 # Read the config file (first argument after the program name).
 # param = read_config(ARGS[1])
 param = read_config("config.yml")
+make_logger(param)
 
-# Set up a logger that persists to file and writes to the console.
-logger = TeeLogger(
-    ConsoleLogger(),
-    SimpleLogger(open(haskey(param, "logfile") ? param["logfile"] : "logfile.log", "w")),
-)
-global_logger(logger)
+@info "==================== starting multilambda run ===================="
 
 # Create the lattice structure that we're working on.
 latt = LinkLattice(param["L"])
@@ -36,15 +32,20 @@ time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table,
 @info "Done constructing the Hamiltonian." time=time
 
 
-# Finally, diagonalize.
-@info "Starting to diagonalize the Hamiltonian."
-time = @elapsed (ev, est) = diagonalize(
-    hamiltonian,
-    param["n_eigenvalues"],
-    param["ev_type"],
-    param["J"],
-    param["lambda"],
-    param["gauge_particles"]
-)
-@info "Done computing the lower spectrum." time=time spectrum=ev
-println(ev)
+# Finally, diagonalize for all lambda values specified.
+for lambda in list_from_param("lambda", param)
+    @info "---------- Starting to diagonalize the Hamiltonian. ----------" lambda=lambda
+    local time = @elapsed local (ev, est) = diagonalize(
+        hamiltonian,
+        param["n_eigenvalues"],
+        param["ev_type"],
+        param["J"],
+        lambda,
+        param["gauge_particles"]
+    )
+    @info "Done computing the lower spectrum." time=time spectrum=ev
+
+    #TODO: export the values!
+end
+
+@info "============================== fin =============================="

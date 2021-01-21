@@ -7,19 +7,11 @@
 ===============================================================================#
 using SparseArrays, LinearAlgebra, Arpack
 
-
 struct GaussLatticeHamiltonian <: Hamiltonian
     row::Vector{HilbertIndex}
     col::Vector{HilbertIndex}
     data::Vector{DType}
     n_fock ::HilbertIndex
-
-    # GaussLatticeHamiltonian(row::Vector{HilbertIndex},col::Vector{HilbertIndex},data::Vector{DType}) = begin
-    #     if (length(data) != length(row)) || (length(data) != length(row))
-    #         error("Faulty data speficifed for sparse Hamiltonian.")
-    #     end
-    #     new(row,col,data,length(data))
-    # end
 end
 
 function diagonalize(

@@ -7,13 +7,13 @@
 # ----------------------------------
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
-working_directory: /home/lukas/_temp_FQLM/
+# working_directory: /home/lukas/_temp_FQLM/
 # working_directory: ../../../../test_dir/
-# working_directory: '../../python_data/local_state_storage/'
+working_directory: '/home/lukas/_temp_FQLM/'
 # state_file: '../python_data/local_state_storage/winding_states_2x2.hdf5'
 # state_file: '../python_data/local_state_storage/le_states_2x2x6.hdf5'
 L: [2,2,2] # Spatial extent of the lattice.
-winding_sector: [0,0,0] # Winding sector to be considered.
+# winding_sector: [0,0,0] # Winding sector to be considered.
 # L: [4,4]
 # winding_sector: [0,0]
 logfile : 'logfile.log' # Logfile to store the output.
@@ -31,8 +31,9 @@ store_hamiltonian: True # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [0.0, 0.1, 1] # Range that specifies the lambda values to scan (min, max, n_steps)
-lambda: 0.00
+# lambda_range : [0.0, 1.0, 5] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambda_list: [0.1, 0.2]
+# lambda: 0.0
 
 #-----------------------------------
 # LE stuff.
