@@ -32,7 +32,10 @@ function annihilate(s::LinkState, i::Integer)::Union{Nothing,LinkState}
     end
 end
 
-function count_occupancies(s::LinkState, src::Integer, dst::Integer)
+function count_occupancies(s::LinkState, src::LinkIndex, dst::LinkIndex)
+    """ Sums all occupancies between index src and dst, both inclusive.
+        Assumes dst >= src.
+    """
     # return sum([(s >>> k) & 1 for k=0:63]) --> slower!
     c = 0
     for k=src-1:dst-1
@@ -40,6 +43,7 @@ function count_occupancies(s::LinkState, src::Integer, dst::Integer)
     end
     return c
 end
+
 
 function sign(s::LinkState, src::Integer, dst::Integer)
     """ This is the sum of densities between the anihilation and creation operators

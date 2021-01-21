@@ -45,7 +45,10 @@ Base.firstindex(p::Plaquette) =  1
 Base.lastindex(p::Plaquette) = 4
 
 # For iteration.
-Base.length(S::Plaquette) = 4
+Base.length(p::Plaquette) = 4
 function Base.iterate(p::Plaquette, state::Integer=1)
     state > length(p) ? nothing : (p.links[state], state+1)
 end
+
+# Some convenient stuff.
+Base.maximum(p::Plaquette) = maximum(p.links)

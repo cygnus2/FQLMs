@@ -112,7 +112,7 @@ using Test
                 @assert expected[i][j] == link-1
             end
         end
-        #
+
         # # Check the mask array.
         # for i, p in enumerate(builder.plaquettes):
         #     mask = 0

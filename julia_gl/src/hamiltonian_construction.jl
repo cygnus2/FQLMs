@@ -19,7 +19,7 @@ function apply_u_dagger(state::LinkState, p::Plaquette)::Tuple{Union{Nothing,Lin
     return _apply_plaquette_operator(state, p, [true,true,false,false])
 end
 
-function _apply_plaquette_operator(state::LinkState, p::Plaquette, mask::Vector{Bool})::Tuple{Union{Nothing,LinkState},Integer}
+function _apply_plaquette_operator(state::LinkState, plaquette::Plaquette, mask::Vector{Bool})::Tuple{Union{Nothing,LinkState},Integer}
     """ Applies the U operator
 
             c1+ c2+ c3 c4
@@ -32,11 +32,12 @@ function _apply_plaquette_operator(state::LinkState, p::Plaquette, mask::Vector{
         with x-mu link and going counter-clockwise).
     """
     n = 0
-    a = max(p)
+    max_link = maximum(plaquette)
+    new_state = 0
     for (k,site) in enumerate(plaquette)
         new_state = mask[k] ? annihilate(state, site) : create(state, site)
         if !isnothing(new_state)
-            n += sum_occupancies_ordered(a, p[k], state)
+            n += count_occupancies(state, plaquette[k], max_link)
         else
             return nothing, 0
         end
@@ -85,9 +86,11 @@ function construct_hamiltonian(
     col = Vector{HilbertIndex}()
     data = Vector{DType}()
 
+    # Get plaquettes we need to cycle.
+    plaquettes = get_plaquettes(latt)
+
     for (k,state) in lookup_table
-        plaquettes = get_plaquettes(latt)
-        # println(do_single_state(state, latt.plaquettes))
+        do_single_state(LinkState(state), plaquettes)
     end
 
     #

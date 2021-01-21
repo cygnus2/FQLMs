@@ -66,37 +66,13 @@ function _get_single_vertex(latt::LinkLattice, i::SiteIndex)::Vertex
     return vert
 end
 
-# def get_vertex_links(self, i):
-#     """ Returns the indices [+x, -x, +y, -y, ...] of the links for the i-th
-#         vertex *on the full lattice* (not the sublattice) under consideration
-#         of periodic boundary conditions.
-#
-#         Note: works only for L^d lattices for now.
-#     """
-#     # Shorthand to avoid self all the time.
-#     L, d, S = self.L, self.d, self.S
-#
-#     # Site index in bit string.
-#     j = d*(i-1)+1
-#
-#     # Loop through the dimensions and add the indicies of + and - directions.
-#     ind = []
-#     for k in range(1,d+1):
-#         # Step forward is always 'on site'.
-#         ind.append(j+k-1)
-#
-#         # Sep backward in k direction.
-#         l = j + k -1 - d*S[k-1]
-#         if i%S[k] < S[k-1]:
-#             l = l + d*S[k]
-#         ind.append(l)
-#     return ind
 
 function get_vertices(latt::LinkLattice)::Array{Vertex,1}
     """ Returns a list of vertices.
     """
     return [_get_single_vertex(latt,k) for k=SiteIndex.(1:latt.S[end])]
 end
+
 
 function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
     """ Gets the entire list of plaquettes for a given lattice.
@@ -125,7 +101,7 @@ function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
 
     # Check if the right amount of plaquettes was found and if so, return
     # the list.
-    plaquettes = hcat(p_xy, p_yz, p_xz)
+    plaquettes = vcat(p_xy, p_yz, p_xz)
     @assert length(plaquettes) == (2^(latt.d-1) -1) * latt.S[end]
 
     if separate_lists
