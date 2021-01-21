@@ -7,7 +7,6 @@
 ===============================================================================#
 include("typedefs.jl")
 
-
 function apply_u(state::LinkState, p::Plaquette)::Tuple{Union{Nothing,LinkState},Integer}
     """ Wrapper to apply U
     """
@@ -70,12 +69,11 @@ function do_single_state(state::LinkState, plaquettes::Array{Plaquette,1})::Arra
 end
 
 
-
 function construct_hamiltonian(
-    lookup_table::LookupTable,
-    ilookup_table::InverseLookupTable,
+    lookup_table::LookupDict,
+    ilookup_table::InvLookupDict,
     latt::Lattice;
-    silent::bool=true
+    silent::Bool=true
 )
     """ Actually builds the Hamiltonian and returns a Hamiltonian in sparse
         representation.
@@ -83,9 +81,14 @@ function construct_hamiltonian(
     # Loop through all Fock states and create the overlap matrix. First step:
     # do it naively (with some doubled work). Then try to improve on that (by
     # using, e.g., Hermiticity).
-    @info "Constructing Hamiltonian with $(Threads.nthreads()) threads."
+    row = Vector{UInt32}()
+    col = Vector{UInt32}()
+    data = Vector{DType}()
 
-    return nothing
+    for (k,state) in lookup_table
+        plaquettes = get_plaquettes(latt)
+        # println(do_single_state(state, latt.plaquettes))
+    end
 
     #
     # with Pool(n_threads) as pool:

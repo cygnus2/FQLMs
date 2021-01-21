@@ -1,6 +1,6 @@
 #===============================================================================
 
-    rep_integer.jl - LR, Jan 2021
+    state.jl - LR, Jan 2021
 
     Representation of states is done via an Integer.
 

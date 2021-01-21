@@ -7,7 +7,6 @@
 ===============================================================================#
 using YAML
 include("../typedefs.jl")
-include("../lattice.jl")
 
 
 function read_config(filename::String)

@@ -6,8 +6,7 @@
 
 ===============================================================================#
 using HDF5
-include("io.jl")
-include("../lattice.jl")
+include("../typedefs.jl")
 
 function _read_states(param, ws)
     filename = param["working_directory"] * "/winding_states_" * _size_tag(param["L"]) * ".hdf5"
