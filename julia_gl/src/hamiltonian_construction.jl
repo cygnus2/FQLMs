@@ -91,7 +91,7 @@ function construct_hamiltonian(
 
     # Loop through the list.
     for (k, state) in lookup_table
-        result = do_single_state(LinkState(state), plaquettes)
+        result = do_single_state(LinkType(state), plaquettes)
         for (state, new_state, s) in result
             i = get(ilookup_table, new_state, nothing)
             if !isnothing(i)
@@ -105,7 +105,7 @@ function construct_hamiltonian(
 end
 
 
-# 
+#
 # function construct_hamiltonian_parallel(
 #     lookup_table::LookupDict,
 #     ilookup_table::InvLookupDict,

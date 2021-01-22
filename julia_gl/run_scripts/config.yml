@@ -18,8 +18,8 @@ store_hamiltonian: false # If true, the Hamiltonian will be stored.
 
 
 gauge_particles : 'bosons' # Either bosons or fermions.
-L: [2,2,4] # Spatial extent of the lattice.
-winding_sector: [0,0,0] # Winding sector to be considered.
+L: [2,2,2] # Spatial extent of the lattice.
+# winding_sector: [0,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 # L: [4,4]
 # winding_sector: [0,0]
@@ -34,12 +34,12 @@ ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most li
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-# lambda_range : [0.0, 1.0, 5] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambda_range : [-3.0, 1.0, 26] # Range that specifies the lambda values to scan (min, max, n_steps)
 # lambda_list: [0.0]
-lambda: 0.0
+# lambda: 0.0
 
 #-----------------------------------
 # LE stuff.
-low_energy_run: false
-maximum_excitation_level: 5
+low_energy_run: true
+maximum_excitation_level: 2
 # notification_level: 0

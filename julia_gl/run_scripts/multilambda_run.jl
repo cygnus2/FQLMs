@@ -27,8 +27,11 @@ make_logger(param)
 # Create the lattice structure that we're working on.
 latt = LinkLattice(param["L"])
 
-# Set the precision for the Link Type.
-# LinkType = 
+# Set the size for the Link Type.
+# (when dealing with links, this type should be used to convert the datatype to
+# be consistent - otherwise there'll likely be an error or *very* subtle bugs)
+const LinkType = latt.S[end] >= 63 ? LargeLinkState : SmallLinkState
+@info "Set the datatype for link representation" type=typeof(LinkType)
 
 # First, read the lookup tables (+ inverse lookup table).
 (ws, lookup_table, ilookup_table) = read_lookup_tables(param)
@@ -61,7 +64,8 @@ for lambda in list_from_param("lambda", param)
         "spectrum_lam_"*(@sprintf "%.6f" lambda),
         ev;
         attrs=Dict("lambda"=>lambda),
-        overwrite=get(param, "overwrite", false)
+        overwrite=get(param, "overwrite", false),
+        prefix=(param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
     )
 
     #TODO: store eigenvalues.

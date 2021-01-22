@@ -74,7 +74,8 @@ end
 function _get_result_file(param, ws, prefactor="results")::String
     result_file = (
         param["working_directory"] *
-        '/'*prefactor*'_'*
+        '/'*(param["low_energy_run"] ? "le_" : "")*
+        prefactor*'_'*
         param["gauge_particles"] * "_" *
         (isnothing(ws) ? "" : ws*"_") *
         _size_tag(param["L"]) *

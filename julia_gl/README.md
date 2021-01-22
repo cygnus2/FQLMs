@@ -24,4 +24,5 @@ Moreover, the usage of memory is greatly reduced, since it's much more straightf
 Some things are left to do here:
 - Implement multithreading of Hamiltonian construction (not at all the bottleneck at the moment though)
 - State search (currently only Python-found states are read in)
-- Currently, the default state representation is `UInt128` which is an unaturally large datatype, but needed for lattices with more than 64 links (such as `2x2x6`). This has some effect on the runtime: for the construction of the zero-winding sector of the `2x2x4` lattice the runtime increases to ~42 seconds instead of ~35 seconds with the smaller datatype. This is OK for now, but can be fixed at a later point (with Type Unions and a choosing of the type in the beginning of the simulation)
+- Fix type structure (LinkType instead of LinkState). Cleaner +  a few percent performance.
+<!-- - Currently, the default state representation is `UInt128` which is an unaturally large datatype, but needed for lattices with more than 64 links (such as `2x2x6`). This has some effect on the runtime: for the construction of the zero-winding sector of the `2x2x4` lattice the runtime increases to ~42 seconds instead of ~35 seconds with the smaller datatype. This is OK for now, but can be fixed at a later point (with Type Unions and a choosing of the type in the beginning of the simulation) -->

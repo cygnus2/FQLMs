@@ -26,7 +26,7 @@ struct Plaquette
     mask::LinkState # Represents the links as a LinkState.
 
     Plaquette(links::Vector{LinkIndex}) = begin
-        mask = LinkState(0)
+        mask = LinkType(0)
         for l in links
             mask = create(mask, l)
             if isnothing(mask)
