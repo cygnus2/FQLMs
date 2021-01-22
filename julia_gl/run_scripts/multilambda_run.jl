@@ -9,21 +9,26 @@
 using Printf
 include("../src/typedefs.jl")
 include("../src/io/io.jl")
-include("../src/io/data_storage.jl")
 include("../src/io/logging.jl")
+include("../src/param_checks.jl")
+include("../src/io/data_storage.jl")
 include("../src/io/python_import.jl")
 include("../src/hamiltonian_construction.jl")
 include("../src/gl_hamiltonian.jl")
 
 # Read the config file (first argument after the program name).
 # param = read_config(ARGS[1])
-param = read_config("config.yml")
+param = param_checks!(read_config("config.yml"))
 make_logger(param)
 
-@info "==================== starting multilambda run ===================="
+
+@info "==================== starting multilambda run ====================" param=param
 
 # Create the lattice structure that we're working on.
 latt = LinkLattice(param["L"])
+
+# Set the precision for the Link Type.
+# LinkType = 
 
 # First, read the lookup tables (+ inverse lookup table).
 (ws, lookup_table, ilookup_table) = read_lookup_tables(param)
@@ -58,6 +63,9 @@ for lambda in list_from_param("lambda", param)
         attrs=Dict("lambda"=>lambda),
         overwrite=get(param, "overwrite", false)
     )
+
+    #TODO: store eigenvalues.
+    #TODO: low energy support.
 end
 
 @info "============================== fin =============================="

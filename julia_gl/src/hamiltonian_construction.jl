@@ -104,37 +104,39 @@ function construct_hamiltonian(
     return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
 end
 
-function construct_hamiltonian_parallel(
-    lookup_table::LookupDict,
-    ilookup_table::InvLookupDict,
-    latt::Lattice;
-    silent::Bool=true
-)
-    """ Actually builds the Hamiltonian and returns a Hamiltonian in sparse
-        representation.
-    """
-    # Loop through all Fock states and create the overlap matrix. First step:
-    # do it naively (with some doubled work). Then try to improve on that (by
-    # using, e.g., Hermiticity).
-    row = Vector{HilbertIndex}()
-    col = Vector{HilbertIndex}()
-    data = Vector{DType}()
 
-    # Get plaquettes we need to cycle.
-    plaquettes = get_plaquettes(latt)
-
-    # Loop through the list.
-    for (k, state) in lookup_table
-        result = do_single_state(LinkState(state), plaquettes)
-    end
-    
-    for (state, new_state, s) in result
-        i = get(ilookup_table, new_state, nothing)
-        if !isnothing(i)
-            push!(row, k)
-            push!(col, i)
-            push!(data, s)
-        end
-    end
-    return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
-end
+# 
+# function construct_hamiltonian_parallel(
+#     lookup_table::LookupDict,
+#     ilookup_table::InvLookupDict,
+#     latt::Lattice;
+#     silent::Bool=true
+# )
+#     """ Actually builds the Hamiltonian and returns a Hamiltonian in sparse
+#         representation.
+#     """
+#     # Loop through all Fock states and create the overlap matrix. First step:
+#     # do it naively (with some doubled work). Then try to improve on that (by
+#     # using, e.g., Hermiticity).
+#     row = Vector{HilbertIndex}()
+#     col = Vector{HilbertIndex}()
+#     data = Vector{DType}()
+#
+#     # Get plaquettes we need to cycle.
+#     plaquettes = get_plaquettes(latt)
+#
+#     # Loop through the list.
+#     for (k, state) in lookup_table
+#         result = do_single_state(LinkState(state), plaquettes)
+#     end
+#
+#     for (state, new_state, s) in result
+#         i = get(ilookup_table, new_state, nothing)
+#         if !isnothing(i)
+#             push!(row, k)
+#             push!(col, i)
+#             push!(data, s)
+#         end
+#     end
+#     return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
+# end

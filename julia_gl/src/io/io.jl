@@ -8,23 +8,9 @@
 using YAML
 include("../typedefs.jl")
 
-
 function read_config(filename::String)
     conf = YAML.load(open(filename))
-    if _sanity_checks!(conf)
-        return conf
-    end
-    return nothing
-end
-
-
-function _sanity_checks!(conf)::Bool
-    """ Checks if crucial parameters are present and sets default values.
-    """
-    if !haskey(conf, "working_directory")
-        conf["working_directory"] = "./"
-    end
-    return true
+    return conf
 end
 
 

@@ -7,7 +7,11 @@
 ===============================================================================#
 # That's the occupation state of a lattice of links. Currently limited to
 # 64 links, but we can have more with larger datatypes.
-const LinkState = UInt64
+const LinkState = UInt128
+# const SmallLinkState = UInt64
+# const LinkState = Union{SmallLinkState,LargeLinkState}
+# NOTE: This is a bit dirty at the moment, smaller datatypes should be used for
+# smaller systems (to be done..).
 
 
 function create(s::LinkState, i::Integer)::Union{Nothing,LinkState}
