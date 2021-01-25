@@ -13,9 +13,9 @@ function read_config(filename::String)
     return conf
 end
 
-
 function list_from_param(att::String, param::Dict{Any,Any})::Array{Number,1}
-    """ Retrieves the list of parameters from the param dictionary.
+    """ Retrieves the list of parameters from the param dictionary (or throws
+        an error, if not possible).
     """
     if haskey(param, att*"_range")
         (b, e, len) = param[att*"_range"]
@@ -27,59 +27,9 @@ function list_from_param(att::String, param::Dict{Any,Any})::Array{Number,1}
     end
 end
 
-function _size_tag(L)
-    stag = ""
-    for l in L
-        stag *= "$(l)x"
-    end
-    return stag[begin:end-1]
-end
 
-
-function _winding_shift(latt::LinkLattice, ws::Array{Int,1})::Array{Int,1}
-    """ Maps between the representation of winding numbers.
+function _lambda_tag(lambda::Number)::String
+    """ Central place that toggls how the datasets are named in the HDF5 output.
     """
-    if latt.d == 2
-        shift = reverse(latt.L) .÷ 2
-    elseif latt.d == 3
-        shift = [
-            latt.L[2]*latt.L[3] ÷ 2;
-            latt.L[1]*latt.L[3] ÷ 2;
-            latt.L[1]*latt.L[2] ÷ 2
-        ]
-    else
-        error("Dimension not implemented!")
-    end
-    return ws + shift
-end
-
-
-function _winding_tag(ws::Array{Int,1}; labels=['x', 'y', 'z'], latt::Union{LinkLattice,Nothing}=nothing)
-    """ Returns the naming convention of the winding datasets.
-
-        The shift is a lattice configuration L = [Lx,Ly,Lz], such
-        that the HDF5 datasets may be resolved.
-    """
-    if !isnothing(latt)
-        ws = _winding_shift(latt, ws)
-    end
-    wtag = ""
-    for k=1:length(ws)
-        wtag *= "w$(labels[k])_$(ws[k])-"
-    end
-    return wtag[begin:end-1]
-end
-
-
-function _get_result_file(param, ws, prefactor="results")::String
-    result_file = (
-        param["working_directory"] *
-        '/'*(param["low_energy_run"] ? "le_" : "")*
-        prefactor*'_'*
-        param["gauge_particles"] * "_" *
-        (isnothing(ws) ? "" : ws*"_") *
-        _size_tag(param["L"]) *
-        ".hdf5"
-    )
-    return result_file
+    return "_lam_"*(@sprintf "%.6f" lambda)
 end

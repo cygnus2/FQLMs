@@ -7,6 +7,10 @@
 
 ===============================================================================#
 using Printf
+
+ENV["JULIA_DEBUG"]="all"
+@debug "Debugging activated!"
+
 include("../src/typedefs.jl")
 include("../src/io/io.jl")
 include("../src/io/logging.jl")
@@ -15,6 +19,7 @@ include("../src/io/data_storage.jl")
 include("../src/io/python_import.jl")
 include("../src/hamiltonian_construction.jl")
 include("../src/gl_hamiltonian.jl")
+
 
 # Read the config file (first argument after the program name).
 # param = read_config(ARGS[1])
@@ -30,14 +35,11 @@ latt = LinkLattice(param["L"])
 # Set the size for the Link Type.
 # (when dealing with links, this type should be used to convert the datatype to
 # be consistent - otherwise there'll likely be an error or *very* subtle bugs)
-const LinkType = latt.S[end] >= 63 ? LargeLinkState : SmallLinkState
-@info "Set the datatype for link representation" type=typeof(LinkType)
+const LinkType = latt.S[end]*latt.d >= 63 ? LargeLinkState : SmallLinkState
+@info "Set the datatype for link representation" type=LinkType
 
 # First, read the lookup tables (+ inverse lookup table).
-(ws, lookup_table, ilookup_table) = read_lookup_tables(param)
-
-# Make file for results.
-results_file = _get_result_file(param, ws)
+(lookup_table, ilookup_table) = read_lookup_tables(param)
 
 # Then, construct the Hamiltonian.
 @info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
@@ -60,16 +62,15 @@ for lambda in list_from_param("lambda", param)
 
     # Output the data.
     store_data(
-        results_file,
-        "spectrum_lam_"*(@sprintf "%.6f" lambda),
+        param["result_file"],
+        "spectrum"*_lambda_tag(lambda),
         ev;
         attrs=Dict("lambda"=>lambda),
-        overwrite=get(param, "overwrite", false),
+        overwrite=param["overwrite"],
         prefix=(param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
     )
 
-    #TODO: store eigenvalues.
-    #TODO: low energy support.
+    #TODO: store eigenvectors.
 end
 
 @info "============================== fin =============================="
