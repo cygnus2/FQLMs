@@ -10,15 +10,15 @@
 working_directory: '/home/lukas/_TEMP_fqlm/'
 logfile : 'logfile.log' # Logfile to store the output.
 overwrite: true
-store_hamiltonian: false # If true, the Hamiltonian will be stored.
+store_hamiltonian: true # If true, the Hamiltonian will be stored.
 
 gauge_particles : 'bosons' # Either bosons or fermions.
-L: [2,2,4] # Spatial extent of the lattice.
-winding_sector: [0,0,0] # Winding sector to be considered.
+L: [2,2,2] # Spatial extent of the lattice.
+# winding_sector: [0,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 
 # lambda_range : [-3.0, 1.0, 15] # Range that specifies the lambda values to scan (min, max, n_steps)
-# lambda_list: [0.0]ds
+# lambda_list: [0.0]
 lambda: 0.0
 
 
@@ -28,9 +28,11 @@ full_diag : False # If True, the full matrix is diagonalized - extremely costly.
 n_eigenvalues : 15 # Number of eigenvalues to compute.
 n_eigenstates: 5 # If true, the eigenstates will be exported.
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
+# max_iterations: 1000 # Maximal number of iterations for ARPACK. Should not be touched, but provides a handle just in case.
+#tol: 1e-15 # Numerical tolerance for ARPACK. Defaults to machine precision, but this could lead to problems sometimes.
 
 #-----------------------------------
 # LE stuff.
 low_energy_run: false
-maximum_excitation_level: 4
+maximum_excitation_level: 3
 notification_level: 0

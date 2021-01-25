@@ -76,7 +76,7 @@ function _read_LE_states(param::Dict{Any,Any}; combine=true)::Array{LinkType,1}
     if param["ws_label"] == "all-ws"
         h5open(param["state_file"], "r") do file
             for ds in file
-                lv = parse(Int, HDF5.name(ds)[end])
+                lv = parse(Int, split(HDF5.name(ds), "_")[end])
                 if lv <= param["maximum_excitation_level"]
                     push!(levels, lv)
                     # Julia lacks the ellipsis feature, therfore here goes a slight

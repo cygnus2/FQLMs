@@ -17,19 +17,19 @@ function set_bits(ind::Array{LinkIndex,1})::LinkType
     return state
 end
 
-function apply_u(state::LinkState, p::Plaquette)::Tuple{Union{Nothing,LinkState},Integer}
+function apply_u(state::LinkType, p::Plaquette)::Tuple{Union{Nothing,LinkType},Integer}
     """ Wrapper to apply U
     """
     return _apply_plaquette_operator(state, p, [false,false,true,true])
 end
 
-function apply_u_dagger(state::LinkState, p::Plaquette)::Tuple{Union{Nothing,LinkState},Integer}
+function apply_u_dagger(state::LinkType, p::Plaquette)::Tuple{Union{Nothing,LinkType},Integer}
     """ Wrapper to apply U+
     """
     return _apply_plaquette_operator(state, p, [true,true,false,false])
 end
 
-function _apply_plaquette_operator(state::LinkState, plaquette::Plaquette, mask::Vector{Bool})::Tuple{Union{Nothing,LinkState},Integer}
+function _apply_plaquette_operator(state::LinkType, plaquette::Plaquette, mask::Vector{Bool})::Tuple{Union{Nothing,LinkType},Integer}
     """ Applies the U operator
 
             c1+ c2+ c3 c4
@@ -56,11 +56,11 @@ function _apply_plaquette_operator(state::LinkState, plaquette::Plaquette, mask:
 end
 
 
-function do_single_state(state::LinkState, plaquettes::Array{Plaquette,1})::Array{Tuple{LinkState,LinkState,Integer},1}
+function do_single_state(state::LinkType, plaquettes::Array{Plaquette,1})::Array{Tuple{LinkType,LinkType,Integer},1}
     """ Constructs matrix-elements for a single Fock state, suitable for parallel
         computing.
     """
-    states = Array{Tuple{LinkState,LinkState,Integer},1}()
+    states = Array{Tuple{LinkType,LinkType,Integer},1}()
     for p in plaquettes
         (new_state, s) = apply_u(state, p)
 
@@ -100,9 +100,9 @@ function construct_hamiltonian(
     plaquettes = get_plaquettes(latt)
 
     # Loop through the list.
-    for (k, state) in lookup_table
-        result = do_single_state(LinkType(state), plaquettes)
-        for (state, new_state, s) in result
+    for k=1:length(lookup_table)
+        result = do_single_state(LinkType(lookup_table[k]), plaquettes)
+        for (_, new_state, s) in result
             i = get(ilookup_table, new_state, nothing)
             if !isnothing(i)
                 push!(row, k)
@@ -111,6 +111,7 @@ function construct_hamiltonian(
             end
         end
     end
+    # println(Int.(row))
     return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
 end
 
@@ -137,7 +138,7 @@ end
 #
 #     # Loop through the list.
 #     for (k, state) in lookup_table
-#         result = do_single_state(LinkState(state), plaquettes)
+#         result = do_single_state(LinkType(state), plaquettes)
 #     end
 #
 #     for (state, new_state, s) in result

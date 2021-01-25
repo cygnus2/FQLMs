@@ -30,8 +30,8 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
     end
 
     # Low energy run.
-    if !haskey(conf, "low_enegy_run")
-        conf["low_enegy_run"] = false
+    if !haskey(conf, "low_energy_run")
+        conf["low_energy_run"] = false
         @info "Running in regular mode by default."
     else
         if !haskey(conf, "maximum_excitation_level")
@@ -107,7 +107,7 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
         conf["state_file"] = (
             conf["working_directory"] *
             "/" *
-            (conf["low_enegy_run"] ? "le_" : "winding_") *
+            (conf["low_energy_run"] ? "le_" : "winding_") *
             "states_" *
             _size_tag(conf["L"]) *
             ".hdf5"
@@ -122,7 +122,13 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
     end
     if !haskey(conf, "hamiltonian_file")
         @info "Using default file for Hamiltonian." hamiltonian_file = conf["hamiltonian_file"] = nothing
-        #TODO: ham reading/storage not implemented yet.
+        conf["hamiltonian_file"] = (
+            conf["working_directory"] *
+            "/"*(conf["low_energy_run"] ? "le_" : "")*
+            "hamiltonian_"*
+            _size_tag(conf["L"]) *
+            ".hdf5"
+        )
     end
 
     # Result file.

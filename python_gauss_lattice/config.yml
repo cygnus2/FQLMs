@@ -7,11 +7,13 @@
 # ----------------------------------
 # General parameters:
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
-state_file: '../python_data/local_state_storage/winding_states_2x2x2.hdf5'
-working_directory: /home/lukas/projects/QLMs/FQLMs/python_data/state_symmetries/
-L : [2,2,2] # Spatial extent of the lattice.
+state_file: '../python_data/local_state_storage/winding_states_2x2x4.hdf5'
+#working_directory: /home/lukas/projects/QLMs/FQLMs/python_data/state_symmetries/
+working_directory: /home/lukas/_temp_FQLM/
+winding_sector: [0,0,0]
+L : [2,2,4] # Spatial extent of the lattice.
 logfile : 'logfile.log' # Logfile to store the output.
-n_threads: 2
+n_threads: 1
 
 # ----------------------------------
 # Important for diagonalization.
@@ -25,7 +27,7 @@ store_hamiltonian: False # If true, the Hamiltonian will be stored.
 
 # ----------------------------------
 # Important for multi-lambda diagonalization. (overrides lambda parameter)
-lambdas : [-3.0, 1.0, 61] # Range that specifies the lambda values to scan (min, max, n_steps)
+lambdas : [-3.0, 0.0, 2] # Range that specifies the lambda values to scan (min, max, n_steps)
 # lambda: 0.0
 
 #-----------------------------------
