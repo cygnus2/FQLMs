@@ -13,7 +13,7 @@ overwrite: true
 store_hamiltonian: false # If true, the Hamiltonian will be stored.
 
 gauge_particles : 'bosons' # Either bosons or fermions.
-L: [2,2,2] # Spatial extent of the lattice.
+L: [2,2,4] # Spatial extent of the lattice.
 winding_sector: [0,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 

@@ -73,24 +73,24 @@ def retrieve_le_spectrum_numpy(filename, grp=None, cutoff=20):
     return np.array(lambdas), spectrum
 
 
-def retrieve_le_spectrum_numpy(filename, max_level, cutoff=20):
-    """ Returns a 2D numpy array with all the information.
-    """
-    data = {}
-    lambdas = []
-    with hdf.File(filename, 'r') as f:
-        grp = f['ex_{:d}'.format(max_level)]
-        for ds in grp:
-            lam = ds.split('_')[-1]
-            data[lam] = grp[ds][...]
+# def retrieve_le_spectrum_numpy(filename, max_level, cutoff=20):
+#     """ Returns a 2D numpy array with all the information.
+#     """
+#     data = {}
+#     lambdas = []
+#     with hdf.File(filename, 'r') as f:
+#         grp = f['ex_{:d}'.format(max_level)]
+#         for ds in grp:
+#             lam = ds.split('_')[-1]
+#             data[lam] = grp[ds][...]
 
-            lambdas.append(float(lam))
-    lambdas = sorted(lambdas)
+#             lambdas.append(float(lam))
+#     lambdas = sorted(lambdas)
 
-    spectrum = np.zeros(shape=(len(lambdas),cutoff))
-    for k, key in enumerate(lambdas):
-        spectrum[k,:] = data['{:.6f}'.format(key)][:cutoff]
-    return np.array(lambdas), spectrum
+#     spectrum = np.zeros(shape=(len(lambdas),cutoff))
+#     for k, key in enumerate(lambdas):
+#         spectrum[k,:] = data['{:.6f}'.format(key)][:cutoff]
+#     return np.array(lambdas), spectrum
 
 
 

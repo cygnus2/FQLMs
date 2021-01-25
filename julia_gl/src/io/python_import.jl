@@ -43,7 +43,7 @@ function _read_states(param::Dict{Any,Any})::Array{LinkType,1}
             read(file, param["ws_label"])
         end
     end
-    return  Array{LinkType,1}(states)
+    return  Array{LinkType,1}(sort(states))
 end
 
 # ---
