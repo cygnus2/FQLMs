@@ -7,6 +7,16 @@
 ===============================================================================#
 include("typedefs.jl")
 
+function set_bits(ind::Array{LinkIndex,1})::LinkType
+    """ Returns a state where the indicies are set on the specified links.
+    """
+    state = LinkType(0)
+    for i in ind
+        state = create(state, i)
+    end
+    return state
+end
+
 function apply_u(state::LinkState, p::Plaquette)::Tuple{Union{Nothing,LinkState},Integer}
     """ Wrapper to apply U
     """

@@ -8,6 +8,9 @@
 include("../src/typedefs.jl")
 using Test
 
+# All tests here are done with the smaller representation.
+const LinkType = SmallLinkState
+
 @testset "julia gauss lattice tests" begin
 
     @testset "vertex creation" begin
@@ -68,8 +71,8 @@ using Test
     end
 
 
-    @testset "plaquettes 3D" begin
-        """ Check if the correct list of plaquettes is found in 3D.
+    @testset "plaquettes 2x2x2" begin
+        """ Check if the correct list of plaquettes is found in a 2x2x2 lattice.
         """
         latt = LinkLattice([2,2,2])
         plaquettes = get_plaquettes(latt)
@@ -124,39 +127,82 @@ using Test
     end
 
 
-
-    @testset "plaquette U operator" begin
-        """ Check if the plaquette operator U does what it should do.
+    @testset "plaquettes 2x2x4" begin
+        """ Check if the correct list of plaquettes is found in a 2x2x4 lattice.
         """
-        # Testcase 1: should give an overlap.
-        # |0000 0001 0010 0000> ---> |0000000010010000>
-        latt_24 = LinkLattice([2,4])
-        state = int('0000000100100000', 2)
-        expected_state = int('0000000010010000', 2)
-        constructed_state, _ = apply_u(state, builder.plaquettes[2])
-        assert expected_state == constructed_state
+        latt = LinkLattice([2,2,4])
+        plaquettes = get_plaquettes(latt)
 
-        # Testcase 2: should anihilate
-        # |0010 0000 0010 0000> ---> 0
-        state = int('0010 0000 0000 0000'.replace(' ', ''), 2)
-        constructed_state, _ = apply_u(state, builder.plaquettes[2])
-        assert constructed_state == 0
+        # Set up test case.
+        # (these are zero-based indicies copied from Python, hence the +1 below)
+        expected = [
+            [1, 5, 7, 2],
+            [4, 2, 10, 5],
+            [7, 11, 1, 8],
+            [10, 8, 4, 11],
+            [13, 17, 19, 14],
+            [16, 14, 22, 17],
+            [19, 23, 13, 20],
+            [22, 20, 16, 23],
+            [25, 29, 31, 26],
+            [28, 26, 34, 29],
+            [31, 35, 25, 32],
+            [34, 32, 28, 35],
+            [37, 41, 43, 38],
+            [40, 38, 46, 41],
+            [43, 47, 37, 44],
+            [46, 44, 40, 47],
 
-        # ---
+            [2, 9, 14, 3],
+            [5, 12, 17, 6],
+            [8, 3, 20, 9],
+            [11, 6, 23, 12],
+            [14, 21, 26, 15],
+            [17, 24, 29, 18],
+            [20, 15, 32, 21],
+            [23, 18, 35, 24],
+            [26, 33, 38, 27],
+            [29, 36, 41, 30],
+            [32, 27, 44, 33],
+            [35, 30, 47, 36],
+            [38, 45, 2, 39],
+            [41, 48, 5, 42],
+            [44, 39, 8, 45],
+            [47, 42, 11, 48],
 
-        # Testcase 3: 3D builder.
-        param['L'] = [2,2,2]
-        builder = HamiltonianBuilder(param, states=[])
-        state = set_bits([20,7])
-        expected = set_bits([19,14])
+            [1, 6, 13, 3],
+            [4, 3, 16, 6],
+            [7, 12, 19, 9],
+            [10, 9, 22, 12],
+            [13, 18, 25, 15],
+            [16, 15, 28, 18],
+            [19, 24, 31, 21],
+            [22, 21, 34, 24],
+            [25, 30, 37, 27],
+            [28, 27, 40, 30],
+            [31, 36, 43, 33],
+            [34, 33, 46, 36],
+            [37, 42, 1, 39],
+            [40, 39, 4, 42],
+            [43, 48, 7, 45],
+            [46, 45, 10, 48],
+        ]
 
-        p_ind = [19, 14, 7, 20]
-        constructed, _ = apply_u(state, p_ind + [set_bits(p_ind)])
-        assert expected == constructed
+        # Chekc the plaquette index.
+        for (i, exp) in enumerate(expected)
+            # println("($i) ", Int.(plaquettes[i]), " // ", exp)
+            for (j, link) in enumerate(exp)
+                @assert plaquettes[i][j] == link
+            end
+        end
 
-        constructed, _ = apply_u(state, builder.plaquettes[19])
-        assert expected == constructed
+        # # Check the mask array.
+        # for i, p in enumerate(builder.plaquettes):
+        #     mask = 0
+        #     for k in expected[i]:
+        #         mask = mask + (1 << k)
+        #     assert mask == p[-1]
+
+        @test true
     end
-
-
 end
