@@ -72,7 +72,6 @@ for lambda in list_from_param("lambda", param)
         overwrite=param["overwrite"],
         prefix=(param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
     )
-    println("Eigenstates: ", size(est))
 
     store_data(
         param["result_file"],
