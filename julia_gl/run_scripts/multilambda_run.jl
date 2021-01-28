@@ -16,6 +16,9 @@ include("../src/param_checks.jl")
 include("../src/io/data_storage.jl")
 include("../src/gl_hamiltonian.jl")
 
+include("../src/operators/gl_operators.jl")
+include("../src/operators/construct_mb_operator.jl")
+
 # Read the config file (first argument after the program name).
 # param = read_config(ARGS[1])
 param = param_checks!(read_config("config.yml"))
@@ -44,17 +47,31 @@ include("../src/hamiltonian_construction.jl")
 # Then, construct the Hamiltonian.
 @info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
 time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
-
 @info " **** Done constructing the Hamiltonian. **** " time=time
 
 if param["store_hamiltonian"]
     store_data(
         param["hamiltonian_file"],
         param["ws_label"],
+        #TODO: 2x2x6 storage!
         hcat(hamiltonian.col, hamiltonian.row, hamiltonian.data);
-        overwrite=param["overwrite"]
+        overwrite=param["overwrite"],
+        prefix=_nflip_tag(param)
     )
     @info "Stored Hamiltonian." file=param["hamiltonian_file"]
+end
+
+# Make all operators that we need.
+@info "Setting up additional Hilbert operators." operators=param["observables"]
+hilbert_ops = Dict{String,HilbertOperator}()
+for op_label in param["observables"]
+    time = @elapsed h_op = construct_operator(
+        gl_operators[join(latt.L, "x")][op_label],
+        lookup_table,
+        ilookup_table
+    )
+    hilbert_ops[op_label] = h_op
+    @info " *** Constructed $op_label operator." time = time
 end
 
 # Finally, diagonalize for all lambda values specified.
@@ -63,24 +80,47 @@ for lambda in list_from_param("lambda", param)
     local time = @elapsed local (ev, est) = diagonalize(hamiltonian, lambda, param)
     @info "Done computing the lower spectrum." time=time spectrum=ev
 
+    # ---
     # Output the data.
+
+    # Eigenvalues.
     store_data(
         param["result_file"],
         "spectrum"*_lambda_tag(lambda),
         ev;
         attrs=Dict("lambda"=>lambda),
         overwrite=param["overwrite"],
-        prefix=(param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
+        prefix=_nflip_tag(param)
     )
 
+    # Eigenstates.
     store_data(
         param["result_file"],
         "eigentstates"*_lambda_tag(lambda),
         est[:,begin:param["n_eigenstates"]];
         attrs=Dict("lambda"=>lambda),
         overwrite=param["overwrite"],
-        prefix=(param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
+        prefix=_nflip_tag(param)
     )
+
+    # ---
+    # Compute some other observables.
+    for (op_label, h_op) in hilbert_ops
+        evs = [
+            expectation_value(h_op, CType.(est[:,k]))
+            for k=1:param["n_eigenvalues"]
+        ]
+        @info "Computed $op_label eigenvalues." evs=evs
+
+        store_data(
+            param["result_file"],
+            "ev_$op_label"*_lambda_tag(lambda),
+            evs;
+            attrs=Dict("lambda"=>lambda),
+            overwrite=param["overwrite"],
+            prefix=_nflip_tag(param)
+        )
+    end
 end
 
 @info "============================== fin =============================="

@@ -19,6 +19,16 @@ struct GaussLatticeHamiltonian <: Hamiltonian
 end
 
 function diagonalize(ham::GaussLatticeHamiltonian, lambda::DType, param::Dict{Any,Any})
+    """ Performs the iterated Arnoldi method with ARPACK.
+
+        Notes:
+         -  Increasing maxiter actually helped in some cases - might also be
+            the case for fails at lambda = -3.0?
+         -  Julia has a matrix-independent iteration number of 300 per default,
+            scipy has it at 10*N where N is the dimension of the Hilbert space.
+            This probably explains why there's an issue. Here we have the same
+            convention as scipy.
+    """
     scaled_data = (param["gauge_particles"] == "bosons") ? param["J"].*abs.(ham.data) : param["J"].*ham.data
     sparse_ham = sparse(ham.row, ham.col, scaled_data, ham.n_fock, ham.n_fock)
 
@@ -43,8 +53,6 @@ function diagonalize(ham::GaussLatticeHamiltonian, lambda::DType, param::Dict{An
         maxiter=get(param, "max_iter", 10*ham.n_fock)
     )
 end
-# Increasing maxiter actually helped in some cases - might also be the case for lambda = -3.0?
-# Julia has a matrix-independent iteration number of 300 per default, scipy has it at 10*N where N is the dimension of the Hilbert space. This probably explains why there's an issue.
 
 
 # function diagonalize(

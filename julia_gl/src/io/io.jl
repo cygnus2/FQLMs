@@ -33,3 +33,9 @@ function _lambda_tag(lambda::Number)::String
     """
     return "_lam_"*(@sprintf "%.6f" lambda)
 end
+
+function _nflip_tag(param::Dict{Any,Any})::String
+    """ Tag for LE runs.
+    """
+    return (param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
+end

@@ -19,7 +19,7 @@ end
 
 function construct_operator(
         op::Operator,
-        lookup_table::LookupDict
+        lookup_table::LookupDict,
         ilookup_table::InvLookupDict
     )::HilbertOperator
     """ Constructs the sparse matrix that represents a given operator in a given
@@ -46,7 +46,7 @@ function construct_operator(
         if !isnothing(i)
             push!(row, k)
             push!(col, i)
-            push!(data, s)
+            push!(data, 1)
         end
     end
     # println(Int.(row))
@@ -54,15 +54,19 @@ function construct_operator(
 end
 
 
-function apply_operator(ho::HilbertOperator, state::WaveFunction)::Wavefunction
+function apply_operator(ho::HilbertOperator, state::WaveFunction)::WaveFunction
     """ Applies an operator to a wavefunction and returns the new state.
     """
-    
+    sparse_ho = sparse(ho.row, ho.col, ho.data, ho.n_fock, ho.n_fock)
+    return sparse_ho*state
 end
 
-function expectation_value(ho::HilbertOperator, state::Wavefunction)
+function expectation_value(ho::HilbertOperator, state::WaveFunction)
     """ Computes the expectation value of a given operator with respect to the
         specified state.
+
+        Notes:
+         - The dot product already takes care of complex conjugation.
     """
-    return dot(state', apply_operator(ho, state))
+    return dot(state, apply_operator(ho, state))
 end

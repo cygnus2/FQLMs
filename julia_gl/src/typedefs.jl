@@ -7,7 +7,7 @@
 ===============================================================================#
 # Base type aliases for constant usage.
 const DType = Float64
-const CType = Complex{DType})
+const CType = Complex{DType}
 const IType = Int64
 
 const SiteIndex = UInt8
