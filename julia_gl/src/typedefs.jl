@@ -7,11 +7,13 @@
 ===============================================================================#
 # Base type aliases for constant usage.
 const DType = Float64
+const CType = Complex{DType})
 const IType = Int64
-const LinkIndex = UInt8
+
 const SiteIndex = UInt8
 const PlaquetteIndex = UInt8
 const HilbertIndex = UInt32
+const WaveFunction = Array{CType,1}
 
 # ---
 # Representation of the problem.
@@ -34,6 +36,11 @@ include("latt_structure/plaquette.jl")
 # (needs to be after the definitions of LinkState, Vertex and Plaquette).
 abstract type Lattice end
 include("latt_structure/lattice.jl")
+
+# ---
+# Operator stuff.
+# abstract type Operator end
+include("operators/operators.jl")
 
 # ---
 # Diagonalization / construction purposes.

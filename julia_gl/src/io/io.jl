@@ -28,7 +28,6 @@ function list_from_param(att::String, param::Dict{Any,Any})::Array{Number,1}
     end
 end
 
-
 function _lambda_tag(lambda::Number)::String
     """ Central place that toggls how the datasets are named in the HDF5 output.
     """

@@ -6,6 +6,7 @@
 
 ===============================================================================#
 # That's the occupation state of a lattice of links.
+const LinkIndex = UInt8
 const SmallLinkState = UInt64
 const LargeLinkState = UInt128
 const LinkState = Union{SmallLinkState,LargeLinkState}
@@ -55,4 +56,33 @@ function sign(s::LinkState, src::Integer, dst::Integer)
         return (-1)^count_occupancies(s, dst, src)
     end
     return (-1)^count_occupancies(s, src, dst)
+end
+
+
+# Indexing.
+function Base.getindex(s::LinkState, i::Unsigned)::LinkState
+    """ Note: Indexing works with the lowest bits first (i.e., the ones from the
+        right). I guess it doesn't matter how it is used, only the implementation
+        here needs to be consistent.
+
+        Only positive integers are allowed. Negatives would only give zeros.
+    """
+    return s >>> (i-1) & 1
+end
+Base.firstindex(p::LinkState) =  1
+
+
+function Base.getindex(s::T, iarr::Array{S,1})::T where T<:LinkState where S<:Unsigned
+    """ Array indexing shuffles the bits around according to the indicies.
+        Example: Here we want to flip the first two bits:
+
+            (001101)[2,1,3,4,5,6] = (001110)
+
+        Can this be improved somehow?
+    """
+    perm::T = 0
+    for (k, i) in enumerate(iarr)
+        perm += s[i] << (k-1)
+    end
+    return perm
 end
