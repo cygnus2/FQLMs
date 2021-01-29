@@ -14,6 +14,7 @@
 
 ---------------------------------------------------------------------------- """
 import numpy as np
+from copy import copy, deepcopy
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as a3
@@ -58,6 +59,11 @@ class Vertex(object):
         self.v[1,0,1] = 1 - self.v[1,0,1]
         self.v[1,1,2] = 1 - self.v[1,1,2]
         self.v[1,1,0] = 1 - self.v[1,1,0]
+        
+    def parity_flip(self, axis):
+        """ Reverses axis ordering.
+        """
+        self.v = np.flip(self.v, axis=axis)
 
     def rot90(self, axes, k=1):
         self.v = np.rot90(self.v, k=k, axes=axes)
@@ -193,7 +199,7 @@ class LatticeObject(object):
                             self.ax.plot(*all_links[-1], color='red')
                         else:
                             self.ax.plot(*all_links[-1],
-                                    color='green',
+                                    color='black',
                                     # color='#a3a2a2',
                                     lw=1.5,
                                     zorder=10-a*y
@@ -218,26 +224,32 @@ class LatticeObject(object):
                             #     art3d.pathpatch_2d_to_3d(shadow, z=xx[ind[d]], zdir=d)
                             #     art3d.pathpatch_2d_to_3d(con, z=xx[ind[d]], zdir=d)
 
-
         return all_links
 
     def _draw_particle(self, pos, a=2.0, colors=['#416780', '#5C60C0']):
-        coord = list(map(lambda x: [x[0]], self.dlinks[pos]))
-        coord[pos%len(self.dlinks[0])][0] += a/2
-        self.ax.plot(xs=coord[0], ys=coord[1], zs=coord[2],
-                marker='o',
-                markeredgecolor=colors[0],
-                markerfacecolor=colors[1],
-                markersize=8,
-                markeredgewidth=1,
-                zorder=200-a*(coord[1][0]//a)+1
+#         coord = list(map(lambda x: [x[0]], self.dlinks[pos]))
+#         coord[pos%len(self.dlinks[0])][0] += a/2
+#         self.ax.plot(xs=coord[0], ys=coord[1], zs=coord[2],
+#                 marker='o',
+#                 markeredgecolor=colors[0],
+#                 markerfacecolor=colors[1],
+#                 markersize=8,
+#                 markeredgewidth=1,
+#                 zorder=200-a*(coord[1][0]//a)+1
+#         )
+        self.ax.plot(
+            *self.dlinks[pos],
+            color='red',
+            zorder=10-a*(self.dlinks[pos][1][0]//a),
+            lw=2,
+            ls='-',
+            marker=''
         )
 
 
     def _draw_state(self, colors=['black', '#5C60C0']):
         state = self.to_int()
         for k in range(self.nb):
-
             if (state>>k)&1:
                 self._draw_particle(k, colors=colors)
 
@@ -331,7 +343,24 @@ class LatticeObject(object):
         """
         for k in range(self.d):
             self.vertices = np.flip(self.vertices, axis=k)
-
+            
+    def apply_alternate_parity_flip(self):
+        """ Reverses all axes, anchor point at origin.
+        """
+        for k in range(self.d):
+            # Changes ordering.
+            self.vertices = np.flip(self.vertices, axis=k)
+            
+            # Because of the even lattice, this must be shifted by one.
+            # (otherwise zero would also be shifted)
+            if self.L[k] % 2 == 0:
+                self.apply_translation(k, extent=1) 
+            
+            # The vertices themselves need to be flipped.
+            for v in self.vertices.flatten():
+                v.parity_flip(axis=k)
+            
+            
     def apply_translation(self, axis, extent=1):
         """ Translates steps along a specified axis.
         """

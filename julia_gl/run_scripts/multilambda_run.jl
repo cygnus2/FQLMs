@@ -65,7 +65,7 @@ end
 @info "Setting up additional Hilbert operators." operators=param["observables"]
 hilbert_ops = Dict{String,HilbertOperator}()
 for op_label in param["observables"]
-    time = @elapsed h_op = construct_operator(
+    local time = @elapsed h_op = construct_operator(
         gl_operators[join(latt.L, "x")][op_label],
         lookup_table,
         ilookup_table
@@ -96,7 +96,7 @@ for lambda in list_from_param("lambda", param)
     # Eigenstates.
     store_data(
         param["result_file"],
-        "eigentstates"*_lambda_tag(lambda),
+        "eigenstates"*_lambda_tag(lambda),
         est[:,begin:param["n_eigenstates"]];
         attrs=Dict("lambda"=>lambda),
         overwrite=param["overwrite"],
@@ -112,9 +112,10 @@ for lambda in list_from_param("lambda", param)
         ]
         @info "Computed $op_label eigenvalues." evs=evs
 
+        # Export.
         store_data(
             param["result_file"],
-            "ev_$op_label"*_lambda_tag(lambda),
+            "$op_label"*_lambda_tag(lambda),
             evs;
             attrs=Dict("lambda"=>lambda),
             overwrite=param["overwrite"],

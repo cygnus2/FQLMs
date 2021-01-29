@@ -62,6 +62,11 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
     if !haskey(conf, "n_eigenstates")
         conf["n_eigenstates"] = 0
         @info "Setting default # of eigenstates." n_eigenstatees=conf["n_eigenstates"]
+    else
+        if conf["n_eigenstates"] > conf["n_eigenvalues"]
+            conf["n_eigenstates"] = conf["n_eigenvalues"]
+            @warn "Can't have more eigenstates than eigenvalues, using maximal #." n_eigenstates = conf["n_eigenstates"]
+        end
     end
 
     if !haskey(conf, "ev_type")
