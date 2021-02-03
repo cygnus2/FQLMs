@@ -67,6 +67,9 @@ def _apply_plaquette_operator(state, p, mask, sign):
         with x-mu link and going counter-clockwise).
     """
     n = 0
+    # print("---------")
+    # print("STATE: ", bin(state))
+    # print(p)
     if sign:
         a = max(p[:-1])
     new_state = copy(state)
@@ -74,9 +77,13 @@ def _apply_plaquette_operator(state, p, mask, sign):
         m = 1 << p[k]
         if bool(new_state & m) == mask[k]:
             if sign:
+                # print('{:08b}'.format(new_state), " // ({:d} -> {:d})".format(a, p[k]))
+                # print( sum_occupancies_ordered(a, p[k], new_state))
                 n += sum_occupancies_ordered(a, p[k], new_state)
             new_state = copy(new_state^m)
         else:
             return 0, 0
+    # sys.exit()
 
+    print(n, " // ", (-1)**n)
     return new_state, (-1)**n

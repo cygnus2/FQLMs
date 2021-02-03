@@ -40,8 +40,8 @@ function count_occupancies(s::LinkState, src::LinkIndex, dst::LinkIndex)
     """
     # return sum([(s >>> k) & 1 for k=0:63]) --> slower!
     c = 0
-    for k=src-1:dst-1
-        c += (s >>> k) & 1
+    for i=src-1:dst-1
+        c += ((s >>> i) & 1)
     end
     return c
 end
@@ -52,6 +52,7 @@ function sign(s::LinkState, src::Integer, dst::Integer)
         (including both endpoints) which gives the entire fermionic sign factor.
         The contributions from up and down states simply add.
     """
+    println("WHAT? This shouldn't be here..")
     if  src > dst
         return (-1)^count_occupancies(s, dst, src)
     end

@@ -13,15 +13,16 @@ overwrite: true
 store_hamiltonian: true # If true, the Hamiltonian will be stored.
 
 gauge_particles : 'bosons' # Either bosons or fermions.
-L: [2,2,4] # Spatial extent of the lattice.
-winding_sector: [0,0,1] # Winding sector to be considered.
+L: [2,2] # Spatial extent of the lattice.
+winding_sector: [0,0] # Winding sector to be considered.
 J : 1.0 # J Coupling.
 
-lambda_range: [-3.0, 1.0, 31]
+# lambda_range: [-3.0, 1.0, 31]
+lambda: -1.2
 # lambda_range : [-3.0, 1.0, 61] # Range that specifies the lambda values to scan (min, max, n_steps)
 # lambda_list: [-2.0, 0.0]
 # lambda: -2.0
-observables: ["parity", "unity"]
+# observables: ["parity", "unity"]
 
 # ----------------------------------
 # Important for diagonalization.

@@ -20,6 +20,9 @@ if not ham:
         states = sim.find_states()
 
     ham = sim.construct_hamiltonian(states, builder_type=ParallelHamiltonianBuilder)
+    for k in range(len(ham.data)):
+        print("({:d},{:d}) // {:.2f}".format(ham.row[k]+1, ham.col[k]+1, ham.data[k]))
+
     if sim.store_ham:
         sim.store_hamiltonian(ham, label=sim.ws, attrs={'n_fock':len(states)})
 

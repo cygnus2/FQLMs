@@ -40,6 +40,14 @@ function _apply_plaquette_operator(state::LinkType, plaquette::Plaquette, mask::
 
         to a given plaquette in a given state (link configuration starting
         with x-mu link and going counter-clockwise).
+
+        Notes:
+         -  The orientation (clockwise or anticlockwise) does not matter, the
+            sign is in fact the same.
+         -  For the summing of the occupancies, which gives the sign: in the
+            Python version we first counted, then we changed the state. These
+            operations commute though, because we always add the created/annihilated
+            particles to the sum. Those are an even factor so the sign is preserved.
     """
     n = 0
     max_link = maximum(plaquette)
@@ -47,7 +55,7 @@ function _apply_plaquette_operator(state::LinkType, plaquette::Plaquette, mask::
     for (k,site) in enumerate(plaquette)
         new_state = mask[k] ? annihilate(new_state, site) : create(new_state, site)
         if !isnothing(new_state)
-            n += count_occupancies(state, plaquette[k], max_link)
+            n += count_occupancies(new_state, plaquette[k], max_link)
         else
             return nothing, 0
         end
@@ -111,7 +119,6 @@ function construct_hamiltonian(
             end
         end
     end
-    # println(Int.(row))
     return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
 end
 

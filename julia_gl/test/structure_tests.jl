@@ -188,7 +188,7 @@ const LinkType = SmallLinkState
             [46, 45, 10, 48],
         ]
 
-        # Chekc the plaquette index.
+        # Check the plaquette index.
         for (i, exp) in enumerate(expected)
             # println("($i) ", Int.(plaquettes[i]), " // ", exp)
             for (j, link) in enumerate(exp)
@@ -204,5 +204,31 @@ const LinkType = SmallLinkState
         #     assert mask == p[-1]
 
         @test true
+    end
+
+
+    @testset "plaquette operator" begin
+        """ Here we check if the plaquette operators do the correct thing.
+
+            These are essentially the cases from the 2x2 systems from the notes.
+        """
+        latt = LinkLattice([2,2])
+        plaquettes = get_plaquettes(latt)
+
+        # |15⟩ →  +|12⟩
+        state = parse(LinkType, "00100111"; base=2)
+        new_state, sign = apply_u_dagger(state, plaquettes[2])
+        @test sign==1 && new_state == parse(LinkType, "01101001"; base=2)
+
+        # |4⟩ →  +|7⟩
+        state = parse(LinkType, "11011000"; base=2)
+        new_state, sign = apply_u(state, plaquettes[2])
+        @test sign==1 && new_state == parse(LinkType, "10010110"; base=2)
+
+        # |4⟩ →  -|12⟩
+        state = parse(LinkType, "11011000"; base=2)
+        new_state, sign = apply_u_dagger(state, plaquettes[3])
+        @test sign==-1 && new_state == parse(LinkType, "01101001"; base=2)
+
     end
 end

@@ -28,10 +28,10 @@ def count_particles(state, nb=64):
 # @jit(nopython=True)
 def sum_occupancies_ordered(a, b, state):
     """ Sums all occupancies between index a and b, both inclusive.
-        Assumes a > b.
+        Assumes a >= b.
     """
-    # o = 0
-    # for k in np.arange(b,a):
-    #     o += (state>>k)&1
-    # return o
-    return np.sum([(state>>k)&1 for k in range(b,a)])
+    o = 0
+    for k in range(b,a+1):
+        o += (state>>k)&1
+    return o
+    # return np.sum([(state>>k)&1 for k in range(b,a)])

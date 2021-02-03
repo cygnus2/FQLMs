@@ -29,6 +29,10 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
         error("Fatal: gauge_particles are required!")
     end
 
+    if !haskey(conf, "observables")
+        conf["observables"] = []
+    end
+
     # Low energy run.
     if !haskey(conf, "low_energy_run")
         conf["low_energy_run"] = false
@@ -51,6 +55,7 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
         conf["ws_label"] = _winding_tag(conf["winding_sector"], latt=LinkLattice(conf["L"]))
     end
     @info "Set the winding sector label." ws_label=conf["ws_label"]
+
 
     # ------------------------------------------------
     # Some stuff for diagonalization.

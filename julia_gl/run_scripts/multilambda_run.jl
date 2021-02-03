@@ -49,6 +49,10 @@ include("../src/hamiltonian_construction.jl")
 time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
 @info " **** Done constructing the Hamiltonian. **** " time=time
 
+for k=1:length(hamiltonian.data)
+    println("($(hamiltonian.row[k]),$(hamiltonian.col[k])) // $(hamiltonian.data[k])")
+end
+
 if param["store_hamiltonian"]
     store_data(
         param["hamiltonian_file"],
