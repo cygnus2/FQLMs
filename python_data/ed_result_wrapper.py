@@ -13,6 +13,7 @@
 import h5py as hdf
 import numpy as np
 import pandas as pd
+from copy import copy
 
 
 class EDResult(object):
@@ -20,8 +21,24 @@ class EDResult(object):
         """ Construct the filename and read contents to a DataFrame. Eigenstates
             are only read on demand due to possibly large memory requirements.
         """
-        self.ws_label = EDResult._winding_tag(param['ws'], shift=param['L'])
-        self.datafile = datadir+"/results_{:s}_{:s}_{:d}x{:d}x{:d}.hdf5".format(param['gp'], self.ws_label, *param["L"])
+        if 'ws' in param:
+            self.ws_label = EDResult._winding_tag(param['ws'], shift=param['L'])
+        else:
+            self.ws_label = 'all-ws'
+
+        # Toggle low-energy mode.
+        self.le = param.get("low_energy_run")
+
+        # These are the unique keys for the datasets.
+        self.keys = ["lambda", "flips"] if self.le else ["lambda"]
+
+        # Datafile.
+        self.datafile = datadir+"/{:s}results_{:s}_{:s}_{:d}x{:d}x{:d}.hdf5".format(
+            "le_" if self.le else "",
+            param['gp'],
+            self.ws_label,
+            *param["L"]
+        )
 
         self._read_HDF5()
         if not quiet:
@@ -33,30 +50,41 @@ class EDResult(object):
         # First collect every value in a separate row.
         rows, all_obs = [], set()
         with hdf.File(self.datafile, 'r') as f:
-            for ds in f:
-                obs, *_, lam = ds.split('_')
-                if obs != "eigenstates":
-                    all_obs.add(obs)
-                    for n, val in enumerate(f[ds]):
-                        row = {
-                            'lambda' : float(lam), # Lambda.
-                            obs : val, # Actual value.
-                            'N' : n # Number, as in N-th eigenvalue from below.
-                        }
-                        # Special treatment for the energy: compute the gap.
-                        # [immediate deprecation]
-                        # if obs == "spectrum":
-                        #     row["energy_gap"] = val-f[ds][0]
-                        #     all_obs.add("energy_gap")
-                        rows.append(row)
+            if self.le:
+                for grp in f:
+                    r, ao = EDResult._convert_group(f[grp], defaults={'flips':int(grp[2:])})
+                    rows += r
+                    all_obs = all_obs.union(ao)
+            else:
+                rows, all_obs = EDResult._convert_group(f, {})
 
         # With these rows, we create
         df = pd.DataFrame(rows)
 
         # To have a useful format, we need to combine lines that are for the same
         # value of lambda and N.
-        self.ev = df.groupby(['lambda', 'N'], as_index=False).aggregate({o : "first" for o in all_obs})
+        self.ev = df.groupby(self.keys + ["N"], as_index=False).aggregate({o : "first" for o in all_obs})
 
+
+    @staticmethod
+    def _convert_group(grp, defaults={}):
+        """ Takes an open HDF5 group, which represents a container of results,
+            and returns all eigenvalues in row format.
+        """
+        rows, all_obs = [], set()
+        for ds in grp:
+            obs, *_, lam = ds.split('_')
+            if obs != "eigenstates":
+                all_obs.add(obs)
+                for n, val in enumerate(grp[ds]):
+                    row = copy(defaults)
+                    row.update({
+                        'lambda' : float(lam), # Lambda.
+                        obs : val, # Actual value.
+                        'N' : n # Number, as in N-th eigenvalue from below.
+                    })
+                    rows.append(row)
+        return rows, all_obs
 
     def _lam_format(self, lam):
         return "_lam_{:.6f}".format(lam)
@@ -77,8 +105,8 @@ class EDResult(object):
     def get_gs(self):
         """ Returns the ground-state energy as function of lambda.
         """
-        gsdf = self.ev[self.ev['N']==0][['lambda', 'spectrum']]
-        gsdf.columns = ['lambda', 'gs_energy']
+        gsdf = self.ev[self.ev['N']==0][self.keys+['spectrum']]
+        gsdf.columns = self.keys + ['gs_energy']
         return gsdf
 
     def compute_gap(self, gs=None):
@@ -86,7 +114,7 @@ class EDResult(object):
         """
         if gs is None:
             gs = self.get_gs()
-        self.ev = pd.merge(self.ev, gs, on=["lambda"])
+        self.ev = pd.merge(self.ev, gs, on=self.keys)
         self.ev['delta_e'] = self.ev['spectrum'] - self.ev['gs_energy']
 
 
