@@ -10,18 +10,18 @@
 working_directory: '/home/lukas/_TEMP_fqlm/'
 logfile : 'logfile.log' # Logfile to store the output.
 overwrite: true
-store_hamiltonian: false # If true, the Hamiltonian will be stored.
+store_hamiltonian: true # If true, the Hamiltonian will be stored.
 
 gauge_particles : 'bosons' # Either bosons or fermions.
 L: [2,2,6] # Spatial extent of the lattice.
 # winding_sector: [1,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 
-lambda_range: [-3.0, 1.0, 31]
+# lambda_range: [-3.0, 1.0, 31]
 # lambda: -1.2
 # lambda_range : [-3.0, 1.0, 61] # Range that specifies the lambda values to scan (min, max, n_steps)
 # lambda_list: [-3.0, 0.0]
-# lambda: -2.0
+lambda: -1.0
 # observables: ["parity", "unity"]
 
 # ----------------------------------
@@ -37,5 +37,5 @@ ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most li
 #-----------------------------------
 # LE stuff.
 low_energy_run: true
-maximum_excitation_level: 3
+maximum_excitation_level: 2
 notification_level: 0
