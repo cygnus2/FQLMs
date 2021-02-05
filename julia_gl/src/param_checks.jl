@@ -126,6 +126,10 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
     end
 
     # Hamiltonian file.
+    if !haskey(conf, "read_hamiltonian")
+        conf["read_hamiltonian"] = true
+        @info "Allowing to read Hamiltonian by default."
+    end
     if !haskey(conf, "store_hamiltonian")
         conf["store_hamiltonian"] = false
         @info "Hamiltonian not stored by default."

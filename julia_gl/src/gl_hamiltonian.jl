@@ -15,7 +15,7 @@ struct GaussLatticeHamiltonian <: Hamiltonian
     row::Vector{HilbertIndex}
     col::Vector{HilbertIndex}
     data::Vector{DType}
-    n_fock ::HilbertIndex
+    n_fock ::IType
 end
 
 function diagonalize(ham::GaussLatticeHamiltonian, lambda::DType, param::Dict{Any,Any})

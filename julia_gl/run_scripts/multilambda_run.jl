@@ -20,8 +20,8 @@ include("../src/operators/gl_operators.jl")
 include("../src/operators/construct_mb_operator.jl")
 
 # Read the config file (first argument after the program name).
-param = param_checks!(read_config(ARGS[1]))
-# param = param_checks!(read_config("config.yml"))
+# param = param_checks!(read_config(ARGS[1]))
+param = param_checks!(read_config("config.yml"))
 make_logger(param)
 
 
@@ -41,25 +41,31 @@ const LinkType = latt.S[end]*latt.d >= 63 ? LargeLinkState : SmallLinkState
 include("../src/io/data_import.jl")
 include("../src/hamiltonian_construction.jl")
 
+
 # First, read the lookup tables (+ inverse lookup table).
 (lookup_table, ilookup_table) = read_lookup_tables(param)
 
-# Then, construct the Hamiltonian.
-@info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
-time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
-@info " **** Done constructing the Hamiltonian. **** " time=time
 
+# First, try to read the Hamiltonian. If not possible (for whatever reason),
+# cosntruct it.
+hamiltonian = read_hamiltonian(param)
+if isnothing(hamiltonian)
+    # Then, construct the Hamiltonian.
+    @info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
+    local time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
+    @info " **** Done constructing the Hamiltonian. **** " time=time nonzero_entries=length(hamiltonian.data)
 
-if param["store_hamiltonian"]
-    store_data(
-        param["hamiltonian_file"],
-        param["ws_label"],
-        #TODO: 2x2x6 storage!
-        hcat(hamiltonian.col, hamiltonian.row, hamiltonian.data);
-        overwrite=param["overwrite"],
-        prefix=_nflip_tag(param)
-    )
-    @info "Stored Hamiltonian." file=param["hamiltonian_file"]
+    if param["store_hamiltonian"]
+        store_data(
+            param["hamiltonian_file"],
+            param["ws_label"],
+            hcat(hamiltonian.col, hamiltonian.row, hamiltonian.data);
+            overwrite=param["overwrite"],
+            prefix=_nflip_tag(param),
+            attrs=Dict("n_fock"=>length(lookup_table))
+        )
+        @info "Stored Hamiltonian." file=param["hamiltonian_file"]
+    end
 end
 
 # Make all operators that we need.

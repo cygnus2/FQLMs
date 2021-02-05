@@ -26,6 +26,7 @@ function read_lookup_tables(param::Dict{Any,Any})::Tuple{LookupDict,InvLookupDic
     return lookup_table, inverse_lookup_table
 end
 
+
 function _read_states(param::Dict{Any,Any})::Array{LinkType,1}
     """ Reads full winding sectors - should only be called internally [from read_states()].
     """
@@ -109,4 +110,28 @@ function _read_LE_states(param::Dict{Any,Any}; combine=true)::Array{LinkType,1}
         error("Separated LE states not yet implemented!")
     end
     return states
+end
+
+# ----------------
+# Hamiltonian stuff.
+
+function read_hamiltonian(param::Dict{Any,Any})::Union{Nothing,GaussLatticeHamiltonian}
+    """ Reads a Hamiltonian and returns a Hamiltonian type.
+    """
+    if !param["read_hamiltonian"]
+        return nothing
+    end
+    @info "Attempting to read Hamiltonian." file=param["hamiltonian_file"]
+    try
+        ds = param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"])*"/" : ""
+        ham = h5open(param["hamiltonian_file"], "r") do file
+            read(file, ds*param["ws_label"])
+        end
+        n_fock = h5readattr(param["hamiltonian_file"], ds*param["ws_label"])["n_fock"]
+        @info "Successfully read Hamiltonian."  file=param["hamiltonian_file"] nonzero_entries=size(ham)[1] n_fock=n_fock
+        return GaussLatticeHamiltonian(ham[:,2], ham[:,1], ham[:,3], IType(n_fock))
+    catch e
+        @error e
+        return nothing
+    end
 end
