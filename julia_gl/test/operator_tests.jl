@@ -25,7 +25,5 @@ using Test
         """ Make sure the parity operator is doing the correct thing.
         """
         state = SmallLinkState(1232342)
-
-        
     end
 end

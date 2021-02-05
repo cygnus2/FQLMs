@@ -15,7 +15,9 @@ const LinkState = Union{SmallLinkState,LargeLinkState}
 function create(s::LinkState, i::Integer)::Union{Nothing,LinkState}
     """ Destroys a particle at position i, false if there's a particle already.
     """
-    shift = 1 << (i-1)
+    # Typeof here is *very* important, otherwise the 1 defaults to Int64 and it
+    # won't be possible to use larger representations than 63 bits.
+    shift = typeof(s)(1) << (i-1)
     if s & shift == 0
         return s ⊻ shift
     else
@@ -26,7 +28,7 @@ end
 function annihilate(s::LinkState, i::Integer)::Union{Nothing,LinkState}
     """ Destroys a particle at position i, false if there's no particle to destroy.
     """
-    shift = 1 << (i-1)
+    shift = typeof(s)(1) << (i-1)
     if s & shift > 0
         return s ⊻ shift
     else

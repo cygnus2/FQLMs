@@ -17,7 +17,7 @@ from copy import copy
 
 
 class EDResult(object):
-    def __init__(self, param, datadir, quiet=False):
+    def __init__(self, param, datadir, quiet=False, datafile=None):
         """ Construct the filename and read contents to a DataFrame. Eigenstates
             are only read on demand due to possibly large memory requirements.
         """
@@ -33,12 +33,16 @@ class EDResult(object):
         self.keys = ["lambda", "flips"] if self.le else ["lambda"]
 
         # Datafile.
-        self.datafile = datadir+"/{:s}results_{:s}_{:s}_{:d}x{:d}x{:d}.hdf5".format(
-            "le_" if self.le else "",
-            param['gp'],
-            self.ws_label,
-            *param["L"]
-        )
+        if not datafile:
+            self.datafile = datadir+"/{:s}results_{:s}_{:s}_{:d}x{:d}x{:d}.hdf5".format(
+                "le_" if self.le else "",
+                param['gp'],
+                self.ws_label,
+                *param["L"]
+            )
+        else:
+            self.datafile = datadir+'/'+datafile
+
 
         self._read_HDF5()
         if not quiet:
