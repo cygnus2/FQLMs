@@ -20,7 +20,7 @@ include("../src/operators/gl_operators.jl")
 include("../src/operators/construct_mb_operator.jl")
 
 # Read the config file (first argument after the program name).
-param = read_config(ARGS[1])
+param = param_checks!(read_config(ARGS[1]))
 # param = param_checks!(read_config("config.yml"))
 make_logger(param)
 
