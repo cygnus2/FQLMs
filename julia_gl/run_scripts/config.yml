@@ -14,7 +14,7 @@ store_hamiltonian: true # If true, the Hamiltonian will be stored.
 read_hamiltonian: true
 
 gauge_particles : 'bosons' # Either bosons or fermions.
-L: [2,2,2] # Spatial extent of the lattice.
+L: [2,2] # Spatial extent of the lattice.
 # winding_sector: [1,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 
@@ -37,6 +37,6 @@ ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most li
 
 #-----------------------------------
 # LE stuff.
-low_energy_run: true
+low_energy_run: false
 maximum_excitation_level: 2
 notification_level: 0

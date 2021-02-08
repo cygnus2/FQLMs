@@ -12,7 +12,8 @@ const IType = Int64
 
 const SiteIndex = UInt8
 const PlaquetteIndex = UInt8
-const HilbertIndex = UInt32 # Limits the maximal number of states to 2^32 (about 4.3*10^9)
+# const HilbertIndex = UInt32 # Limits the maximal number of states to 2^32 (about 4.3*10^9)
+const HilbertIndex = UInt64
 const WaveFunction = Array{CType,1}
 
 # ---
