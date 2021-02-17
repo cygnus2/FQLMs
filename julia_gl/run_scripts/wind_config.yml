@@ -1,0 +1,5 @@
+L: [2,2,2] # Spatial extent of the lattice.
+base_states:
+    - 3816540
+    - 3816540
+    - 3816540
