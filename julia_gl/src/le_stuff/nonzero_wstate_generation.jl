@@ -38,6 +38,7 @@ function find_lines(latt::LinkLattice, dir::Direction)::Set{Array{LinkIndex,1}}
 
         # Loop until we are back at the start again.
         while v_current[dir] ≠ v0[dir]
+            # Moves the vertex to the next one in the given direction and given lattice.
             v_current += (dir, latt)
             push!(line, v_current[dir])
         end

@@ -8,7 +8,6 @@
 ===============================================================================#
 include("../src/typedefs.jl")
 include("../src/io/io.jl")
-include("../src/le_stuff/nonzero_wstate_generation.jl")
 
 # Read params and make a logger.
 param = read_config("wind_config.yml")
@@ -16,11 +15,11 @@ latt = LinkLattice(param["L"])
 
 # Set the link type for the correct representation.
 const LinkType = latt.S[end]*latt.d >= 63 ? LargeLinkState : SmallLinkState
-
+include("../src/le_stuff/nonzero_wstate_generation.jl")
 
 # TODO: The base states need to be converted first. What happens for larger
 # dataype - does it work natively? (the reading of the YAML file)
-winding_states = ifncrease_winding(LinkType.(param["base_states"]), latt, ypos; increment=-1)
+winding_states = increase_winding(LinkType.(param["base_states"]), latt, xpos; increment=1)
 
 # Check output.
 for state in winding_states
