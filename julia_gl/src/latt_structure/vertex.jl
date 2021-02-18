@@ -12,4 +12,15 @@
     this file is there to accommodate potential future implementations.
 
 ===============================================================================#
-const Vertex = Vector{LinkIndex}
+# const Vertex = Vector{LinkIndex}
+
+struct Vertex
+    links::Vector{LinkIndex} # Lattice dimensions [Lx, Ly, (Lz)].
+    i::Union{SiteIndex,Nothing} # Index in the lattice. Not strictly necessary, but convenient.
+
+    Vertex() = new([],nothing)
+    Vertex(links::Vector{Integer}) = new(LinkIndex.(links),nothing)
+    Vertex(links::Vector{T}, i::Integer) where T<:Integer = new(LinkIndex.(links),SiteIndex(i))
+end
+Base.getindex(v::Vertex, i::Integer)::LinkIndex = v.links[i]
+Base.push!(v::Vertex, l::Integer) = push!(v.links, LinkIndex(l))

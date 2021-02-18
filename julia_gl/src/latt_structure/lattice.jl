@@ -23,6 +23,11 @@ struct LinkLattice <: Lattice
     end
 end
 
+# Store the directions so that they are named. This is from the perspective of
+# the vertex, so these are essentially names for links emanating from a vertex.
+# (mainly for better readability)
+@enum Direction xpos=1 xneg ypos yneg zpos zneg
+
 
 function _shift_index(i::SiteIndex, dir::Integer, l::LinkLattice)::SiteIndex
     """ Shifts an grid index into direction d under consideration of  PBC.
@@ -31,8 +36,9 @@ function _shift_index(i::SiteIndex, dir::Integer, l::LinkLattice)::SiteIndex
 
         Notes:
             -   dir is 1-based (1=x, 2=y, 3=z, ... )
-            -   Index is now 1-based, howver, logic still from zero-based
+            -   Index is now 1-based, however, logic still from zero-based
                 indicies (Python) but adapted
+            -   pre-direction implementation!
     """
     n = i-1 + l.S[dir]
     if mod(n,l.S[dir+1]) < l.S[dir]
@@ -41,20 +47,30 @@ function _shift_index(i::SiteIndex, dir::Integer, l::LinkLattice)::SiteIndex
     return n+1
 end
 
+# ------------------------------------------------------------------------------
+# Stuff for easy handling of vertices.
 
-function _get_single_vertex(latt::LinkLattice, i::SiteIndex)::Vertex
-    """ Returns the indices [+x, -x, +y, -y, ...] of the links for the i-th
+# Get links of vertex by direction.
+Base.getindex(v::Vertex, d::Direction)::LinkIndex = v.links[UInt8(d)]
+
+function Vertex(latt::LinkLattice, ind::Integer)::Vertex
+    """ Essentially an outer constructor that produces the i-th vector on
+        the lattice.
+
+        Returns the indices [+x, -x, +y, -y, ...] of the links for the i-th
         vertex *on the full lattice* (not the sublattice) under consideration
         of periodic boundary conditions.
 
         Note: works only for L^d lattices for now.
     """
+    i = SiteIndex(ind)
+
     # Shorthand to avoid self all the time.
     # Index in bit string.
     j = latt.d*(i-1) + 1
 
     # Loop through the dimensions and add the indicies of + and - directions.
-    vert = Vertex()
+    vert = Vertex(Vector{LinkIndex}(), i)
     for k = 1:latt.d
         # Step forward is always 'on site'.
         push!(vert, j+k-1)
@@ -69,13 +85,35 @@ function _get_single_vertex(latt::LinkLattice, i::SiteIndex)::Vertex
     return vert
 end
 
-
 function get_vertices(latt::LinkLattice)::Array{Vertex,1}
-    """ Returns a list of vertices.
+    """ Returns an *ordered* list of vertices.
     """
-    return [_get_single_vertex(latt,k) for k=SiteIndex.(1:latt.S[end])]
+    return [Vertex(latt,k) for k=SiteIndex.(1:latt.S[end])]
 end
 
+function Base.:+(x::Vertex, y::Tuple{Direction,LinkLattice})::Vertex
+    """ If we add a positive direction to a vertex, we return the neighbor in this
+        direction. This may not be very performant, but it is convenient for
+        pre-computing stuff easily.
+
+        Note, that this requries a lattice, hence we actually add a direction and
+        a lattice in the form of a tuple.
+
+        TODO: implement for negative directions (not yet needed)
+    """
+    dir, latt = y
+    if mod(IType(dir),2) == 0
+        error("Only positive direction shifts for now!")
+    end
+
+    # Convert to actual cartesian shift. This is a bit of a dirty workaround to
+    # be fixed at some point.
+    d = IType((IType(dir)+1)/2)
+    return Vertex(latt, _shift_index(x.i, d, latt))
+end
+
+
+# ------------------------------------------------------------------------------
 
 function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
     """ Gets the entire list of plaquettes for a given lattice.
@@ -113,6 +151,7 @@ function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
     return plaquettes
 end
 
+# ------------------------------------------------------------------------------
 
 function winding_sectors(latt::LinkLattice)
     """ A generator for all winding number sectors.

@@ -6,11 +6,11 @@
 
 ===============================================================================#
 include("../src/typedefs.jl")
+const LinkType = SmallLinkState
 include("../src/hamiltonian_construction.jl")
 using Test
 
 # All tests here are done with the smaller representation.
-const LinkType = SmallLinkState
 
 
 @testset "hamiltonian construction tests" begin

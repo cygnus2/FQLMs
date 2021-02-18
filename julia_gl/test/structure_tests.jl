@@ -6,10 +6,11 @@
 
 ===============================================================================#
 include("../src/typedefs.jl")
+const LinkType = SmallLinkState
+include("../src/hamiltonian_construction.jl")
 using Test
 
 # All tests here are done with the smaller representation.
-const LinkType = SmallLinkState
 
 @testset "julia gauss lattice tests" begin
 
@@ -34,6 +35,26 @@ const LinkType = SmallLinkState
             end
         end
         @test true
+    end
+
+    @testset "vertex shifts" begin
+        latt = LinkLattice([2,2,2])
+        vert = Vertex(latt, 1) # Get the first vertex on the lattice.
+
+        shifted_vert = vert + (xpos,latt)
+        @test shifted_vert.i == 2
+
+        shifted_vert = vert + (ypos,latt)
+        @test shifted_vert.i == 3
+
+        shifted_vert = vert + (zpos,latt)
+        @test shifted_vert.i == 5
+
+        # Test PBC on larger lattice.
+        latt = LinkLattice([2,2,4])
+        vert = Vertex(latt, 16)
+        shifted_vert = vert + (zpos,latt)
+        @test shifted_vert.i == 4
     end
 
     @testset "PBC index shift 3D" begin

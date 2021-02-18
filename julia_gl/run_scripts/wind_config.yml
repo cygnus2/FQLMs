@@ -1,5 +1,14 @@
 L: [2,2,2] # Spatial extent of the lattice.
-base_states:
-    - 3816540
-    - 3816540
-    - 3816540
+
+
+# -------------------
+
+# Those are the maximally flippable state in the zero winding sector.
+# [2,2,2]
+base_states: [3816540]
+
+# [2,2,4] TODO
+# base_states: []
+
+# [2,2,6] TODO
+# base_states: []
