@@ -24,3 +24,16 @@ struct Vertex
 end
 Base.getindex(v::Vertex, i::Integer)::LinkIndex = v.links[i]
 Base.push!(v::Vertex, l::Integer) = push!(v.links, LinkIndex(l))
+
+
+Base.firstindex(v::Vertex) =  1
+Base.lastindex(v::Vertex) = length(v.links)
+
+# For iteration.
+Base.length(v::Vertex) = length(v.links)
+function Base.iterate(v::Vertex, state::Integer=1)
+    state > length(v) ? nothing : (v.links[state], state+1)
+end
+
+# For pretty printing.
+Base.show(io::IO, v::Vertex) = print(io, "Vertex [(i=",v.i,"), links=", Int.(v), "]")

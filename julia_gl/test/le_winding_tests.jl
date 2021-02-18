@@ -6,6 +6,8 @@
 
 ===============================================================================#
 include("../src/typedefs.jl")
+const LinkType = SmallLinkState
+
 include("../src/le_stuff/nonzero_wstate_generation.jl")
 using Test
 
@@ -16,7 +18,7 @@ using Test
         """
         latt = LinkLattice([2,2,2])
 
-        exp_xlines = Set([[1,2], [7,10], [13, 16], [19,22]])
+        exp_xlines = Set([[1,4], [7,10], [13, 16], [19,22]])
         cons_xlines = find_lines(latt, xpos)
         @test length(setdiff(exp_xlines, cons_xlines)) == 0
 

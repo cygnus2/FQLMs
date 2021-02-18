@@ -27,7 +27,7 @@ end
 # the vertex, so these are essentially names for links emanating from a vertex.
 # (mainly for better readability)
 @enum Direction xpos=1 xneg ypos yneg zpos zneg
-
+Base.:-(dir::Direction)::Direction = Direction(UInt8(dir)+2*mod(UInt8(dir),2)-1) # Inverts direction.
 
 function _shift_index(i::SiteIndex, dir::Integer, l::LinkLattice)::SiteIndex
     """ Shifts an grid index into direction d under consideration of  PBC.

@@ -14,8 +14,10 @@
     of the line.
 
 ===============================================================================#
+include("../typedefs.jl")
 
-function find_lines(latt::LinkLattice, dir::Direction)::Set{Array{LinkType,1},1}
+
+function find_lines(latt::LinkLattice, dir::Direction)::Set{Array{LinkIndex,1}}
     """ Finds the straight lines that connect two sides of the lattice in a given
         direction. These are represented by a list of link indicies.
 
@@ -28,20 +30,17 @@ function find_lines(latt::LinkLattice, dir::Direction)::Set{Array{LinkType,1},1}
     # Lazy version: simply loop over all vertices, find the lines in the specified
     # direction and then remove the doubles. This way we don't have to find the
     # vertices in a given plane. Doubles will not be stored because we use a set.
-    lines = Set{Array{Linktype,1},1}()
+    lines = Set{Array{LinkIndex,1}}()
     for i=1:length(verts)
         v0 = verts[i] # We need the initial vertex.
-        next = verts[i]
+        v_current = verts[i] + (dir,latt)
+        line = Array{LinkIndex,1}([v_current[dir]])
 
-        line = Array{LinkType,1}()
-        while next[]
-            push(line, )
-
+        # Loop until we are back at the start again.
+        while v_current[dir] ≠ v0[dir]
+            v_current += (dir, latt)
+            push!(line, v_current[dir])
         end
-
-
-        _shift_index()
-
         # Add the sorted line (to avoid doubles) to the set.
         push!(lines, sort(line))
     end
