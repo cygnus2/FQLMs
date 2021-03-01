@@ -1,4 +1,6 @@
 using HDF5, Dates
+include("../typedefs.jl")
+
 
 function store_data(filename, ds_name, data; attrs=Dict(), prefix="", overwrite=false)
     """ Stores the results in standardized fashion. This should be the only
@@ -47,4 +49,34 @@ function _unlink_ds_if_exists(file::HDF5.File, path::String)::Bool
         return true
     end
     return false
+end
+
+
+# ------------------------------------------------------------------------------
+# Stuff for writing states.
+const PY_bitshift = 63
+
+# This is the inverse conversion, needed for writing states.
+function _convert_links_to_HDF5(data::Array{LargeLinkState,1})::Array{Int64,2}
+    split_data = Int64.(fill(0, (2,length(data))))
+    for k = 1:length(data)
+        # Typically this would be done with mod/div, but that lead to some weird
+        # behavior that I was too lazy to debug. Should work this way as well.
+        x = UInt128(data[k,1] >>> PY_bitshift)
+        split_data[1,k] = Int64(x)
+        split_data[2,k] = Int64(data[k] - x<<PY_bitshift)
+    end
+    return split_data
+end
+_convert_links_to_HDF5(data::Array{SmallLinkState,1})::Array{Int64,1} = Int64.(data)
+
+
+function dump_states(filename::String, path::String, data; overwrite=true)
+    """ Data reflects a list of states. This needs to be converted to the proper
+        format first, in order to respect the HDF5 typesystem, which cannot handle
+        UInt128. The solution is to split the large numbers (if needed) into two
+        pieces of shorter bitlength. This is actually done in data_import.jl.
+    """
+    conv_data = _convert_links_to_HDF5(data)
+    _write_dataset(filename, path, conv_data; overwrite=overwrite)
 end

@@ -17,19 +17,19 @@ function set_bits(ind::Array{LinkIndex,1})::LinkType
     return state
 end
 
-function apply_u(state::LinkType, p::Plaquette)::Tuple{Union{Nothing,LinkType},Integer}
+function apply_u(state::LinkType, p::Plaquette; sign::Bool=true)::Tuple{Union{Nothing,LinkType},Integer}
     """ Wrapper to apply U
     """
     return _apply_plaquette_operator(state, p, [false,false,true,true])
 end
 
-function apply_u_dagger(state::LinkType, p::Plaquette)::Tuple{Union{Nothing,LinkType},Integer}
+function apply_u_dagger(state::LinkType, p::Plaquette; sign::Bool=true)::Tuple{Union{Nothing,LinkType},Integer}
     """ Wrapper to apply U+
     """
     return _apply_plaquette_operator(state, p, [true,true,false,false])
 end
 
-function _apply_plaquette_operator(state::LinkType, plaquette::Plaquette, mask::Vector{Bool})::Tuple{Union{Nothing,LinkType},Integer}
+function _apply_plaquette_operator(state::LinkType, plaquette::Plaquette, mask::Vector{Bool}; sign::Bool=true)::Tuple{Union{Nothing,LinkType},Integer}
     """ Applies the U operator
 
             c1+ c2+ c3 c4
@@ -54,7 +54,7 @@ function _apply_plaquette_operator(state::LinkType, plaquette::Plaquette, mask::
     new_state = state
     for (k,site) in enumerate(plaquette)
         new_state = mask[k] ? annihilate(new_state, site) : create(new_state, site)
-        if !isnothing(new_state)
+        if !isnothing(new_state) && sign
             n += count_occupancies(new_state, plaquette[k], max_link)
         else
             return nothing, 0

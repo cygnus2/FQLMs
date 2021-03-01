@@ -52,7 +52,7 @@ end
 
 # This was used in Python for the bitshfit - don't change.
 const PY_bitshift = 63
-function _convert_links_from_HDF5(data::Array{Int64,2})::Array{LargeLinkState}
+function _convert_links_from_HDF5(data::Array{Int64,2})::Array{LargeLinkState,1}
     combined_data = LargeLinkState.(fill(0, size(data)[end]))
     for k = 1:length(combined_data)
         (x, y) = data[:,k]
@@ -60,7 +60,8 @@ function _convert_links_from_HDF5(data::Array{Int64,2})::Array{LargeLinkState}
     end
     return combined_data
 end
-_convert_links_from_HDF5(data::Array{Int64,1})::Array{SmallLinkState} = SmallLinkState.(data)
+_convert_links_from_HDF5(data::Array{Int64,1})::Array{SmallLinkState,1} = SmallLinkState.(data)
+
 
 
 function _read_LE_states(param::Dict{Any,Any}; combine=true)::Array{LinkType,1}
