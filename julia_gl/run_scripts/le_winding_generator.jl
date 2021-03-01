@@ -11,7 +11,8 @@ include("../src/io/io.jl")
 include("../src/io/data_storage.jl")
 
 # Read params and make a logger.
-param = read_config("wind_config.yml")
+# param = read_config("wind_config.yml")
+param = read_config(ARGS[1])
 latt = LinkLattice(param["L"])
 
 # Set the link type for the correct representation.
