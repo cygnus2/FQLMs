@@ -25,6 +25,7 @@ param = param_checks!(read_config(ARGS[1]))
 make_logger(param)
 
 
+
 @info "==================== starting multilambda run ====================" param=param
 
 # Create the lattice structure that we're working on.

@@ -1,0 +1,76 @@
+# ------------------------------------------------------------------------------
+fixed:
+  working_directory: './'
+  logfile : 'logfile.log'
+  overwrite: true
+  store_hamiltonian: true
+  read_hamiltonian: true
+
+  gauge_particles : 'bosons'
+  L: [2,2,4]
+  J : -1.0
+  lambda_range : [-3.0, 0.0, 2]
+
+  full_diag : False
+  n_eigenvalues : 20
+  n_eigenstates: 0
+  ev_type : 'SA'
+
+  low_energy_run: true
+  notification_level: 0
+
+# ------------------------------------------------------------------------------
+variable:
+  maximum_excitation_level:
+    values: [2]
+    order: 1
+
+  winding_sector:
+    values: [[0,0,1], [1,0,0]]
+    order: 2
+
+# ------------------------------------------------------------------------------
+# Setup parameters.
+exec_param:
+  config: yaml # can either be plain, yaml or json
+  dir: run
+  inp: config.yml
+  log: logfile.log
+  exec_command: julia --project=/project/theorie/l/Lukas.Rammelmueller/fqlm_project/fqlm_repo/julia_gl /project/theorie/l/Lukas.Rammelmueller/fqlm_project/fqlm_repo/julia_gl/run_scripts/multilambda_run.jl {inp}
+  copy_files: []
+  n_threads: 1
+
+  # Stuff that is done in the beginning of each script (loading of environment,
+  # mostly).
+  # preamble_commands:
+
+  # These are commands that are executed before every single job (only important
+  # if there are mutliple jobs bundled together in a single script).
+  # job_preamble:
+
+# ------------------------------------------------------------------------------
+# SLURM commands.
+# All slurm directives can be specified here.
+
+slurm:
+  ntasks : 1
+  nodes : 1
+  cpus-per-task : 24
+  time : 1-00:00:00
+  mem: 512G
+  mail-type: FAIL
+
+  # Other options:
+  # job-name : <string>
+  # cpus-per-task : <int>
+  # time : <00:00:00>
+  # mem-per-cpu : <int>
+  # partition : <string>
+  # constraint : <string>
+  # mail-type : [FAIL, ALL, ...]
+  # chdir : /home/m/Max.Mustermann/slurm-intro
+  # output : /home/m/Max.Musterman/slurm-intro/slurm.%j.%N.out
+  # exclusive : ''
+  # error: test1.sh.%j.err
+
+# ------------------------------------------------------------------------------

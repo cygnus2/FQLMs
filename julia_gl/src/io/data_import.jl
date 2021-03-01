@@ -28,7 +28,7 @@ end
 
 
 function _read_states(param::Dict{Any,Any})::Array{LinkType,1}
-    """ Reads full winding sectors - should only be called internally [from read_states()].
+    """ Reads full winding sectors - should only be called internally [from read_lookup_tables()].
     """
     if param["ws_label"] == "all-ws"
         latt =  LinkLattice(param["L"])
@@ -75,9 +75,12 @@ function _read_LE_states(param::Dict{Any,Any}; combine=true)::Array{LinkType,1}
     # Choose the correct file.
     states = Dict()
     levels = Vector{Int}()
+
     if param["ws_label"] == "all-ws"
+        error("Only specific winding sectors are implemented for LE!")
+    else
         h5open(param["state_file"], "r") do file
-            for ds in file
+            for ds in file[param["ws_label"]]
                 lv = parse(Int, split(HDF5.name(ds), "_")[end])
                 if lv <= param["maximum_excitation_level"]
                     push!(levels, lv)
@@ -93,8 +96,6 @@ function _read_LE_states(param::Dict{Any,Any}; combine=true)::Array{LinkType,1}
                 end
             end
         end
-    else
-        error("Only the zero-winding sector is implemented for LE!")
     end
 
     if maximum(levels) < param["maximum_excitation_level"]
