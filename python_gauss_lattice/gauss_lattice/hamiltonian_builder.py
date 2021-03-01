@@ -41,6 +41,7 @@ class HamiltonianBuilder(object):
         # Set up the lookup table, which is merely ordering the states such that
         # the inverse lookup can be done efficiently with bisection.
         self.lookup_table = sorted(states)
+        # print("FIRST STATE: ", self.lookup_table[722])
         self.inv_lookup_table = HamiltonianBuilder._make_inv_lookuptable(self.lookup_table)
 
         self.n_fock = len(self.lookup_table)
@@ -50,6 +51,11 @@ class HamiltonianBuilder(object):
         # Pre-compute all plaquette indicies to save some time.
         self.plaquettes = self.get_plaquette_list()
 
+        # print("---")
+        # print("plaquettes:")
+        # for p in self.plaquettes:
+        #     print(p[:-1])
+        # print("---")
 
     def _log(self, msg):
         """ To produce a logfile (mainly debugging purposes).
@@ -188,7 +194,8 @@ class HamiltonianBuilder(object):
                     all_entries += [do_single_state((s, self.plaquettes))]
             else:
                 for s in self.lookup_table:
-                    all_entries += [do_single_state((s, self.plaquettes))]
+                    entr = do_single_state((s, self.plaquettes))
+                    # all_entries += [do_single_state((s, self.plaquettes))]
 
         else:
             with Pool(n_threads) as pool:

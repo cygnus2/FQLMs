@@ -83,7 +83,15 @@ def _apply_plaquette_operator(state, p, mask, sign):
             new_state = copy(new_state^m)
         else:
             return 0, 0
-    # sys.exit()
 
-    print(n, " // ", (-1)**n)
+    if state == 52378704074343307122:
+        print("------")
+        print("plaquette: ", p[:-1])
+        print("state: ", state)
+        print("{:128b}".format(state))
+        print("{:128b}".format(new_state))
+        print("new state: ", new_state)
+        print("{:128b}".format(state^new_state))
+
+    # print(n, " // ", (-1)**n)
     return new_state, (-1)**n

@@ -71,12 +71,15 @@ class LowEnergyStateFinder(HamiltonianBuilder):
         if pool:
             states = set().union(*pool.map(cycle_plaquettes, product(seed_states, [self.plaquettes])))
         else:
-            states = set()
-            for s in seed_states:
-                states = states | cycle_plaquettes((s,self.plaquettes))
+            # states = set()
+            # for s in seed_states:
+            #     states = states | cycle_plaquettes((s,self.plaquettes))
+            setlist = [cycle_plaquettes((s,self.plaquettes)) for s in seed_states]
+            states = set().union(*setlist)
 
         new_rest = seed_states.union(rest)
         states.difference_update(new_rest)
+        # states = states.difference(new_rest)
         return self._exhaust(states, new_rest, level+1, pool, output_file, max_level)
 
 

@@ -5,7 +5,7 @@
     Finds low-energy states.
 
 ---------------------------------------------------------------------------- """
-from gauss_lattice import LowEnergyHamiltonianBuilder
+from gauss_lattice import LowEnergyStateFinder
 from gauss_lattice.aux_stuff import load_config, timeit, read_winding_sector, size_tag
 import argparse, logging
 
@@ -27,7 +27,7 @@ logger.setLevel(logging.DEBUG)
 
 # ------------------------------------------------------------------------------
 # Hamiltonian setup.
-builder = LowEnergyHamiltonianBuilder(param, logger=logger, notify_level=param.get('notification_level'))
+builder = LowEnergyStateFinder(param, logger=logger, notify_level=param.get('notification_level'))
 
 # These are lattices that are maximally flippable for each lattice size. It does not
 # matter where we start, as long as we're in the correct winding sector (and we
@@ -56,7 +56,8 @@ states = le_finding(
     output_file=param['working_directory'] + "/le_states_" + size_tag(param['L']) + '.hdf5',
     max_level=param['maximum_excitation_level']
 )
-if param["L"] == [2,2,2]:
-    all_states, _ = read_winding_sector(param['L'], (0,0,0), basedir=param['working_directory'])
-    print("States that are not found:")
-    print(set(all_states) - states)
+
+# if param["L"] == [2,2,2]:
+#     all_states, _ = read_winding_sector(param['L'], (0,0,0), basedir=param['working_directory'])
+#     print("States that are not found:")
+#     print(set(all_states) - states)

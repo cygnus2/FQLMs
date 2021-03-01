@@ -84,7 +84,7 @@ class LatticeObject(object):
         if not quiet:
             print('Setting up lattice {:d}'.format(state))
         self._update(L)
-
+        
         self.vertices = np.zeros(shape=L, dtype=Vertex)
         for i in range(self.S[-1]):
             link_indicies = self.get_vertex_links(i)
@@ -198,12 +198,7 @@ class LatticeObject(object):
                         if (len(all_links)-1) == 100:
                             self.ax.plot(*all_links[-1], color='red')
                         else:
-                            self.ax.plot(*all_links[-1],
-                                    color='black',
-                                    # color='#a3a2a2',
-                                    lw=1.5,
-                                    zorder=10-a*y
-                            )
+                            self.ax.plot(*all_links[-1], color='black', lw=1.5, zorder=10-a*y)
 
                             # xx, yy = zip(*all_links[-1])
                             # xx = np.array(xx)
@@ -239,7 +234,7 @@ class LatticeObject(object):
 #         )
         self.ax.plot(
             *self.dlinks[pos],
-            color='red',
+            color=colors[0],
             zorder=10-a*(self.dlinks[pos][1][0]//a),
             lw=2,
             ls='-',
@@ -286,7 +281,7 @@ class LatticeObject(object):
             return builder, self.pflips
         return len(self.pflips)
 
-    def draw(self, a=2, axis=None, label=None, plaquettes=True):
+    def draw(self, a=2.0, axis=None, label=None, alpha=0.1, pcolor='#F0B056'):
         """ 3D plot for the current lattice.
         """
         with plt.style.context('seaborn-notebook'):
@@ -294,39 +289,45 @@ class LatticeObject(object):
                 self.fig = plt.figure()
                 self.fig.set_size_inches(2.6,2.2)
                 self.ax = self.fig.add_subplot(111, projection='3d')
+                
             else:
                 self.ax = axis
 
+            # Set viewpoint correctly.
+            self.ax.view_init(elev=20, azim=-75)
+            self.ax.set_axis_off()
+            self.ax.set_xlim(0., a*float(self.L[0]))
+            self.ax.set_ylim(0., a*float(self.L[1]))
+            self.ax.set_zlim(0., a*float(self.L[2]))
 
+            # ---
+            
             # Draw the actual system.
             self.dlinks = self._draw_3D_lattice()
-            points = self._draw_state()
+            points = self._draw_state(colors=[pcolor])
 
             # Get flippable plaquettes & color them.
-            if plaquettes:
+            if alpha != 0:
                 builder, pflip = self.flippables(extensive=True)
 #                 builder = HamiltonianBuilder({'L':self.L}, [], silent=True)
 #                 pflip = self._find_flippable_plaquettes(builder)
                 print(f'# of flippable plaquettes: {len(pflip)}')
                 for p in builder.plaquettes:
                     if p in pflip:
-                        pass
-                        self._highlight_plaquette(p[:-1], color='green', alpha=0.1)
+                        if alpha > 0:
+                            self._highlight_plaquette(p[:-1], color='green', alpha=abs(alpha))
                     else:
-                        pass
-                        # self._highlight_plaquette(p[:-1], color='red', alpha=0.1)
+                        if alpha < 0:
+                            self._highlight_plaquette(p[:-1], color='red', alpha=abs(alpha))
 
-            # Set viewpoint correctly.
-            self.ax.view_init(elev=20, azim=-75)
-            self.ax.set_axis_off()
-            self.ax.set_xlim(0, a*self.L[0])
-            self.ax.set_ylim(0, a*self.L[1])
-            self.ax.set_zlim(0, a*self.L[2])
             if not axis:
                 self.fig.subplots_adjust(left=0.001, right=1.1, top=1.1, bottom=0.001)
 
         if label is not None:
             self.ax.text(-0.5, 0, self.ax.get_zlim()[1]+0.5, label, fontsize=24)
+            
+        if axis is None:
+            return self.fig, self.ax
 
 
     # -----

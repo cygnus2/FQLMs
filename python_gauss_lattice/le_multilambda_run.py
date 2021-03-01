@@ -33,10 +33,13 @@ if not ham:
                             2123163061129091160270, 2179642425947400317085, 2542724056922244896610, 2599203421740554053425,
                             3124151188370508831822, 3196270992676965139755, 3632465471735291243157, 3648105911223438394275],
         }
-        print("GAGA")
         states = sim.find_le_states(base_lattices[tuple(sim.param['L'])], store_states=True)
 
-    ham = sim.construct_hamiltonian(states, builder_type=ParallelHamiltonianBuilder)
+    ham = sim.construct_hamiltonian(states, builder_type=HamiltonianBuilder)
+    for k in range(25):
+        print(
+            "[{:d},{:d}] {:.8f}".format(ham.row[k], ham.col[k], ham.data[k])
+        )
     if sim.store_ham:
         sim.store_hamiltonian(ham, label=ham_name, attrs={'n_fock':len(states)})
 
