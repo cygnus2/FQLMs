@@ -6,7 +6,7 @@
     to set default values.
 
 ===============================================================================#
-function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
+function param_checks!(conf::Dict{Any,Any}; state_run::Bool=false)::Dict{Any,Any}
     """ Checks if crucial parameters are present and sets default values. Also,
         the default paths for I/O are read/constructed in a unified manner such
         that later everything can be assumed to exist.
@@ -15,29 +15,59 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
         error("Fatal: No lattice specified!")
     end
 
-    if !haskey(conf, "J")
-        conf["J"] = -1.0
-        @warn "Set coupling J to default value." J=conf["J"]
+    # Set a few default values.
+    defaults = Dict(
+        "J" => -1.0,
+        "winding_sector" => "all-ws",
+
+        "low_energy_run" => false,
+        "observables" => [],
+
+        "n_eigenvalues" => 15,
+        "n_eigenstates" => 0,
+        "ev_type" => "SA",
+        "full_diag" => false,
+
+        "logfile" => "logfile.log",
+        "overwrite" => false,
+        "working_directory" => "./workdir_gl/",
+        "store_hamiltonian" => false,
+        "read_hamiltonian" => true
+    )
+    for (k,v) in defaults
+        if !haskey(conf, k)
+            @info "Setting default value for '$k'." value=v
+            conf[k] = v
+        end
     end
 
-    # Lambda is required.
-    if !(haskey(conf, "lambda") || haskey(conf, "lambda_range") || haskey(conf, "lambda_list"))
-        error("Fatal: No coupling lambda specified!")
-    end
 
-    if !haskey(conf, "gauge_particles")
-        error("Fatal: gauge_particles are required!")
-    end
-
-    if !haskey(conf, "observables")
-        conf["observables"] = []
-    end
-
-    # Low energy run.
-    if !haskey(conf, "low_energy_run")
-        conf["low_energy_run"] = false
-        @info "Running in regular mode by default."
+    # ----------------------------------------------------
+    # Check if essential parameters are given.
+    required = nothing
+    if state_run
+        required = [
+            ["L"],
+            ["base_states"],
+            ["winding_sector"]
+        ]
     else
+        required = [
+            ["L"],
+            ["gauge_particles"],
+            ["lambda", "lambda_range", "lambda_list"]
+        ]
+    end
+    for keys in required
+        if !any([haskey(conf, key) for key in keys])
+            error("Fatal: required parameter $keys not specified!")
+        end
+    end
+
+
+    # ----------------------------------------------------
+    # Low energy run.
+    if conf["low_energy_run"]
         if !haskey(conf, "maximum_excitation_level")
             error("Fatal: No excitation level specified for low-energy run.")
         end
@@ -48,67 +78,27 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
         end
     end
 
-    # Winding sector.
-    if !haskey(conf, "winding_sector")
-        conf["ws_label"] = "all-ws"
-    else
-        conf["ws_label"] = _winding_tag(conf["winding_sector"], latt=LinkLattice(conf["L"]))
-    end
-    @info "Set the winding sector label." ws_label=conf["ws_label"]
-
 
     # ------------------------------------------------
+    # Winding sector.
+    conf["ws_label"] = conf["winding_sector"] == "all-ws" ? "all-ws" : _winding_tag(conf["winding_sector"], latt=LinkLattice(conf["L"]))
+    @info "Set the winding sector label." ws_label=conf["ws_label"]
+    # ------------------------------------------------
     # Some stuff for diagonalization.
-    if !haskey(conf, "n_eigenvalues")
-        conf["n_eigenvalues"] = 15
-        @info "Setting default # of eigenvalues." n_eigenvalues=conf["n_eigenvalues"]
-    end
-
-    if !haskey(conf, "n_eigenstates")
-        conf["n_eigenstates"] = 0
-        @info "Setting default # of eigenstates." n_eigenstatees=conf["n_eigenstates"]
-    else
-        if conf["n_eigenstates"] > conf["n_eigenvalues"]
-            conf["n_eigenstates"] = conf["n_eigenvalues"]
-            @warn "Can't have more eigenstates than eigenvalues, using maximal #." n_eigenstates = conf["n_eigenstates"]
-        end
-    end
-
-    if !haskey(conf, "ev_type")
-        conf["ev_type"] = "SA"
-        @info "Setting default style of eigenvalues."  ev_type = conf["ev_type"]
-    end
-
-    if !haskey(conf, "full_diag")
-        conf["full_diag"] = false
-        @info "Full diagonalization disabled by default."
+    if conf["n_eigenstates"] > conf["n_eigenvalues"]
+        conf["n_eigenstates"] = conf["n_eigenvalues"]
+        @warn "Can't have more eigenstates than eigenvalues, using maximal #." n_eigenstates = conf["n_eigenstates"]
     end
 
     # ------------------------------------------------
     # I/O business.
 
-    # Overwrite.
-    if !haskey(conf, "overwrite")
-        conf["overwrite"] = false
-        @info "Overwriting results is disabled by default."
-    end
-
-    # Logfile.
-    if !haskey(conf, "logfile")
-        conf["logfile"] = "logfile.log"
-        @info "Using default logfilename." logfile = conf["logfile"]
-    end
-
     # Working directory.
-    # [default: ./workdir_gl/ ]
-    if !haskey(conf, "working_directory")
-        conf["working_directory"] = "./workdir_gl/"
-        if !isdir(conf["working_directory"])
-            mkdir(conf["working_directory"])
-            @warn "No working directory specified, created directory at default path." working_directory = conf["working_directory"]
-        else
-            @info "No working directory specified, using default path." working_directory = conf["working_directory"]
-        end
+    if !isdir(conf["working_directory"])
+        mkdir(conf["working_directory"])
+        @warn "Created working directory at path." working_directory = conf["working_directory"]
+    else
+        @info "Using working directory at path." working_directory = conf["working_directory"]
     end
 
     # State file.
@@ -125,38 +115,35 @@ function param_checks!(conf::Dict{Any,Any})::Dict{Any,Any}
         @info "Using default file for GL states." state_file = conf["state_file"]
     end
 
-    # Hamiltonian file.
-    if !haskey(conf, "read_hamiltonian")
-        conf["read_hamiltonian"] = true
-        @info "Allowing to read Hamiltonian by default."
-    end
-    if !haskey(conf, "store_hamiltonian")
-        conf["store_hamiltonian"] = false
-        @info "Hamiltonian not stored by default."
-    end
-    if !haskey(conf, "hamiltonian_file")
-        @info "Using default file for Hamiltonian." hamiltonian_file = conf["hamiltonian_file"] = nothing
-        conf["hamiltonian_file"] = (
-            conf["working_directory"] *
-            "/"*(conf["low_energy_run"] ? "le_" : "")*
-            "hamiltonian_"*
-            _size_tag(conf["L"]) *
-            ".hdf5"
-        )
-    end
 
-    # Result file.
-    if !haskey(conf, "result_file")
-        conf["result_file"] = (
-            conf["working_directory"] *
-            "/"*(conf["low_energy_run"] ? "le_" : "")*
-            "results_"*
-            conf["gauge_particles"] * "_" *
-            conf["ws_label"] * "_" *
-            _size_tag(conf["L"]) *
-            ".hdf5"
-        )
-        @info "Using default file for results." result_file = conf["result_file"]
+    if !state_run
+
+        # Hamiltonian file.
+        if !haskey(conf, "hamiltonian_file")
+            @info "Using default file for Hamiltonian." hamiltonian_file = conf["hamiltonian_file"] = nothing
+            conf["hamiltonian_file"] = (
+                conf["working_directory"] *
+                "/"*(conf["low_energy_run"] ? "le_" : "")*
+                "hamiltonian_"*
+                _size_tag(conf["L"]) *
+                ".hdf5"
+            )
+        end
+
+        # Result file.
+        if !haskey(conf, "result_file")
+            conf["result_file"] = (
+                conf["working_directory"] *
+                "/"*(conf["low_energy_run"] ? "le_" : "")*
+                "results_"*
+                conf["gauge_particles"] * "_" *
+                conf["ws_label"] * "_" *
+                _size_tag(conf["L"]) *
+                ".hdf5"
+            )
+            @info "Using default file for results." result_file = conf["result_file"]
+        end
+
     end
 
     return conf

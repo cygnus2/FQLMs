@@ -1,5 +1,7 @@
-maximum_excitation_level: 6
+low_energy_run: true
+maximum_excitation_level: 2
 winding_sector: [0,0,0]
+store_states: true
 
 # Those are the maximally flippable state in the zero winding sector.
 # L: [2,2,2]

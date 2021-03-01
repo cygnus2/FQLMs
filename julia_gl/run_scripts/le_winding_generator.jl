@@ -8,11 +8,13 @@
 ===============================================================================#
 include("../src/typedefs.jl")
 include("../src/io/io.jl")
+include("../src/param_checks.jl")
 include("../src/io/data_storage.jl")
 
+
 # Read params and make a logger.
-# param = read_config("wind_config.yml")
-param = read_config(ARGS[1])
+param = param_checks!(read_config("wind_config.yml"); state_run=true)
+# param = read_config(ARGS[1])
 latt = LinkLattice(param["L"])
 
 # Set the link type for the correct representation.
@@ -51,14 +53,14 @@ function _exhaust(
         rest::Set{LinkType},
         level::Integer,
         plaquettes::Array{Plaquette,1},
-        max_level::Integer;
-        output_file::Union{String,Nothing}=nothing
+        max_level::Integer,
+        store_states::Bool
     )::Set{LinkType}
 
     # Some I/O diagnostic stuff.
     @info "Exhausted level $level" num_states=length(seed)
-    if !isnothing(output_file)
-        dump_states(output_file, "states_lv_$level", collect(seed))
+    if store_states
+        dump_states(param["state_file"], param["ws_label"]*"/states_lv_$level", collect(seed))
     end
 
     # ----
@@ -100,7 +102,7 @@ function _exhaust(
     # Prepare for next round and call recursion.
     new_rest = union(seed, rest)
     new_seed = setdiff(new_states, new_rest)
-    return _exhaust(new_seed, new_rest, level+1, plaquettes, max_level; output_file=output_file)
+    return _exhaust(new_seed, new_rest, level+1, plaquettes, max_level, store_states)
 end
 
 
@@ -108,11 +110,11 @@ function find_le_states(
         seed_states::Array{LinkType,1},
         latt::LinkLattice;
         max_level::Integer=1000,
-        output_file::Union{String,Nothing}=nothing
+        store_states::Bool=true
     )::Array{LinkType,1}
 
     plaquettes = get_plaquettes(latt)
-    new_states = _exhaust(Set{LinkType}(seed_states), Set{LinkType}(), 0, plaquettes, max_level; output_file=output_file)
+    new_states = _exhaust(Set{LinkType}(seed_states), Set{LinkType}(), 0, plaquettes, max_level, store_states)
     return collect(new_states)
 end
 
@@ -142,5 +144,5 @@ for (k, dir) in enumerate([xpos, ypos, zpos])
     end
 end
 
-time = @elapsed all_states = find_le_states(new_basis_states, latt; max_level=param["maximum_excitation_level"], output_file="test.hdf5")
+time = @elapsed all_states = find_le_states(new_basis_states, latt; max_level=param["maximum_excitation_level"], store_states=param["store_states"])
 @info "Finished finding low energy states." n_states=length(all_states) time=time
