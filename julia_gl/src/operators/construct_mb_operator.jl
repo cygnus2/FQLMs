@@ -40,7 +40,7 @@ function construct_operator(
 
         # This is where we assume only a single term in the operator. We'd need
         # to change some structure to make this more general.
-        new_state = apply_operator(op, lookup_table[k])
+        new_state, sign = apply_operator(op, lookup_table[k])
 
         i = get(ilookup_table, new_state, nothing)
         if !isnothing(i)

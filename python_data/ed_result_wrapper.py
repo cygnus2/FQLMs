@@ -21,22 +21,29 @@ class EDResult(object):
         """ Construct the filename and read contents to a DataFrame. Eigenstates
             are only read on demand due to possibly large memory requirements.
         """
-        if 'ws' in param:
-            self.ws_label = EDResult._winding_tag(param['ws'], shift=param['L'])
+        if 'winding_sector' in param:
+            self.ws_label = EDResult._winding_tag(param['winding_sector'], shift=param['L'])
         else:
             self.ws_label = 'all-ws'
+
+        # General fields.
+        self.defaults = copy(param)
+        for k in self.defaults:
+            if isinstance(self.defaults[k], list):
+                self.defaults[k] = tuple(self.defaults[k])
 
         # Toggle low-energy mode.
         self.le = param.get("low_energy_run")
 
         # These are the unique keys for the datasets.
         self.keys = ["lambda", "flips"] if self.le else ["lambda"]
+        self.keys += list(self.defaults.keys())
 
         # Datafile.
         if not datafile:
             self.datafile = datadir+"/{:s}results_{:s}_{:s}_{:d}x{:d}x{:d}.hdf5".format(
                 "le_" if self.le else "",
-                param['gp'],
+                param['gauge_particles'],
                 self.ws_label,
                 *param["L"]
             )
@@ -56,11 +63,13 @@ class EDResult(object):
         with hdf.File(self.datafile, 'r') as f:
             if self.le:
                 for grp in f:
-                    r, ao = EDResult._convert_group(f[grp], defaults={'flips':int(grp[2:])})
+                    defaults = copy(self.defaults)
+                    defaults.update({'flips':int(grp[2:])})
+                    r, ao = EDResult._convert_group(f[grp], defaults=defaults)
                     rows += r
                     all_obs = all_obs.union(ao)
             else:
-                rows, all_obs = EDResult._convert_group(f, {})
+                rows, all_obs = EDResult._convert_group(f, self.defaults)
 
         # With these rows, we create
         df = pd.DataFrame(rows)
@@ -113,12 +122,18 @@ class EDResult(object):
         gsdf.columns = self.keys + ['gs_energy']
         return gsdf
 
-    def compute_gap(self, gs=None):
+    def compute_gap(self, gs=None, skip=['winding_sector']):
         """ Adds the gap to the dataframe.
         """
         if gs is None:
             gs = self.get_gs()
-        self.ev = pd.merge(self.ev, gs, on=self.keys)
+
+        # Sometimes we have to skip a few keys in order to use this functionality.
+        # Example: ground state for different winding sectors.
+        # Use with care!
+        keys = [k for k in self.keys if k not in skip]
+
+        self.ev = pd.merge(self.ev, gs, on=keys)
         self.ev['delta_e'] = self.ev['spectrum'] - self.ev['gs_energy']
 
 

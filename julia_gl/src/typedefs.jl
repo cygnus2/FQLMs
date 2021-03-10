@@ -41,7 +41,7 @@ include("latt_structure/lattice.jl")
 # ---
 # Operator stuff.
 # abstract type Operator end
-include("operators/operators.jl")
+include("operators/bitmap_operators.jl")
 
 # ---
 # Diagonalization / construction purposes.

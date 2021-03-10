@@ -72,6 +72,7 @@ function Base.getindex(s::LinkState, i::Unsigned)::LinkState
     """
     return s >>> (i-1) & 1
 end
+Base.getindex(s::LinkState, i::Integer)::LinkState = s[UInt(i)]
 Base.firstindex(p::LinkState) =  1
 
 
