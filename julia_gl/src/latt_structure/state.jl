@@ -11,6 +11,19 @@ const SmallLinkState = UInt64
 const LargeLinkState = UInt128
 const LinkState = Union{SmallLinkState,LargeLinkState}
 
+function LinkState(indicies::Array{T,1})::LinkState where T<:Integer
+    """ Alternative 'constructor' that makes a state from a list of indicies.
+
+        Note: This is only OK efficient because it does not assume anything and
+        uses the create function repeatedly. Could probably be optimized. This
+        is mainly for testing / debugging purposes.
+    """
+    s = LinkType(0)
+    for i in indicies
+        s = create(s, i)
+    end
+    return s
+end
 
 function create(s::LinkState, i::Integer)::Union{Nothing,LinkState}
     """ Destroys a particle at position i, false if there's a particle already.

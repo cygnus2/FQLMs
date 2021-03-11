@@ -79,4 +79,39 @@ using Test
     end
 
 
+    @testset "plaquette signs" begin
+        """ Check signs of plaquettes. This is tested on a maximally flippable
+            state on a 2x2x2 lattice and a few random plaquettes.
+
+            As opposed to above, this includes the signs.
+        """
+        latt = LinkLattice([2,2,2])
+        plaquettes = get_plaquettes(latt)
+        state = LinkState([22, 21, 20, 18, 14, 13, 12, 11, 7, 5, 4, 3])
+
+
+        # First plaquette.
+        # p1 = Plaquette(LinkIndex.([2, 9, 14, 3]))
+        p1 = plaquettes[9]
+        e_state = LinkState([22, 21, 20, 18, 13, 12, 11, 9, 7, 5, 4, 2])
+        e_sign = -1
+        c_state, c_sign = apply_u(state, p1)
+        @test c_state == e_state && c_sign == e_sign
+
+        # Second plaquette.
+        # p2 = Plaquette(LinkIndex.([19, 23, 13, 20]))
+        p2 = plaquettes[7]
+        e_state = LinkState([23, 22, 21, 19, 18, 14, 12, 11, 7, 5, 4, 3])
+        e_sign = -1
+        c_state, c_sign = apply_u(state, p2)
+        @test c_state == e_state && c_sign == e_sign
+
+        # Third plaquette.
+        # p3 = Plaquette(LinkIndex.([13, 18, 1, 15]))
+        p3 = plaquettes[21]
+        e_state = LinkState([22, 21, 20, 15, 14, 12, 11, 7, 5, 4, 3, 1])
+        e_sign = -1
+        c_state, c_sign = apply_u_dagger(state, p3)
+        @test c_state == e_state && c_sign == e_sign
+    end
 end

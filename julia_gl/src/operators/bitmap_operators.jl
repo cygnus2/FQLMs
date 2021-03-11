@@ -18,7 +18,7 @@ struct BitmapOperator <: Operator
 end
 
 function Base.show(io::IO, op::BitmapOperator)
-    print(io, op.name*" operator (bitmap: $(length(op.index_map)))")
+    print(io, op.name*" operator (bitmap, length=$(length(op.index_map)))")
 end
 
 function LinearAlgebra.dot(op::BitmapOperator, state::LinkState)::Array{SiteIndex}
@@ -33,7 +33,13 @@ function LinearAlgebra.dot(op::BitmapOperator, state::LinkState)::Array{SiteInde
         which could likely be optimized by updating a state and doing incremental
         single bit shifts.
     """
-    return [op.index_map[k] for k=1:length(op.index_map) if state[k]==1]
+    # Note: simply reversing this does not just alter a global sign of the
+    # permutation. For instance:
+    #   sign([1,2,3,4]) = sign([4,3,2,1])
+    #   but sign([1,2,3]) = -sign([3,2,1])
+    # Interestingly though, reversing does not change the expectation values.
+    shuffled = [op.index_map[k] for k=1:length(op.index_map) if state[k]==1]
+    return shuffled
 end
 
 function apply_operator(op::BitmapOperator, state::LinkState; sign::Bool=true)::Tuple{LinkState,IType}
@@ -54,7 +60,9 @@ function apply_operator(op::BitmapOperator, state::LinkState; sign::Bool=true)::
     # Compute sign by parity of permutation of the sorted state.
     # Note: sorting needs to be ascending, since this is they way the dot product
     # returns the shuffled indicies.
-    println(Int.(shuffled[sortperm(shuffled)]))
     sign = iseven(parity(sortperm(shuffled))) ? 1 : -1
     return new_state, sign
 end
+
+# Provide shorthand notation.
+Base.:*(op::BitmapOperator, state::LinkState)::Tuple{LinkState,IType} = apply_operator(op,state;sign=true)

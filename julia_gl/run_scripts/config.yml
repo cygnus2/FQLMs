@@ -15,21 +15,21 @@ read_hamiltonian: true
 
 gauge_particles : 'bosons' # Either bosons or fermions.
 L: [2,2,2] # Spatial extent of the lattice.
-winding_sector: [1,0,0] # Winding sector to be considered.
+winding_sector: [0,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 
 # lambda_range: [-3.0, 1.0, 31]
 # lambda: -1.2
-# lambda_range : [-3.0, 1.0, 61] # Range that specifies the lambda values to scan (min, max, n_steps)
 # lambda_list: [-3.0, 0.0]
-lambda: -1.0
-# observables: ["parity", "unity"]
+lambda: -100.0
+# lambda_range : [-3.0, 1.0, 31] # Range that specifies the lambda values to scan (min, max, n_steps)
+observables: ["parity", "unity"]
 
 # ----------------------------------
 # Important for diagonalization.
 full_diag : False # If True, the full matrix is diagonalized - extremely costly.
-n_eigenvalues : 5 # Number of eigenvalues to compute.
-n_eigenstates: 0 # If true, the eigenstates will be exported.
+n_eigenvalues : 15 # Number of eigenvalues to compute.
+n_eigenstates: 15 # If true, the eigenstates will be exported.
 
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
 # max_iter: 1000 # Maximal number of iterations for ARPACK. Should not be touched, but provides a handle just in case.
@@ -37,6 +37,6 @@ ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most li
 
 #-----------------------------------
 # LE stuff.
-low_energy_run: true
+low_energy_run: false
 maximum_excitation_level: 4
 notification_level: 0

@@ -20,7 +20,8 @@ end
 function construct_operator(
         op::Operator,
         lookup_table::LookupDict,
-        ilookup_table::InvLookupDict
+        ilookup_table::InvLookupDict;
+        compute_sign::Bool=true
     )::HilbertOperator
     """ Constructs the sparse matrix that represents a given operator in a given
         many-body Hilbert space.
@@ -40,13 +41,13 @@ function construct_operator(
 
         # This is where we assume only a single term in the operator. We'd need
         # to change some structure to make this more general.
-        new_state, sign = apply_operator(op, lookup_table[k])
+        new_state, sign = apply_operator(op, lookup_table[k]; sign=compute_sign)
 
         i = get(ilookup_table, new_state, nothing)
         if !isnothing(i)
             push!(row, k)
             push!(col, i)
-            push!(data, 1)
+            push!(data, sign)
         end
     end
     # println(Int.(row))
@@ -58,7 +59,7 @@ function apply_operator(ho::HilbertOperator, state::WaveFunction)::WaveFunction
     """ Applies an operator to a wavefunction and returns the new state.
     """
     sparse_ho = sparse(ho.row, ho.col, ho.data, ho.n_fock, ho.n_fock)
-    return sparse_ho*state
+    return sparse_ho*state # Potentially large matrix-vector operation.
 end
 
 function expectation_value(ho::HilbertOperator, state::WaveFunction)
