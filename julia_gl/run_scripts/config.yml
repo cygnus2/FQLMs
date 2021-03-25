@@ -13,15 +13,16 @@ overwrite: true
 store_hamiltonian: true # If true, the Hamiltonian will be stored.
 read_hamiltonian: true
 
-gauge_particles : 'bosons' # Either bosons or fermions.
+gauge_particles : 'fermions' # Either bosons or fermions.
 L: [2,2,2] # Spatial extent of the lattice.
-winding_sector: [0,0,0] # Winding sector to be considered.
+# winding_sector: [0,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 
-# lambda_range: [-3.0, 1.0, 31]
+lambda_range: [-3.0, 1.0, 61]
+# lambda_range: [-3.0, 1.0, 181]
 # lambda: -1.2
 # lambda_list: [-3.0, 0.0]
-lambda: -100.0
+#lambda: -100.0
 # lambda_range : [-3.0, 1.0, 31] # Range that specifies the lambda values to scan (min, max, n_steps)
 observables: ["parity", "unity"]
 

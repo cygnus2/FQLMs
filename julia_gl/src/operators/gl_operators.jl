@@ -2,6 +2,11 @@
 include("../typedefs.jl")
 
 gl_operators = Dict(
+    "2x2" => Dict(
+        "parity" => BitmapOperator("parity", [3, 6, 1, 8, 7, 2, 5, 4]),
+        "unity" => BitmapOperator("unity", [1, 2, 3, 4, 5, 6, 7, 8]),
+    ),
+
     "2x2x2" => Dict(
         "parity" => BitmapOperator("parity", [4, 8, 15, 1, 11, 18, 10, 2, 21, 7, 5, 24, 16, 20, 3, 13, 23, 6, 22, 14, 9, 19, 17, 12]),
         "unity" => BitmapOperator("unity", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]),

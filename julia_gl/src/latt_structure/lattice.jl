@@ -133,10 +133,12 @@ function get_plaquettes(latt::LinkLattice; separate_lists::Bool=false)
             # yz plane
             j = _shift_index(_shift_index(n, 3, latt), 2, latt) # shifted by Sy and Sz
             push!(p_yz, Plaquette([v[n][3], v[j][6], v[j][4], v[n][5]]))
+            # push!(p_yz, Plaquette([v[n][5], v[j][4], v[j][6], v[n][3]]))
 
             # xz plane.
             j = _shift_index(_shift_index(n, 1, latt), 3, latt) # shifted by Sx and Sz
             push!(p_xz, Plaquette([v[n][1], v[j][6], v[j][2], v[n][5]]))
+            # push!(p_xz, Plaquette([v[n][5], v[j][2], v[j][6], v[n][1]]))
         end
     end
 
