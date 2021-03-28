@@ -71,7 +71,7 @@ void deallocate2d(int **mat, int row, int col)
   int i;
   for(i=0;i<row;i++)
    free(mat[i]);
-  
+
  free(mat);
 }
 
@@ -80,7 +80,7 @@ void deallocatedouble2d(double **mat, int row, int col)
   int i;
   for(i=0;i<row;i++)
    free(mat[i]);
-  
+
  free(mat);
 }
 
@@ -127,7 +127,7 @@ void initconf(void)
 
 void printconf(){
   int p,d;
-  
+
   for(p=0;p<VOL;p++){
    printf("site %d(x,y):",p+1);
    for(d=0;d<DIM;d++)
@@ -145,15 +145,19 @@ void storeconf(FILE *fp){
   fprintf(fp,"\n");
 }
 
-int checkflux(FILE *fptr,FILE *tfptr)
+int checkflux(FILE *fptr)
 {
   int p,d,flux[DIM][VOL],flag;
   int link1,link2,link3,link4;
-  flag=0;
+  double wx,wy,wz,flagW;
+
+  flag=0; flagW=0;
   /* initialize flux variable */
   for(p=0;p<VOL;p++) for(d=0;d<DIM;d++) flux[d][p]=0;
+  /* initialize the winding */
+  wx=0.0; wy=0.0; wz=0.0;
   /* look for non-trivial flux */
-  // The link variables are labelled as 
+  // The link variables are labelled as
   //           link3
   //        O--------O
   //        |        |
@@ -164,44 +168,45 @@ int checkflux(FILE *fptr,FILE *tfptr)
   //
   for(p=0;p<VOL;p++){
   /* xy plaquette */
-  link1 = conf[0][p];              link2 = conf[1][next[DIM+1][p]]; 
+  link1 = conf[0][p];              link2 = conf[1][next[DIM+1][p]];
   link3 = conf[0][next[DIM+2][p]]; link4 = conf[1][p];
   if((link1==link2)&&(link3==link4)&&(link1!=link4)){
       flux[0][p]=1; flag=1;
-  } 
+  }
 
   /* xz plaquette */
-  link1 = conf[0][p];              link2 = conf[2][next[DIM+1][p]]; 
+  link1 = conf[0][p];              link2 = conf[2][next[DIM+1][p]];
   link3 = conf[0][next[DIM+3][p]]; link4 = conf[2][p];
   if((link1==link2)&&(link3==link4)&&(link1!=link4)){
       flux[1][p]=1; flag=1;
-  } 
+  }
 
   /* yz plaquette */
   link1 = conf[1][p];              link2 = conf[2][next[DIM+2][p]];
   link3 = conf[1][next[DIM+3][p]]; link4 = conf[2][p];
   if((link1==link2)&&(link3==link4)&&(link1!=link4)){
       flux[2][p]=1; flag=1;
-  } 
+  }
+
+  // compute the windings
+  wx = wx + conf[0][p];   wy = wy + conf[1][p];  wz = wz + conf[2][p];
  }
- /* if-option, if activated will store only non-trivial flux states */
+
+ wx /= LX; wy /= LY; wz/= LZ;
+
+ /* if-option, if activated will store only states matching specified winding */
  // flux states indicate the flippabilites of xy, xz and yz plaquettes
  // at the site p
- if(flag==1){
+ if(wx==Wx && wy==Wy && wz==Wz){
   for(p=0;p<VOL;p++){
       for(d=0;d<DIM;d++)
         fprintf(fptr,"% d ",flux[d][p]);
   }
   fprintf(fptr,"\n");
+  flagW=1;
  }
- /*
- else{
-  for(p=0;p<VOL;p++)
-   fprintf(tfptr,"% d ",flux[p]);
-  fprintf(tfptr,"\n");
- } */
- 
- return flag; 
+
+ return flagW;
 }
 
 int checkconf(void)
@@ -238,8 +243,6 @@ int scan(int newstate[][VOL],int ***stspin,int num)
      }
      if(flag==3*VOL) { p=i; break; }
    }
- 
+
    return p;
 }
-
-

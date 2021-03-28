@@ -13,18 +13,17 @@ void constH(int **H,int size){
    int newstate[DIM][VOL];
    int i,j,k,p,sx,sy,sz;
    int fx,fy,fz;
-   int size1;
-   size1=N-size;
+   int nFlip;
 
    int ***stspin;
    int stflux[size][DIM][VOL];
 
    printf("Hamiltonian for bosonic links. \n");
-   
+
    spin = fopen("SPINSTATES","r");
    flux = fopen("FLUXSTATES","r");
- 
-   // the flux variables are written in the order: xy, xz, yz 
+
+   // the flux variables are written in the order: xy, xz, yz
    stspin = allocate3d(size,DIM,VOL);
    for(i=0;i<size;i++){
    for(j=0;j<VOL;j++){
@@ -40,9 +39,12 @@ void constH(int **H,int size){
 
    /* Act the hamiltonian state by state to construct the full matrix */
    for(i=0;i<size;i++){
+    // count the number of flippable plaquettes
+    nFlip=0;
     for(j=0;j<VOL;j++){
       /* xy plaquette */
-      if(stflux[i][0][j]!=0){ 
+      if(stflux[i][0][j]!=0){
+        nFlip++;
         /* copy the state */
         for(k=0;k<VOL;k++){
           newstate[0][k]=stspin[i][0][k]; newstate[1][k]=stspin[i][1][k]; newstate[2][k]=stspin[i][2][k];
@@ -58,9 +60,10 @@ void constH(int **H,int size){
           if(H[i][p]!=0){ printf("xy plaq! i=%d, p=%d, H(i,p)=%d \n",i,p,H[i][p]); exit(0);  }
           else            H[i][p]=-1;
         }
-      }
+      }// close if
       /* xz plaquette */
-      if(stflux[i][1][j]!=0){  
+      if(stflux[i][1][j]!=0){
+        nFlip++;
         /* copy the state */
         for(k=0;k<VOL;k++){
           newstate[0][k]=stspin[i][0][k]; newstate[1][k]=stspin[i][1][k]; newstate[2][k]=stspin[i][2][k];
@@ -76,9 +79,10 @@ void constH(int **H,int size){
           if(H[i][p]!=0){ printf("xz plaq! i=%d, p=%d, H(i,p)=%d \n",i,p,H[i][p]); exit(0); }
           else            H[i][p]=-1;
         }
-      }
+      }// close if
       /* yz plaquette */
-      if(stflux[i][2][j]!=0){  
+      if(stflux[i][2][j]!=0){
+        nFlip++;
         /* copy the state */
         for(k=0;k<VOL;k++){
           newstate[0][k]=stspin[i][0][k]; newstate[1][k]=stspin[i][1][k]; newstate[2][k]=stspin[i][2][k];
@@ -94,39 +98,32 @@ void constH(int **H,int size){
           if(H[i][p]!=0){ printf("yz plaq! i=%d, p=%d, H(i,p)=%d \n",i,p,H[i][p]); exit(0); }
                       H[i][p]=-1;
         }
-      }
-   }}
-   
+      }// close if
+   }// close loop over volume
+   // diagonal term
+   H[i][i] = lam*nFlip;
+  }
+
    deallocate3d(stspin,size,DIM,VOL);
 
    printf("Hamiltonian for bosonic links done. \n");
 
-   /* Print the Hamiltonian */
-   //ham=fopen("HAMILTONIAN.dat","w");
-   //for(i=0;i<size;i++){
-   //  for(j=0;j<size;j++)
-   //   fprintf(ham,"% d ",H[i][j]);
-   //  fprintf(ham,"\n");
-   //}
-   //fclose(ham);
-
    diagH(H,size);
-
 }
 
 void diagH(int **H,int size){
 
-  FILE *vals,*vecs; 
+  FILE *vals,*vecs;
   double *mat;
   //double norm;
-    
+
   int i,j,k;
   int Nsq=size*size;
   mat = (double *) malloc(Nsq*sizeof(double));
   for(i=0;i<size;i++)
     for(j=0;j<size;j++)
  	mat[i+size*j]=H[i][j];
-  
+
   gsl_matrix_view m=gsl_matrix_view_array(mat,size,size);
 
   gsl_vector *eval=gsl_vector_alloc(size);
@@ -152,15 +149,15 @@ void diagH(int **H,int size){
          fprintf(vecs,"% .6e ",gsl_matrix_get(evec,k,i));
         fprintf(vecs,"\n");
       }
-    
+
    fclose(vals);
-   fclose(vecs);  
+   fclose(vecs);
 
    /* Check for normalization */
    /*
    for(i=0;i<size;i++){
     norm=0;
-    for(j=0;j<size;j++) 
+    for(j=0;j<size;j++)
       norm += pow(gsl_matrix_get(evec,j,i),2);
     printf("evec %d, norm=%f\n",i,norm);
    }
@@ -180,5 +177,3 @@ void diagH(int **H,int size){
   gsl_vector_free(eval);
   gsl_matrix_free(evec);
 }
-
-

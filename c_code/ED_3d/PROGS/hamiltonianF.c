@@ -21,14 +21,15 @@ void constFermH(int **H,int size){
    int sign;
    int l1,l2,l3,l4;
    int flag;
+   int nFlip;
 
    int ***stspin;
    int stflux[size][DIM][VOL];
-   
+
    spin = fopen("SPINSTATES","r");
    flux = fopen("FLUXSTATES","r");
- 
-   // the flux variables are written in the order: xy, xz, yz 
+
+   // the flux variables are written in the order: xy, xz, yz
    stspin = allocate3d(size,DIM,VOL);
    for(i=0;i<size;i++){
    for(j=0;j<VOL;j++){
@@ -44,9 +45,12 @@ void constFermH(int **H,int size){
 
    /* Act the hamiltonian state by state to construct the full matrix */
    for(i=0;i<size;i++){
+    // count the number of flippable plaquettes
+    nFlip=0;
     for(j=0;j<VOL;j++){
       /* xy plaquette */
-      if(stflux[i][0][j]!=0){ 
+      if(stflux[i][0][j]!=0){
+        nFlip++;
         /* copy the state */
         q=0;
         for(k=0;k<VOL;k++){
@@ -54,7 +58,7 @@ void constFermH(int **H,int size){
           oldstate[q]   =stspin[i][0][k]; oldstate[q+1] =stspin[i][1][k]; oldstate[q+2] =stspin[i][2][k];
           q=q+3;
         }
-        if(q != 3*VOL){ printf("Error"); exit(0); } 
+        if(q != 3*VOL){ printf("Error"); exit(0); }
         /* act the hamiltonian on the xy plaquette at site j */
         newstate[0][j]=-newstate[0][j];
         newstate[1][j]=-newstate[1][j];
@@ -68,14 +72,15 @@ void constFermH(int **H,int size){
         if((l1==l2)&&(l3==l4)&&(l1!=l4)) flag=1;
         if(flag==0){ printf("Why no xy flip exists? Check! State=%d, site=%d\n",i,j); exit(0); }
         /* find the sign. j is the lattice site, 0=xy plaquette */
-        sign=calc_sign(oldstate, j, 0);  
+        sign=calc_sign(oldstate, j, 0);
         if(p>=0){
           if(H[i][p]!=0){ printf("xy plaq! i=%d, p=%d, H(i,p)=%d \n",i,p,H[i][p]); exit(0);  }
           else            H[i][p]=-sign;  // J = -1
         }
       }
       /* xz plaquette */
-      if(stflux[i][1][j]!=0){  
+      if(stflux[i][1][j]!=0){
+        nFlip++;
         /* copy the state */
         q=0;
         for(k=0;k<VOL;k++){
@@ -83,7 +88,7 @@ void constFermH(int **H,int size){
           oldstate[q]   =stspin[i][0][k]; oldstate[q+1] =stspin[i][1][k]; oldstate[q+2] =stspin[i][2][k];
           q=q+3;
         }
-        if(q!= 3*VOL){ printf("Error"); exit(0); } 
+        if(q!= 3*VOL){ printf("Error"); exit(0); }
         /* act the hamiltonian on the xz plaquette at site j */
         newstate[0][j]=-newstate[0][j];
         newstate[2][j]=-newstate[2][j];
@@ -97,14 +102,15 @@ void constFermH(int **H,int size){
         if((l1==l2)&&(l3==l4)&&(l1!=l4)) flag=1;
         if(flag==0){ printf("Why no xz flip exists? Check! State=%d, site=%d\n",i,j); exit(0); }
         /* find the sign. j is the lattice site, 1=xz plaquette */
-        sign=calc_sign(oldstate, j, 1);  
+        sign=calc_sign(oldstate, j, 1);
         if(p>=0){
           if(H[i][p]!=0){ printf("xz plaq! i=%d, p=%d, H(i,p)=%d \n",i,p,H[i][p]); exit(0); }
           else            H[i][p]=-sign;  // J = -1
         }
       }
       /* yz plaquette */
-      if(stflux[i][2][j]!=0){  
+      if(stflux[i][2][j]!=0){
+        nFlip++;
         /* copy the state */
         q=0;
         for(k=0;k<VOL;k++){
@@ -112,7 +118,7 @@ void constFermH(int **H,int size){
           oldstate[q]   =stspin[i][0][k]; oldstate[q+1] =stspin[i][1][k]; oldstate[q+2] =stspin[i][2][k];
           q=q+3;
         }
-        if(q!= 3*VOL){ printf("Error"); exit(0); } 
+        if(q!= 3*VOL){ printf("Error"); exit(0); }
         /* act the hamiltonian on the yz plaquette at site j */
         newstate[1][j]=-newstate[1][j];
         newstate[2][j]=-newstate[2][j];
@@ -121,25 +127,19 @@ void constFermH(int **H,int size){
         /* compare which state it is */
         p=scan(newstate,stspin,size);
         /* find the sign. j is the lattice site, 2=yz plaquette */
-        sign=calc_sign(oldstate, j, 2);   
+        sign=calc_sign(oldstate, j, 2);
         if(p>=0){
           if(H[i][p]!=0){ printf("yz plaq! i=%d, p=%d, H(i,p)=%d \n",i,p,H[i][p]); exit(0); }
-                      H[i][p]=-sign;   // J = -1  
+                      H[i][p]=-sign;   // J = -1
         }
       }
-   }}
-   
+    }// close loop over volume
+    // diagonal term
+    H[i][i] = lam*nFlip;
+  }
+
    deallocate3d(stspin,size,DIM,VOL);
    printf("Hamiltonian construction done. \n");
-
-   /* Print the Hamiltonian */
-   //ham=fopen("HAMILTONIAN.dat","w");
-   //for(i=0;i<size;i++){
-   //  for(j=0;j<size;j++)
-   //   fprintf(ham,"% d ",H[i][j]);
-   //  fprintf(ham,"\n");
-   //}
-   //fclose(ham);
 
    diagH(H,size);
 
@@ -147,13 +147,13 @@ void constFermH(int **H,int size){
 
 
 /* The arrangment of the plaquette is
-          p3  
+          p3
        o-------o
        |       |
     p4 |       | p2
        |       |
        o-------o
-          p1       
+          p1
  */
 int calc_sign(int oldstate[DIM*VOL], int j, int or){
   int p, sign, count, count1;
@@ -162,7 +162,7 @@ int calc_sign(int oldstate[DIM*VOL], int j, int or){
   sign=1;
   /* collect the links for the relevant plaquette */
   if(or==0){   // xy plaquette
-    p1=3*j; p2=3*next[DIM+1][j]+1; p3=3*next[DIM+2][j]; p4=p1+1; 
+    p1=3*j; p2=3*next[DIM+1][j]+1; p3=3*next[DIM+2][j]; p4=p1+1;
     l1=oldstate[p1]; l2=oldstate[p2]; l3=oldstate[p3]; l4=oldstate[p4];
   }
   else if(or==1){ // xz plaquette

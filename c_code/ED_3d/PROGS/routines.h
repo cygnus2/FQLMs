@@ -11,7 +11,7 @@ void initconf(void);
 void printconf(void);
 int checkconf(void);
 void storeconf(FILE *);
-int checkflux(FILE *,FILE *);
+int checkflux(FILE *);
 int scan(int A[][VOL],int ***B,int);
 int calc_sign(int A[], int, int);
 

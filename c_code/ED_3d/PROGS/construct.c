@@ -9,22 +9,20 @@
 
 void conststates(){
   FILE *fptr,*fptr1;
-  FILE *tfptr,*tfptr1;
   int d,p,dum;
   int count,fluxcount;
   int flagGI, flagFLUX;
   long long int NST,n,k;
+  int wx, wy, wz;
 
   fptr =fopen("FLUXSTATES","w");
   fptr1=fopen("SPINSTATES","w");
-  //tfptr =fopen("TFLUXSTATES","w");
-  //tfptr1=fopen("TSPINSTATES","w");
 
   /* count states */
   NST = pow(2,DIM*VOL);
   count = 0;
   fluxcount = 0;
-  printf("No of states: %lld\n",NST);
+  printf("counting: %lld\n",NST);
   for(n=0;n<NST;n++){
    k=n;
    for(p=0;p<VOL;p++){
@@ -38,9 +36,9 @@ void conststates(){
    flagGI = checkconf();
    count += flagGI;
    if(flagGI){
-   //storeconf(fptr1);
-   flagFLUX = checkflux(fptr,tfptr);
-   /* This option will only store states with non-trivial flux */
+
+   flagFLUX = checkflux(fptr);
+   /* Store states with matching windings */
    if(flagFLUX) storeconf(fptr1);
    //else storeconf(tfptr1);
    fluxcount += flagFLUX;
@@ -51,8 +49,8 @@ void conststates(){
   fclose(fptr1);
   //fclose(tfptr);
   //fclose(tfptr1);
-  printf("No of gauge invariant states: %d\n",count);
-  printf("No of gauge invariant states with non-trivial flux: %d\n",fluxcount);
+  printf("Total GI states: %d\n",count);
+  printf("States in sector (%d,%d,%d) is: %d\n",(int)Wx,(int)Wy,(int)Wz,fluxcount);
 
   /* Initialize */
   N=count;
