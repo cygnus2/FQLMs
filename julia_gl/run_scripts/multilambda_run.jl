@@ -50,10 +50,11 @@ include("../src/hamiltonian_construction.jl")
 # First, try to read the Hamiltonian. If not possible (for whatever reason),
 # cosntruct it.
 hamiltonian = read_hamiltonian(param)
+n_flip_vector = nothing
 if isnothing(hamiltonian)
     # Then, construct the Hamiltonian.
     @info "Setting up Hamiltonian." nthreads = Threads.nthreads() nfock=length(lookup_table)
-    local time = @elapsed hamiltonian = construct_hamiltonian(lookup_table, ilookup_table, latt)
+    local time = @elapsed hamiltonian, n_flip_vector = construct_hamiltonian(lookup_table, ilookup_table, latt)
     @info " **** Done constructing the Hamiltonian. **** " time=time nonzero_entries=length(hamiltonian.data)
 
     if param["store_hamiltonian"]
@@ -85,6 +86,9 @@ end
 # Finally, diagonalize for all lambda values specified.
 for lambda in list_from_param("lambda", param)
     @info "---------- Starting to diagonalize the Hamiltonian. ----------" lambda=lambda
+    if param["full_diag"]
+        @warn "Using full diagonalization!"
+    end
     local time = @elapsed local (ev, est) = diagonalize(hamiltonian, lambda, param)
     @info "Done computing the lower spectrum." time=time spectrum=ev
 
@@ -112,11 +116,39 @@ for lambda in list_from_param("lambda", param)
     )
 
     # ---
+
+    # Compute fidelity susceptibility.
+    # (resolved for energy levels, for later diagnostic - this could be changed)
+    # Note: this only works reliably for non-degenerate ground-states, since
+    # we use the gap as the denominator (from the perturbative expression).
+    if param["compute_fidelity"]
+        if !isnothing(n_flip_vector)
+            @info "Computing fidelity susceptibility."
+            chi_f = zeros(DType, length(ev))
+            hi_psi = n_flip_vector .* est[:,1] # Application of the potential term to the ground state.
+            for k = 2:length(ev)
+                chi_f[k] = dot(est[:,k], hi_psi)^2 / (ev[k] - ev[1])^2
+            end
+
+            store_data(
+                param["result_file"],
+                "susceptibility"*_lambda_tag(lambda),
+                chi_f;
+                attrs=Dict("lambda"=>lambda),
+                overwrite=param["overwrite"],
+                prefix=_nflip_tag(param)
+            )
+        else
+            @error "Fidelity susceptibility couldn't be computed."
+        end
+    end
+    # ---
+
     # Compute some other observables.
     for (op_label, h_op) in hilbert_ops
         evs = [
             expectation_value(h_op, CType.(est[:,k]))
-            for k=1:param["n_eigenvalues"]
+            for k=1:length(ev)
         ]
         @info "Computed $op_label eigenvalues." evs=evs
 

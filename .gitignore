@@ -3,3 +3,4 @@ python_data/
 *.npy
 .pytest_cache
 .ipynb_checkpoints
+parity_troubleshooting/

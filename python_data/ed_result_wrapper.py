@@ -32,6 +32,11 @@ class EDResult(object):
             if isinstance(self.defaults[k], list):
                 self.defaults[k] = tuple(self.defaults[k])
 
+        ignored = ['lambda']
+        for k in ignored:
+            if k in self.defaults:
+                del self.defaults[k]
+
         # Toggle low-energy mode.
         self.le = param.get("low_energy_run")
 

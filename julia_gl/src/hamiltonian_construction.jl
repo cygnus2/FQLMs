@@ -107,6 +107,12 @@ function construct_hamiltonian(
     # Get plaquettes we need to cycle.
     plaquettes = get_plaquettes(latt)
 
+    # This counts the flippable plaquettes, which is essentially the construction
+    # of the diagonal part of the Hamiltonian. This may be useful for later purposes
+    # when opting for the computation of the fidelity susceptibility and related
+    # quantities.
+    n_flip_vector::Array{IType,1} = zeros(IType, length(lookup_table))
+
     # Loop through the list.
     for k=1:length(lookup_table)
         result = do_single_state(LinkType(lookup_table[k]), plaquettes)
@@ -116,8 +122,9 @@ function construct_hamiltonian(
                 push!(row, k)
                 push!(col, i)
                 push!(data, s)
+                n_flip_vector[k] += 1
             end
         end
     end
-    return GaussLatticeHamiltonian(row, col, data, length(lookup_table))
+    return GaussLatticeHamiltonian(row, col, data, length(lookup_table)), n_flip_vector
 end

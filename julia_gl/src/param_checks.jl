@@ -27,6 +27,7 @@ function param_checks!(conf::Dict{Any,Any}; state_run::Bool=false)::Dict{Any,Any
         "n_eigenstates" => 0,
         "ev_type" => "SA",
         "full_diag" => false,
+        "compute_fidelity" => false,
 
         "logfile" => "logfile.log",
         "overwrite" => false,
