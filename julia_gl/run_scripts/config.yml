@@ -13,13 +13,15 @@ overwrite: true
 store_hamiltonian: false # If true, the Hamiltonian will be stored.
 read_hamiltonian: false
 
-gauge_particles : 'fermions' # Either bosons or fermions.
+gauge_particles : 'bosons' # Either bosons or fermions.
 L: [2,2,2] # Spatial extent of the lattice.
-winding_sector: [0,0,-1] # Winding sector to be considered.
+# winding_sector: [0,0,0] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 #
-lambda_range: [-3.0, 1.0, 61]
-# lambda_range: [-3.0, 1.0, 181]
+#lambda_range: [-1.0, 1.0, 31]
+# lambda_range: [-3.0, 1.0, 61]
+lambda: -10.0
+#lambda_range: [0.333333333333333, 1.0, 11]
 # lambda: -1.2
 # lambda_list: [0.5]
 #lambda: -100.0
@@ -28,13 +30,13 @@ observables: ["parity", "unity"]
 
 # ----------------------------------
 # Important for diagonalization.
-full_diag : true # If True, the full matrix is diagonalized - extremely costly.
-n_eigenvalues : 50 # Number of eigenvalues to compute.
-n_eigenstates: 15 # If true, the eigenstates will be exported.
+full_diag : false # If True, the full matrix is diagonalized - extremely costly.
+n_eigenvalues : 30 # Number of eigenvalues to compute.
+n_eigenstates: 1 # If true, the eigenstates will be exported.
 ev_type : 'SA' # ARPACK style specification of the types of eigenvalues. Most likely you want to use 'SA' which gives the lowest algebraic values under consideration of the sign, i.e., the lowest part of the spectrum.
 # max_iter: 1000 # Maximal number of iterations for ARPACK. Should not be touched, but provides a handle just in case.
 #tol: 1e-15 # Numerical tolerance for ARPACK. Defaults to machine precision, but this could lead to problems sometimes.
-compute_fidelity: true # almost needs the full spectrum, only recommended/useful for small systems + full diagonalization
+compute_fidelity: false # almost needs the full spectrum, only recommended/useful for small systems + full diagonalization
 
 #-----------------------------------
 # LE stuff.
