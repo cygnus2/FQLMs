@@ -77,7 +77,8 @@ for op_label in param["observables"]
     local time = @elapsed h_op = construct_operator(
         gl_operators[join(latt.L, "x")][op_label],
         lookup_table,
-        ilookup_table
+        ilookup_table;
+        compute_sign=(param["gauge_particles"]=="fermions")
     )
     hilbert_ops[op_label] = h_op
     @info " *** Constructed $op_label operator." time = time
