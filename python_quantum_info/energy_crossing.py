@@ -33,6 +33,32 @@ def get_overlap_chi_from_result(result):
     return np.array(lambdas), chi, np.array(gs)
 
 
+def find_level_crossing(s1, s2):
+    """ Returns the value of lambda where the level crossing occurs,
+        uses interpolation.
+
+        Attention: Assumes a single crossing (which should be reasonable?).
+    """
+    from scipy.interpolate import interp1d
+    from scipy.optimize import minimize_scalar
+    f1 = interp1d(s1[0], s1[1])
+    f2 = interp1d(s2[0], s2[1])
+
+    eps = 0.0000000
+    x = np.array([np.max([s1[0][0], s2[0][0]]), np.min([s1[0][-1], s2[0][-1]])])
+    x[0] += eps
+    x[1] -= eps
+    print(x)
+
+    if np.sign(f1(x[-1])-f2(x[-1])) ==  np.sign(f1(x[0])-f2(x[0])):
+        return None, (f1, f2)
+
+    mfun = lambda x: np.abs(f1(x) - f2(x))
+    res = minimize_scalar(mfun, args=(), method='bounded', tol=None, bounds=x)
+    return res.x, (f1, f2)
+
+
+
 datasets = {
     (2,2,2) : {
         '$W = [000]$' : [0,0,0],
@@ -71,16 +97,28 @@ with plt.style.context('seaborn'):
             energies.append(gs)
             chis.append(chi)
             ax.plot(
-                lam[:-1], chi,
-                ls=style[latt]['ls'], marker='o',
-                label='L [{:d}{:d}{:d}]'.format(*latt)
+                lam, gs,
+                ls=style[latt]['ls'], marker='.', color='gray', alpha=0.2,
+                label=''
             )
 
-        # ax.plot(lams[0][:-1], chis[0], **style, label='$L=[{:d}{:d}{:d}], W=[000]$'.format(*param['L']))
+        lam_c, (f1, f2) = find_level_crossing((lams[0], energies[0]), (lams[1], energies[1]))
+        xf = np.linspace(-0.5, 0.99, 100)
+        ax.plot(xf, f1(xf), ls='-')
+        ax.plot(xf, f2(xf), ls='-')
+        if lam_c is not None:
+            ax.axvline(lam_c, ls='--', color='black', lw=0.5)
+
+        # if len(energies) > 1:
+        #     # m = energies[0] > energies[1]
+        #     # ax.plot(lam[0][~m], chis[0][~m], **style, label='$L=[{:d}{:d}{:d}], W = [000]$'.format(*param['L']))
+        #     # ax.plot(lams[m], chis[1][m], **style, label='$L=[{:d}{:d}{:d}], W = [001]$'.format(*param['L']))
+        #     ax.plot(lams[0], chis[0], **style[latt], label='$L=[{:d}{:d}{:d}], W=[000]$'.format(*param['L']))
+        # else:
+        #     ax.plot(lams[0], chis[0], **style, label='$L=[{:d}{:d}{:d}], W=[000]$'.format(*param['L']))
 
 
-    ax.set_title(param['gauge_particles'])
-    ax.set_ylim(-0.1, 2)
+    # ax.set_ylim(-0.1, 2)
     ax.set_xlabel("$\\lambda$")
     ax.set_ylabel("$\\chi_{\\rm F}$")
     ax.legend(loc='upper left')
