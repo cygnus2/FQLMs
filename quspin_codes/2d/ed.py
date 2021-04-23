@@ -23,10 +23,13 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
     T_y = x + Lx * ((y + 1) % Ly)  # translation along y-direction
     P_y = (Lx - x - 1) + Lx * y  # reflection about y-axis
     S = -(s + 1)  # fermion spin inversion in the simple case
+    P_xy = (Lx - x - 1) + Lx * (Ly - y - 1) # point reflection about origin
 
     basis = spinful_fermion_basis_general(
-        N_2d,
+        N_2d, pxyblock=(P_xy, 1)
     )
+
+    #print(basis)
 
     hop_right = (
         [[+0.5, i, T_x[i]] for i in range(N_2d)]
@@ -36,6 +39,7 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
         [[-0.5, i, T_x[i]] for i in range(N_2d)]
         + [[-0.5, i, T_y[i]] for i in range(N_2d)]
     )
+    print(hop_right)
 
     pot = [[-U / 2, i] for i in range(N_2d)]  # -\mu \sum_j n_{j \sigma}I
 
@@ -70,4 +74,16 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
         ["n|", mass1],
         ["|n", mass2],
     ]
-    return basis, static_free, static_int, slater_free
+
+    num = [[1, i] for i in range(N_2d)]
+
+    particle_number = [
+        ["n|", num],
+        ["|n", num],
+    ]
+
+    particle_up = [
+        ["n|", num],
+    ]
+
+    return basis, static_free, static_int, slater_free, particle_number, particle_up
