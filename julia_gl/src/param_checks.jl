@@ -195,3 +195,5 @@ function _winding_tag(ws::Array{Int,1}; labels=["x", "y", "z"], latt::Union{Link
     end
     return wtag[begin:end-1]
 end
+
+_winding_tag(ws::Tuple{Int,Int,Int}; labels=["x", "y", "z"], latt::Union{LinkLattice,Nothing}=nothing) = _winding_tag([w for w in ws]; labels=labels, latt=latt)

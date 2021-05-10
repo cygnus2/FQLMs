@@ -39,3 +39,14 @@ function _nflip_tag(param::Dict{Any,Any})::String
     """
     return (param["low_energy_run"] ? "ex"*string(param["maximum_excitation_level"]) : "")
 end
+
+
+
+function log_error(msg::String; init::Bool=false)
+    """ Collects parameter sets where errors occured for later inspection.
+    """
+    mode = init ? "w" : "a"
+    open("error_log.out", mode) do io
+        write(io, msg*"\n")
+    end
+end

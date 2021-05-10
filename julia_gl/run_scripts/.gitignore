@@ -1,3 +1,5 @@
 *.hdf5
 logfile.log
 *.log
+workdir_gl
+error_log.out
