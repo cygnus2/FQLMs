@@ -51,14 +51,15 @@ cycle_ws = setdiff(all_ws, skip_ws)
 
 # Go through the loop.
 @info "===================== starting ws cycle ========================="
-log_error("Diagonalization errors in winding sectors"; init=true)
+log_error(raw_config, "Diagonalization errors in winding sectors"; init=true)
 for ws in cycle_ws
     @info "Winding sector $ws in progress."
     raw_config["winding_sector"] = ws
+    param = copy(raw_config) # Attention: copy is important here!
     try
-        multilambda_cycler(param_checks!(raw_config))
+        multilambda_cycler(param_checks!(param))
     catch LoadError
-        log_error("winding_sector: $ws")
+        log_error(param, "winding_sector: $ws")
         @error "Something went wrong with the diagonalization." ws=ws
     end
 end

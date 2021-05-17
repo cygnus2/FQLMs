@@ -42,11 +42,11 @@ end
 
 
 
-function log_error(msg::String; init::Bool=false)
+function log_error(param::Dict{Any,Any}, msg::String; init::Bool=false)
     """ Collects parameter sets where errors occured for later inspection.
     """
     mode = init ? "w" : "a"
-    open("error_log.out", mode) do io
+    open(param["working_directory"]*"error_log.out", mode) do io
         write(io, msg*"\n")
     end
 end

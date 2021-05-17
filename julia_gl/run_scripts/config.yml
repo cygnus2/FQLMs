@@ -7,15 +7,16 @@
 # ----------------------------------
 # General parameters:
 # working_directory: /home/lukas/_temp_FQLM/
-working_directory: '/home/lukas/_TEMP_fqlm/qinfo/'
+working_directory: '/home/lukas/_TEMP_fqlm/cycler_test/'
+# working_directory: '/home/lukas/_TEMP_fqlm/qinfo/'
 logfile : 'logfile.log' # Logfile to store the output.
 overwrite: true
 store_hamiltonian: false # If true, the Hamiltonian will be stored.
 read_hamiltonian: false
 
-gauge_particles : 'fermions' # Either bosons or fermions.
+gauge_particles : 'bosons' # Either bosons or fermions.
 L: [2,2,2] # Spatial extent of the lattice.
-winding_sector: [0,0,2] # Winding sector to be considered.
+#winding_sector: [0,0,2] # Winding sector to be considered.
 J : -1.0 # J Coupling.
 #
 # lambda_range: [-3.0, 1.0, 61]
@@ -27,7 +28,7 @@ lambda: 0.0
 # lambda_list: [0.5]
 #lambda: -100.0
 # lambda_range : [-3.0, 1.0, 31] # Range that specifies the lambda values to scan (min, max, n_steps)
-observables: ["parity", "unity"]
+#observables: ["parity", "unity"]
 
 # ----------------------------------
 # Important for diagonalization.
