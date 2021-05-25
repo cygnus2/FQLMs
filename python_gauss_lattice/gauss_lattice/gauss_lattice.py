@@ -53,22 +53,25 @@ class GaussLattice(object):
         self.static_charge_indicies = kwargs.get('static_charges', [[],[]])
         self.static_charges = self.make_charge_background(self.static_charge_indicies)
         self.has_charges = any(self.static_charges)
-
-        # Construct the basis vertex for the appro
-        vertex_base = self.find_vertex_base()
-        self.base_elements = [[k] for k in range(len(vertex_base))]
-        assert len(self.base_elements) == math.factorial(2*self.d)/math.factorial(self.d)**2
+        print("static charge background: ", self.static_charges)
 
         # These are the positions of the vertices that belong to the sublattices.
         ind_bs, ind_gls = self.checkerboard_indices()
         assert len(ind_bs) == self.N_sublattice
         assert len(ind_gls) == self.N_sublattice
 
+        # Construct the basis vertex for the lattice / charge configuration.
+        vertex_base = self.find_vertex_base()
+        self.spatial_base_elements = self.create_spatial_base_elements(ind_bs, self.static_charges, vertex_base)
+        for i, bs in enumerate(ind_bs):
+            if self.static_charges[bs] == 0:
+                assert len(self.spatial_base_elements[i]) == math.factorial(2*self.d)/math.factorial(self.d)**2
+
         # Construct the basis vertices on the sublattice A. This reduces the cost
         # for later operation since no arithmetic must be done except for a single
         # lookup.
-        self.lattice_base = self.construct_lattice_basis(ind_bs, vertex_base)
-        assert self.lattice_base.shape == (len(self.base_elements), self.N_sublattice)
+        self.lattice_base = self.construct_lattice_basis(ind_bs, self.static_charges, vertex_base)
+        assert len(self.lattice_base) == len(ind_bs)
 
         # Pre-compute stuff to check the validity of Gauss Law.
         self.mpos, self.mneg = self.create_gls_masks(ind_gls)
@@ -169,7 +172,7 @@ class GaussLattice(object):
         """
         link_state = 0
         for i, bi in enumerate(base_str):
-            link_state += self.lattice_base[bi,i]
+            link_state += self.lattice_base[i][bi]
         return link_state
 
 
@@ -257,51 +260,50 @@ class GaussLattice(object):
 
         # Loops throgh and checks if the GL is valid, if so, adds it to permissible
         # basis states.
-        base = []
+        base = {k:[] for k in range(-d,d+1,1)}
         for vertex in all_vertices:
             s = 0
             for i in range(d):
                 s += (vertex[2*i] - vertex[2*i+1])
-            if not s:
-                base.append(vertex)
+            base[s].append(vertex)
         return base
 
 
-    def construct_lattice_basis(self, lattice_vertices, vertex_base):
+    def create_spatial_base_elements(self, ind_bs, static_charges, vertex_base):
+        """ Creates the basis elements at every specified lattice index in ind_bs.
+            This is required because in the presence of static charges the allowed
+            vertices are not the same for all sites. This is the most basic version
+            which holds an array of allowed vertices for every lattice site - it
+            is also the most general way.
+
+            Notes:
+                -   This is the only place where the internal representation of
+                    the states is defined - change it here and it works differently
+                    (the only thing is that those things need to be able to support
+                    appending by sum, something like a string or a list).
+
+        """
+        spatial_base_elements = []
+        for i, bs in enumerate(ind_bs):
+            spatial_base_elements.append([[k] for k in range(len(vertex_base[static_charges[bs]]))])
+        return spatial_base_elements
+
+
+    def construct_lattice_basis(self, lattice_vertices, static_charges, vertex_base):
         """ Constructs the basis states (which are encoded in the array base) on every
             (sub)lattice site. This has the benefit that periodic boundary conditions are
             directly implemented and the basis states can directly be looked up in a 2D
             array.
 
             Ordering: linear, starting bottom left.
-
-            Parameters:
-                base:
-                    basis states encoded as occupation arrays of the form
-                            [[+x, -x, +y, -y, ...], ...]
-                N:
-                    number of sites in the sublattice.
-                d:
-                    spatial dimension
-
-            Returns:
-                int array of shape (len(base), N) that holds the binary representations of
-                the basis states at the respective (sub)lattice sites.
-
-
-            Note:  currently assumes L^d shaped systems, general systems have yet to be
-                   implemented.
-
         """
-        # Create the array that holds the basis states.
-        bg = np.zeros(shape=(len(vertex_base),len(lattice_vertices)), dtype=np.int)
-        for i, bvert in enumerate(vertex_base):
-            for j, lvert in enumerate(lattice_vertices):
-                # i labels the basis vertex, j the number of the lattice site on a sublattice,
-                # which needs to be converted to the entire lattice.
-                bg[i,j] = self.set_vertex_links(lvert, bvert)
+        bg = []
+        for i, bs in enumerate(lattice_vertices):
+            site_basis = []
+            for bvert in vertex_base[static_charges[bs]]:
+                site_basis.append(self.set_vertex_links(bs, bvert))
+            bg.append(site_basis)
         return bg
-
 
     def create_gls_masks(self, gls):
         """ Returns masks to check the violation of Gauss law. There are two
@@ -401,14 +403,15 @@ class GaussLattice(object):
         """
         # Convert to binary representation.
         latt = self.base_to_link(prefix)
+        l = len(prefix)
 
         # For any system with static charges the condition with the length of the prefix
         # is crucial!
-        if not len(prefix) or self.check_lattice(latt, len(prefix)-1):
-            if not len(prefix)-self.N_sublattice:
+        if not l or self.check_lattice(latt, len(prefix)-1):
+            if not l-self.N_sublattice:
                 self._collect_state(latt)
                 return
-            for b in self.base_elements:
+            for b in self.spatial_base_elements[l]:
                 self._find_states(prefix+b)
             return
         return
