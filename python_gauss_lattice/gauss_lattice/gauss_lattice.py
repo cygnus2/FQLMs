@@ -50,7 +50,9 @@ class GaussLattice(object):
         self.binformat = '{:0'+str(self.N_sublattice*4)+'b}'
 
         # Make the charge background (for GL checks).
-        self.static_charge_indicies = kwargs.get('static_charges', [[],[]])
+        self.static_charge_indicies = [
+            [c-1 for c in clist] for clist in kwargs.get('static_charges', [[],[]])
+        ] # conversion from 1-based notation.
         self.static_charges = self.make_charge_background(self.static_charge_indicies)
         self.has_charges = any(self.static_charges)
         print("static charge background: ", self.static_charges)
@@ -87,9 +89,9 @@ class GaussLattice(object):
             self.winding_bins = np.zeros(shape=(1,),dtype=np.int)
             if self.has_charges:
                 self.ds_label = (
-                    'p-'+"-".join(map(str, self.static_charge_indicies[0])) +
+                    'p-'+"-".join(map(lambda x: str(x+1), self.static_charge_indicies[0])) +
                     "_" +
-                    'n-'+"-".join(map(str, self.static_charge_indicies[1]))
+                    'n-'+"-".join(map(lambda x: str(x+1), self.static_charge_indicies[1]))
                 )
             else:
                 self.ds_label = "all-ws"
@@ -523,14 +525,14 @@ class GaussLattice(object):
     # ==========================================================================
     # I/O stuff.
 
-    def _init_file(self, state_file):
+    def _init_file(self, state_file, append=False):
         """ Sets up the state output.
         """
         self.state_file = self.out_dir + '/' + state_file
         self.output_format = state_file.split('.')[-1]
 
         if self.output_format == 'hdf5':
-            with hdf.File(self.state_file, 'w') as f:
+            with hdf.File(self.state_file, 'a' if append else 'w') as f:
                 # We can loop through all winding number sectors with the product
                 # functions, which is essentially a cartesian product generator.
                 ds_labels = []
