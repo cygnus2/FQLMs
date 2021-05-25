@@ -42,7 +42,8 @@ glatt = GaussLattice(
     L=param['L'],
     static_charges=param.get('static_charges', [[],[]]),
     state_file=state_file,
-    basedir=param['working_directory']
+    basedir=param['working_directory'],
+    append_states=param.get('append_states', False)
 )
 
 # Constructs the states & times the execution.

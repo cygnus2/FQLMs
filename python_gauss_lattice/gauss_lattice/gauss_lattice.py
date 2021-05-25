@@ -97,7 +97,6 @@ class GaussLattice(object):
                 self.ds_label = "all-ws"
 
 
-
         # ----------------------------------------------------------------------
         # Some settings for storage and I/O.
 
@@ -130,7 +129,9 @@ class GaussLattice(object):
             self.buffer = Queue(maxsize=buf_len)
 
             # Initialize the file.
-            self._init_file(state_file)
+            append = kwargs.get('append_states', False)
+            print(append)
+            self._init_file(state_file, append=append)
 
 
     @staticmethod
@@ -544,6 +545,8 @@ class GaussLattice(object):
                     ds_labels = [self.ds_label]
 
                 for ds_label in ds_labels:
+                    if ds_label in f:
+                        del f[ds_label]
                     dset = f.create_dataset(
                         ds_label,
                         (0,),
@@ -593,7 +596,6 @@ class GaussLattice(object):
                     dset = f[ds_tag]
                     dset.resize(dset.shape[0]+len(states), axis=0)
                     dset[-len(states):] = states
-
 
         else:
             # Iterates through the queue and empties it in a FIFO manner.
