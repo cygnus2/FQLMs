@@ -59,7 +59,7 @@ with plt.style.context('seaborn'):
     c = -1
     for latt, winding_sectors in datasets.items():
         param['L'] = latt
-
+ 
         lams, chis, energies = [], [], []
         for label, ws in winding_sectors.items():
             param['winding_sector'] = ws
