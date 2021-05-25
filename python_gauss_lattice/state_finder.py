@@ -38,7 +38,12 @@ param = load_config(args.i)
 
 # Create a GaussLattice with appropriate parameters & stores the states..
 state_file = file_tag(param['L'], filetype='hdf5')
-glatt = GaussLattice(L=param['L'], state_file=state_file, basedir=param['working_directory'])
+glatt = GaussLattice(
+    L=param['L'],
+    static_charges=param.get('static_charges', [[],[]]),
+    state_file=state_file,
+    basedir=param['working_directory']
+)
 
 # Constructs the states & times the execution.
 wn = wrap_state_finder(glatt)
@@ -47,4 +52,5 @@ print(f"Found {wn.sum()} states in total.")
 print(f"Found {wn.max()} states in the largest winding sector.")
 
 # Output.
-write_winding_sectors(param['L'], wn, param['working_directory'])
+if glatt.use_winding:
+    write_winding_sectors(param['L'], wn, param['working_directory'])
