@@ -12,7 +12,7 @@ import h5py as hdf
 from itertools import product
 from queue import Empty, Queue
 from multiprocessing import Pool
-from .aux_stuff import winding_tag
+from .aux_stuff import winding_tag, charge_tag
 import sys
 
 class GaussLattice(object):
@@ -88,11 +88,7 @@ class GaussLattice(object):
         else:
             self.winding_bins = np.zeros(shape=(1,),dtype=np.int)
             if self.has_charges:
-                self.ds_label = (
-                    'p-'+"-".join(map(lambda x: str(x+1), self.static_charge_indicies[0])) +
-                    "_" +
-                    'n-'+"-".join(map(lambda x: str(x+1), self.static_charge_indicies[1]))
-                )
+                self.ds_label = charge_tag(self.static_charge_indicies)
             else:
                 self.ds_label = "all-ws"
 
@@ -442,7 +438,7 @@ class GaussLattice(object):
             self.winding_bins[tuple(w)] += 1
 
             if self.write_states:
-                self.buffer.put([latt] + w.tolist())
+                self.buffer.put([latt] + w)
         else:
             self.winding_bins[0] += 1
             if self.write_states:
@@ -458,11 +454,13 @@ class GaussLattice(object):
             basis-vertex string representation.
         """
         # Compute all Winding numbers.
-        w = np.zeros(self.d, dtype=np.int)
+        w = []
         for i, wm in enumerate(self.winding_masks):
+            winding = 0
             for k in wm:
-                w[i] += (latt >> k)&1
+                winding += (latt >> int(k))&1
             # w[i] = w[i] // self.L[i]
+            w.append(winding)
         return w
 
 

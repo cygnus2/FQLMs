@@ -43,7 +43,7 @@ function multilambda_cycler(param::Dict{Any,Any})
         if param["store_hamiltonian"]
             store_data(
                 param["hamiltonian_file"],
-                param["ws_label"],
+                conf["has_charges"] ? conf["charge_label"] : conf["ws_label"],
                 hcat(hamiltonian.col, hamiltonian.row, hamiltonian.data);
                 overwrite=param["overwrite"],
                 prefix=_nflip_tag(param),

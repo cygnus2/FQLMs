@@ -9,11 +9,12 @@
 # working_directory: 'le_output/' # Directory where everything is stored/loaded.
 #state_file: '../python_data/local_state_storage/winding_states_2x2x4.hdf5'
 #working_directory: /home/lukas/projects/QLMs/FQLMs/python_data/state_symmetries/
-working_directory: /home/lukas/_TEMP_fqlm/
+working_directory: /home/lukas/_JOEL/
 # winding_sector: [0,0]
-L : [2,2,4] # Spatial extent of the lattice.
+L : [4,4] # Spatial extent of the lattice.
 logfile : 'logfile.log' # Logfile to store the output.
 n_threads: 1
+static_charges: [[1], [15]]
 
 # ----------------------------------
 # Important for diagonalization.

@@ -19,6 +19,7 @@ function param_checks!(conf::Dict{Any,Any}; state_run::Bool=false)::Dict{Any,Any
     defaults = Dict(
         "J" => -1.0,
         "winding_sector" => "all-ws",
+        "static_charges" => [[],[]],
 
         "low_energy_run" => false,
         "observables" => [],
@@ -84,6 +85,16 @@ function param_checks!(conf::Dict{Any,Any}; state_run::Bool=false)::Dict{Any,Any
     # Winding sector.
     conf["ws_label"] = conf["winding_sector"] == "all-ws" ? "all-ws" : _winding_tag(conf["winding_sector"], latt=LinkLattice(conf["L"]))
     @info "Set the winding sector label." ws_label=conf["ws_label"]
+
+    # ------------------------------------------------
+    # Charge sector.
+    if length(conf["static_charges"][1]) != length(conf["static_charges"][2])
+        error("Faulty charge configuration specified.")
+    end
+    conf["charge_label"] = _charge_tag(conf["static_charges"])
+    conf["has_charges"] = (length(conf["charge_label"]) != 0)
+    @info "Set the charge sector label." has_charges=conf["has_charges"] charge_label=conf["charge_label"]
+
     # ------------------------------------------------
     # Some stuff for diagonalization.
     if conf["n_eigenstates"] > conf["n_eigenvalues"]
@@ -116,7 +127,6 @@ function param_checks!(conf::Dict{Any,Any}; state_run::Bool=false)::Dict{Any,Any
         @info "Using default file for GL states." state_file = conf["state_file"]
     end
 
-
     if !state_run
 
         # Hamiltonian file.
@@ -138,7 +148,7 @@ function param_checks!(conf::Dict{Any,Any}; state_run::Bool=false)::Dict{Any,Any
                 "/"*(conf["low_energy_run"] ? "le_" : "")*
                 "results_"*
                 conf["gauge_particles"] * "_" *
-                conf["ws_label"] * "_" *
+                (conf["has_charges"] ? conf["charge_label"] : conf["ws_label"]) * "_" *
                 _size_tag(conf["L"]) *
                 ".hdf5"
             )
@@ -197,3 +207,22 @@ function _winding_tag(ws::Array{Int,1}; labels=["x", "y", "z"], latt::Union{Link
 end
 
 _winding_tag(ws::Tuple{Int,Int,Int}; labels=["x", "y", "z"], latt::Union{LinkLattice,Nothing}=nothing) = _winding_tag([w for w in ws]; labels=labels, latt=latt)
+
+
+function _charge_tag(static_charges::Array{Array{Int,1},1})::String
+    charge_tag::String = ""
+
+    labels = ["p", "n"]
+    for i = 1:2
+        if length(static_charges[i]) > 0
+            charge_tag *= "_"*labels[i]
+            for c in static_charges[i]
+                charge_tag *= "-$c"
+            end
+        end
+    end
+    if length(charge_tag) > 0
+        return charge_tag[2:end]
+    end
+    return charge_tag
+end

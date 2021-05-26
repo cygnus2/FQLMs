@@ -26,6 +26,11 @@ class EDResult(object):
         else:
             self.ws_label = 'all-ws'
 
+        if 'static_charges' in param:
+            self.charge_label = EDResult._charge_tag(param['static_charges'])
+        else:
+            self.charge_label = None
+
         # General fields.
         self.defaults = copy(param)
         for k in self.defaults:
@@ -46,10 +51,10 @@ class EDResult(object):
 
         # Datafile.
         if not datafile:
-            self.datafile = datadir+"/{:s}results_{:s}_{:s}_{:d}x{:d}x{:d}.hdf5".format(
+            self.datafile = (datadir+"/{:s}results_{:s}_{:s}_" + ("{:d}x"*len(param["L"]))[:-1] + ".hdf5").format(
                 "le_" if self.le else "",
                 param['gauge_particles'],
-                self.ws_label,
+                self.ws_label if self.charge_label is None else self.charge_label,
                 *param["L"]
             )
         else:
@@ -172,3 +177,12 @@ class EDResult(object):
         else:
             raise NotImplementedError('Dimension not implemented!')
         return ws + shift
+
+
+    @staticmethod
+    def _charge_tag(static_charge_indicies):
+        return (
+            'p-'+"-".join(map(lambda x: str(x), static_charge_indicies[0])) +
+            "_" +
+            'n-'+"-".join(map(lambda x: str(x), static_charge_indicies[1]))
+        )
