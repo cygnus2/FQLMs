@@ -140,7 +140,7 @@ class LatticeObject(object):
         state = 0
         for i in range(self.S[-1]):
             x, y = self.get_2d_indicies(i)
-            state += 2**(3*i)*int(self.vertices[x,y].bit_string())
+            state += 2**(self.d*i)*int(self.vertices[x,y].bit_string())
         return int(state)
 
     def to_bin(self):
