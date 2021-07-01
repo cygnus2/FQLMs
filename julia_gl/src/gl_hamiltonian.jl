@@ -41,17 +41,26 @@ function diagonalize(ham::GaussLatticeHamiltonian, lambda::DType, param::Dict{An
         sparse_ham[diagind(sparse_ham)] = diag
     end
 
+
     # Perform the usual diagonalization.
-    which_map = Dict([
-        ("SA", :SR)
-    ])
-    return eigs(
-        sparse_ham,
-        nev=param["n_eigenvalues"],
-        which=which_map[param["ev_type"]],
-        tol=get(param, "tol", 1e-15),
-        maxiter=get(param, "max_iter", 10*ham.n_fock)
-    )
+    if ham.n_fock > 1
+        if param["full_diag"]
+            F = eigen(Matrix(sparse_ham))
+            return F.values, F.vectors
+        else
+            which_map = Dict([
+                ("SA", :SR)
+            ])
+            return eigs(
+                sparse_ham,
+                nev=param["n_eigenvalues"],
+                which=which_map[param["ev_type"]],
+                tol=get(param, "tol", 1e-15),
+                maxiter=get(param, "max_iter", 10*ham.n_fock)
+            )
+        end
+    end
+    return 0, [0] # This should be correct.
 end
 
 

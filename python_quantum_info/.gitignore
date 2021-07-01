@@ -1,1 +1,5 @@
 data/
+results_dump/
+plots/
+*.pickle
+__pycache__/

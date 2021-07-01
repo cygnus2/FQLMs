@@ -129,6 +129,14 @@ def winding_tag(ws, labels=['x', 'y', 'z'], shift=None):
         wtag += 'w{:s}_{:d}-'.format(labels[k], ws[k])
     return wtag[:-1]
 
+
+def charge_tag(static_charge_indicies):
+    return (
+        'p-'+"-".join(map(lambda x: str(x+1), static_charge_indicies[0])) +
+        "_" +
+        'n-'+"-".join(map(lambda x: str(x+1), static_charge_indicies[1]))
+    )
+
 def _winding_shift(L, ws):
     if len(L) == 2:
         shift = np.array(L[::-1]) // 2

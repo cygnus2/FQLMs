@@ -30,7 +30,11 @@ end
 function _read_states(param::Dict{Any,Any})::Array{LinkType,1}
     """ Reads full winding sectors - should only be called internally [from read_lookup_tables()].
     """
-    if param["ws_label"] == "all-ws"
+    if param["has_charges"]
+        states = h5open(param["state_file"], "r") do file
+            read(file, param["charge_label"])
+        end
+    elseif param["ws_label"] == "all-ws"
         latt =  LinkLattice(param["L"])
         states = Array{LinkState,1}()
         for wsect in winding_sectors(latt)

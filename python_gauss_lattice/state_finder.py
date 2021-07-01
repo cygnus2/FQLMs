@@ -9,17 +9,17 @@ import argparse
 from gauss_lattice import GaussLattice
 from gauss_lattice.aux_stuff import timeit, file_tag, size_tag, winding_sectors, load_config
 
-
-def write_winding_sectors(L, wn, basedir):
-    """ Dirty output function.
-    """
-    filename=basedir+'winding_sectors_' +size_tag(L) + '.dat'
-    with open(filename, 'w') as f:
-        for ws in winding_sectors(L):
-            f.write(
-                ("{:d},"*len(L)).format(*ws) +
-                "{:d}\n".format(wn[ws])
-            )
+#
+# def write_winding_sectors(L, wn, basedir):
+#     """ Dirty output function.
+#     """
+#     filename=basedir+'winding_sectors_' +size_tag(L) + '.dat'
+#     with open(filename, 'w') as f:
+#         for ws in winding_sectors(L):
+#             f.write(
+#                 ("{:d},"*len(L)).format(*ws) +
+#                 "{:d}\n".format(wn[ws])
+#             )
 
 @timeit(logger=None)
 def wrap_state_finder(gl, *args, **kwargs):
@@ -38,13 +38,20 @@ param = load_config(args.i)
 
 # Create a GaussLattice with appropriate parameters & stores the states..
 state_file = file_tag(param['L'], filetype='hdf5')
-glatt = GaussLattice(L=param['L'], state_file=state_file, basedir=param['working_directory'])
+glatt = GaussLattice(
+    L=param['L'],
+    static_charges=param.get('static_charges', [[],[]]),
+    state_file=state_file,
+    basedir=param['working_directory'],
+    append_states=param.get('append_states', False)
+)
 
 # Constructs the states & times the execution.
 wn = wrap_state_finder(glatt)
 
 print(f"Found {wn.sum()} states in total.")
 print(f"Found {wn.max()} states in the largest winding sector.")
-
-# Output.
-write_winding_sectors(param['L'], wn, param['working_directory'])
+#
+# # Output.
+# if glatt.use_winding:
+#     write_winding_sectors(param['L'], wn, param['working_directory'])

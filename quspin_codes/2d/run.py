@@ -3,7 +3,7 @@ from ed import *
 from scipy.sparse import spdiags
 from scipy.sparse.linalg import eigsh
 
-Lx = 4
+Lx = 2
 Ly = 2
 U = 2
 μ = 0
@@ -12,15 +12,15 @@ U = 2
 print("U is ", U)
 print("μ is ", μ)
 
-basis, free, interact, slater_free, particle_number, particle_up = build_basis(Lx, Ly, U=U, μ=μ)
+basis, free, interact, slater_free, particle_number, particle_up, tJ = build_basis(Lx, Ly, U=U, μ=μ)
 
 H0 = hamiltonian(free, [], basis=basis, dtype=np.float64, check_symm=False, check_pcon=False)
-HU = hamiltonian(interact, [], basis=basis, dtype=np.float64, check_symm=False, check_pcon=False)
+HU = hamiltonian(tJ, [], basis=basis, dtype=np.float64, check_symm=False, check_pcon=False)
 Nop = hamiltonian(particle_number, [], basis=basis, dtype=np.float64, check_symm=False, check_pcon=False)
 Nup = hamiltonian(particle_up, [], basis=basis, dtype=np.float64, check_symm=False, check_pcon=False)
 
 
-E, psi0 = (H0 + HU).eigsh(k=1, which="SA", maxiter=1e6)
+E, psi0 = (HU).eigsh(k=1, which="SA", maxiter=1e6)
 print("\nExact E is :\t", E)
 print("\n Lowest state is:\t")
 #print(psi0[:,0])

@@ -12,8 +12,8 @@ import h5py as hdf
 from itertools import product
 from queue import Empty, Queue
 from multiprocessing import Pool
-from .aux_stuff import winding_tag
-
+from .aux_stuff import winding_tag, charge_tag
+import sys
 
 class GaussLattice(object):
     """ Represents a Gauss lattice in arbitrary dimension.
@@ -49,29 +49,48 @@ class GaussLattice(object):
         # Binary string format for debugging purposes.
         self.binformat = '{:0'+str(self.N_sublattice*4)+'b}'
 
-        # Construct the basis vertex for the appro
-        vertex_base = self.find_vertex_base()
-        self.base_elements = [[k] for k in range(len(vertex_base))]
-        assert len(self.base_elements) == math.factorial(2*self.d)/math.factorial(self.d)**2
+        # Make the charge background (for GL checks).
+        self.static_charge_indicies = [
+            [c-1 for c in clist] for clist in kwargs.get('static_charges', [[],[]])
+        ] # conversion from 1-based notation.
+        self.static_charges = self.make_charge_background(self.static_charge_indicies)
+        self.has_charges = any(self.static_charges)
+        print("static charge background: ", self.static_charges)
 
         # These are the positions of the vertices that belong to the sublattices.
         ind_bs, ind_gls = self.checkerboard_indices()
         assert len(ind_bs) == self.N_sublattice
         assert len(ind_gls) == self.N_sublattice
 
+        # Construct the basis vertex for the lattice / charge configuration.
+        vertex_base = self.find_vertex_base()
+        self.spatial_base_elements = self.create_spatial_base_elements(ind_bs, self.static_charges, vertex_base)
+        for i, bs in enumerate(ind_bs):
+            if self.static_charges[bs] == 0:
+                assert len(self.spatial_base_elements[i]) == math.factorial(2*self.d)/math.factorial(self.d)**2
+
         # Construct the basis vertices on the sublattice A. This reduces the cost
         # for later operation since no arithmetic must be done except for a single
         # lookup.
-        self.lattice_base = self.construct_lattice_basis(ind_bs, vertex_base)
-        assert self.lattice_base.shape == (len(self.base_elements), self.N_sublattice)
+        self.lattice_base = self.construct_lattice_basis(ind_bs, self.static_charges, vertex_base)
+        assert len(self.lattice_base) == len(ind_bs)
 
         # Pre-compute stuff to check the validity of Gauss Law.
         self.mpos, self.mneg = self.create_gls_masks(ind_gls)
         self.checkable_gls = self.find_checkable_gls(ind_bs, ind_gls)
         assert len(self.checkable_gls[-1]) == self.N_sublattice
 
+
         # Initialize winding number bins.
-        self.winding_bins, self.winding_masks = self.prepare_winding_numbers()
+        self.use_winding = not self.has_charges
+        if self.use_winding:
+            self.winding_bins, self.winding_masks = self.prepare_winding_numbers()
+        else:
+            self.winding_bins = np.zeros(shape=(1,),dtype=np.int)
+            if self.has_charges:
+                self.ds_label = charge_tag(self.static_charge_indicies)
+            else:
+                self.ds_label = "all-ws"
 
 
         # ----------------------------------------------------------------------
@@ -106,7 +125,9 @@ class GaussLattice(object):
             self.buffer = Queue(maxsize=buf_len)
 
             # Initialize the file.
-            self._init_file(state_file)
+            append = kwargs.get('append_states', False)
+            print(append)
+            self._init_file(state_file, append=append)
 
 
     @staticmethod
@@ -150,9 +171,29 @@ class GaussLattice(object):
         """
         link_state = 0
         for i, bi in enumerate(base_str):
-            link_state += self.lattice_base[bi,i]
+            link_state += self.lattice_base[i][bi]
         return link_state
 
+
+    def make_charge_background(self, charges):
+        """ Creates all local constraints for the GL, including potentially
+            occuring static charges (they change the local constraints on a
+            given vertex).
+        """
+        if len(charges) != 2:
+            raise ValueError("Wrong charge configuration specified.")
+
+        cu, cd = charges
+        if len(cu) != len(cd):
+            raise ValueError("Positive and negative charges need to cancel.")
+
+        # Place the charges on the lattice.
+        gl_constraints = [0]*self.S[-1]
+        for c in cu:
+            gl_constraints[c] = 1
+        for c in cd:
+            gl_constraints[c] = -1
+        return gl_constraints
 
 
     def get_vertex_links(self, i):
@@ -199,7 +240,6 @@ class GaussLattice(object):
         return b
 
 
-
     def find_vertex_base(self):
         """ Returns the basis states which reflect the allowed vertices on the
             d-dimensional lattice that obey the Gauss Law.
@@ -219,52 +259,50 @@ class GaussLattice(object):
 
         # Loops throgh and checks if the GL is valid, if so, adds it to permissible
         # basis states.
-        base = []
+        base = {k:[] for k in range(-d,d+1,1)}
         for vertex in all_vertices:
             s = 0
             for i in range(d):
                 s += (vertex[2*i] - vertex[2*i+1])
-            if not s:
-                base.append(vertex)
+            base[s].append(vertex)
         return base
 
 
-    def construct_lattice_basis(self, lattice_vertices, vertex_base):
+    def create_spatial_base_elements(self, ind_bs, static_charges, vertex_base):
+        """ Creates the basis elements at every specified lattice index in ind_bs.
+            This is required because in the presence of static charges the allowed
+            vertices are not the same for all sites. This is the most basic version
+            which holds an array of allowed vertices for every lattice site - it
+            is also the most general way.
+
+            Notes:
+                -   This is the only place where the internal representation of
+                    the states is defined - change it here and it works differently
+                    (the only thing is that those things need to be able to support
+                    appending by sum, something like a string or a list).
+
+        """
+        spatial_base_elements = []
+        for i, bs in enumerate(ind_bs):
+            spatial_base_elements.append([[k] for k in range(len(vertex_base[static_charges[bs]]))])
+        return spatial_base_elements
+
+
+    def construct_lattice_basis(self, lattice_vertices, static_charges, vertex_base):
         """ Constructs the basis states (which are encoded in the array base) on every
             (sub)lattice site. This has the benefit that periodic boundary conditions are
             directly implemented and the basis states can directly be looked up in a 2D
             array.
 
             Ordering: linear, starting bottom left.
-
-            Parameters:
-                base:
-                    basis states encoded as occupation arrays of the form
-                            [[+x, -x, +y, -y, ...], ...]
-                N:
-                    number of sites in the sublattice.
-                d:
-                    spatial dimension
-
-            Returns:
-                int array of shape (len(base), N) that holds the binary representations of
-                the basis states at the respective (sub)lattice sites.
-
-
-            Note:  currently assumes L^d shaped systems, general systems have yet to be
-                   implemented.
-
         """
-        # Create the array that holds the basis states.
-        bg = np.zeros(shape=(len(vertex_base),len(lattice_vertices)), dtype=np.int)
-        for i, bvert in enumerate(vertex_base):
-            for j, lvert in enumerate(lattice_vertices):
-                # i labels the basis vertex, j the number of the lattice site on a sublattice,
-                # which needs to be converted to the entire lattice.
-                bg[i,j] = self.set_vertex_links(lvert, bvert)
-
+        bg = []
+        for i, bs in enumerate(lattice_vertices):
+            site_basis = []
+            for bvert in vertex_base[static_charges[bs]]:
+                site_basis.append(self.set_vertex_links(bs, bvert))
+            bg.append(site_basis)
         return bg
-
 
     def create_gls_masks(self, gls):
         """ Returns masks to check the violation of Gauss law. There are two
@@ -318,7 +356,7 @@ class GaussLattice(object):
         cstates = []
         latt = 0
         for b in bs:
-            temp = self.set_vertex_links(b, full_vertex)
+            # temp = self.set_vertex_links(b, full_vertex)
             latt += self.set_vertex_links(b, full_vertex)
             states = []
             for g in gls:
@@ -331,17 +369,16 @@ class GaussLattice(object):
         return cstates
 
 
-    def check_lattice(self, latt_str):
+    def check_lattice(self, latt, level):
         """ Checks whether the provided lattice string is valid. Also works on
             partial lattice information, however, only check the "checkable"
             states in this case.
         """
-        # Convert to binary representation.
-        latt = self.base_to_link(latt_str)
-
         # Loop through all checkable sates at this order.
-        for g in self.checkable_gls[len(latt_str)-1]:
-            s = 0
+        for g in self.checkable_gls[level]:
+            # We initialize with the static charge, then add the field lines,
+            # in the end this should add up to 0 for GL to be valid.
+            s = -self.static_charges[g]
 
             # Sum positive contributions.
             platt = latt & self.mpos[g][-1]
@@ -363,11 +400,17 @@ class GaussLattice(object):
         """ Finds all possible states of length L that can be constructed from the base,
             which holds all possible basis states.
         """
-        if self.check_lattice(prefix):
-            if not len(prefix)-self.N_sublattice:
-                self._collect_state(prefix)
+        # Convert to binary representation.
+        latt = self.base_to_link(prefix)
+        l = len(prefix)
+
+        # For any system with static charges the condition with the length of the prefix
+        # is crucial!
+        if not l or self.check_lattice(latt, len(prefix)-1):
+            if not l-self.N_sublattice:
+                self._collect_state(latt)
                 return
-            for b in self.base_elements:
+            for b in self.spatial_base_elements[l]:
                 self._find_states(prefix+b)
             return
         return
@@ -382,8 +425,7 @@ class GaussLattice(object):
         return self.winding_bins
 
 
-
-    def _collect_state(self, state):
+    def _collect_state(self, latt):
         """ Does all the counting and whatever else is needed.
         """
         # Optional output for 3D calculations, so that we see some progress.
@@ -391,28 +433,34 @@ class GaussLattice(object):
         if not s % 100000:
             print(datetime.datetime.now().strftime("%H:%M:%S") + ' - {:d}'.format(s))
 
-        w = self.get_winding_numbers(state)
-        self.winding_bins[tuple(w)] += 1
+        if self.use_winding:
+            w = self.get_winding_numbers(latt)
+            self.winding_bins[tuple(w)] += 1
 
-        if self.write_states:
-            self.buffer.put([self.base_to_link(state)] + w.tolist())
-            if self.buffer.full():
-                self._flush_buffer()
+            if self.write_states:
+                self.buffer.put([latt] + w)
+        else:
+            self.winding_bins[0] += 1
+            if self.write_states:
+                self.buffer.put([latt, self.ds_label])
+
+        # Flush buffer, if full.
+        if self.buffer.full():
+            self._flush_buffer()
 
 
-    def get_winding_numbers(self, latt_str):
+    def get_winding_numbers(self, latt):
         """ Computes the winding numbers for every direction from a state in the
             basis-vertex string representation.
         """
-        # Convert to binary representation.
-        latt = self.base_to_link(latt_str)
-
         # Compute all Winding numbers.
-        w = np.zeros(self.d, dtype=np.int)
+        w = []
         for i, wm in enumerate(self.winding_masks):
+            winding = 0
             for k in wm:
-                w[i] += (latt >> k)&1
+                winding += (latt >> int(k))&1
             # w[i] = w[i] // self.L[i]
+            w.append(winding)
         return w
 
 
@@ -476,20 +524,29 @@ class GaussLattice(object):
     # ==========================================================================
     # I/O stuff.
 
-    def _init_file(self, state_file):
+    def _init_file(self, state_file, append=False):
         """ Sets up the state output.
         """
         self.state_file = self.out_dir + '/' + state_file
         self.output_format = state_file.split('.')[-1]
 
         if self.output_format == 'hdf5':
-            with hdf.File(self.state_file, 'w') as f:
+            with hdf.File(self.state_file, 'a' if append else 'w') as f:
                 # We can loop through all winding number sectors with the product
                 # functions, which is essentially a cartesian product generator.
-                winding_indices = product(*map(lambda n: range(n), self.winding_bins.shape))
-                for ws in winding_indices:
+                ds_labels = []
+                if self.use_winding:
+                    winding_indicies = product(*map(lambda n: range(n), self.winding_bins.shape))
+                    for ws in winding_indicies:
+                        ds_labels.append(winding_tag(ws))
+                else:
+                    ds_labels = [self.ds_label]
+
+                for ds_label in ds_labels:
+                    if ds_label in f:
+                        del f[ds_label]
                     dset = f.create_dataset(
-                        winding_tag(ws),
+                        ds_label,
                         (0,),
                         maxshape=(None,),
                         dtype='i8',
@@ -506,8 +563,13 @@ class GaussLattice(object):
     def _flush_buffer(self):
         """ Writes the buffer to file and clears it.
         """
-        # Writing with the HDF5 format requires some extra work, since we want to also sort it by winding sector. To do this, we need to first sort the corresponding winding sectors and then loop through all of them to append to the file.
-        # We could, alternatively, append to the HDF5 datasets one-by-one, but this will likely increase the overhead in file storage time and disk space significantly (I say that without testing it though).
+        # Writing with the HDF5 format requires some extra work, since we want to
+        # also sort it by winding sector. To do this, we need to first sort the
+        # corresponding winding sectors and then loop through all of them to append
+        # to the file.
+        # We could, alternatively, append to the HDF5 datasets one-by-one, but
+        # this will likely increase the overhead in file storage time and disk
+        # space significantly (I say that without testing it though).
         if self.output_format == 'hdf5':
 
             # Sorting (probably inefficient, but this is a rare task).
@@ -528,10 +590,10 @@ class GaussLattice(object):
             # Write to HDF5 file.
             with hdf.File(self.state_file, 'a') as f:
                 for ws, states in wn_dict.items():
-                    dset = f[winding_tag(ws)]
+                    ds_tag = winding_tag(ws) if self.use_winding else ws[0] # Somewhat dirty hack to make the code work for non-winding sorted stuff as well.
+                    dset = f[ds_tag]
                     dset.resize(dset.shape[0]+len(states), axis=0)
                     dset[-len(states):] = states
-
 
         else:
             # Iterates through the queue and empties it in a FIFO manner.

@@ -15,6 +15,8 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
     Nup = N_2d
     Ndown = N_2d
 
+    J=1.0
+
     s = np.arange(N_2d)  # sites [0,1,2,....]
     x = s % Lx  # x positions for sites
     y = s // Lx  # y positions for sites
@@ -25,8 +27,12 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
     S = -(s + 1)  # fermion spin inversion in the simple case
     P_xy = (Lx - x - 1) + Lx * (Ly - y - 1) # point reflection about origin
 
+    #basis = spinful_fermion_basis_general(
+     #   N_2d, pxyblock=(P_xy, 1)
+    #)
+
     basis = spinful_fermion_basis_general(
-        N_2d, pxyblock=(P_xy, 1)
+        N_2d, double_occupancy=False
     )
 
     #print(basis)
@@ -40,6 +46,39 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
         + [[-0.5, i, T_y[i]] for i in range(N_2d)]
     )
     print(hop_right)
+
+    coupling_1 = (
+        [[-J/2, i, T_x[i]] for i in range(N_2d)]
+        + [[-J/2, i, T_y[i]] for i in range(N_2d)]
+        + [[-J/2, T_x[i], i] for i in range(N_2d)]
+        + [[-J/2, T_y[i], i] for i in range(N_2d)]
+    )
+
+    coupling_2 = (
+        [[J/2, i, i, T_x[i]] for i in range(N_2d)]
+        + [[J/2, i, i, T_y[i]] for i in range(N_2d)]
+        + [[J/2, T_x[i], i, T_x[i]] for i in range(N_2d)]
+        + [[J/2, T_y[i], i, T_y[i]] for i in range(N_2d)]
+    )
+
+    coupling_3 = (
+        [[J/2, i, T_x[i], i] for i in range(N_2d)]
+        + [[J/2, i, T_y[i], i] for i in range(N_2d)]
+        + [[J/2, i, T_x[i], T_x[i]] for i in range(N_2d)]
+        + [[J/2, i, T_y[i], T_y[i]] for i in range(N_2d)]
+    )
+
+    coupling_4 = (
+        [[-J, i, T_x[i], i, T_x[i]] for i in range(N_2d)]
+        + [[-J, i, T_y[i], i, T_y[i]] for i in range(N_2d)]
+    )
+
+    coupling_5 = (
+        [[-J/2, i, T_x[i], T_x[i], i] for i in range(N_2d)]
+        + [[-J/2, i, T_y[i], T_y[i], i] for i in range(N_2d)]
+        + [[-J/2, T_x[i], i, i, T_x[i]] for i in range(N_2d)]
+        + [[-J/2, T_y[i], i, i, T_y[i]] for i in range(N_2d)]
+    )
 
     pot = [[-U / 2, i] for i in range(N_2d)]  # -\mu \sum_j n_{j \sigma}I
 
@@ -86,4 +125,12 @@ def build_basis(Lx, Ly, U=4.0, μ=0):
         ["n|", num],
     ]
 
-    return basis, static_free, static_int, slater_free, particle_number, particle_up
+    tJ = [
+        ["n|n", coupling_1],
+        ["n|nn", coupling_2],
+        ["nn|n", coupling_3],
+        ["nn|nn", coupling_4],
+        ["+-|+-", coupling_5]
+    ]
+
+    return basis, static_free, static_int, slater_free, particle_number, particle_up, tJ
