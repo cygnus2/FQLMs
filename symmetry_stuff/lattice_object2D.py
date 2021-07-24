@@ -297,7 +297,7 @@ class LatticeObject(object):
                 pflips.append(p)
         return pflips
 
-    def draw(self, a=2, axis=None, label=None, plaquettes=True):
+    def draw(self, a=2, axis=None, label=None, plaquettes=True, point_color='#5C60C0', latt2=None):
         """ 3D plot for the current lattice.
         """
         with plt.style.context('seaborn-notebook'):
@@ -308,10 +308,16 @@ class LatticeObject(object):
             else:
                 self.ax = axis
 
+            if latt2 is not None:
+                latt2.ax = self.ax
+
 
             # Draw the actual system.
             self.dlinks = self._draw_2D_lattice()
             points = self._draw_state()
+            if latt2 is not None:
+                latt2.dlinks = self.dlinks
+                points2 = latt2._draw_state(colors=['black', point_color])
 
             # Get flippable plaquettes & color them.
             if plaquettes:
