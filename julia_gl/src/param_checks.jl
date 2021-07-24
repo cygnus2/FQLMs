@@ -209,7 +209,7 @@ end
 _winding_tag(ws::Tuple{Int,Int,Int}; labels=["x", "y", "z"], latt::Union{LinkLattice,Nothing}=nothing) = _winding_tag([w for w in ws]; labels=labels, latt=latt)
 
 
-function _charge_tag(static_charges::Array{Array{Int,1},1})::String
+function _charge_tag(static_charges::Array{Array{Any,1},1})::String
     charge_tag::String = ""
 
     labels = ["p", "n"]
